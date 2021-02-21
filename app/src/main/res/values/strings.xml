@@ -1,0 +1,67 @@
+<resources>
+    <string name="app_name">Legends</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Username</string>
+    <string name="nav_header_subtitle">user.email@web.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+
+    <string name="menu_my_games">My Games</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+    <string name="legends">Legends</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="register">Register</string>
+    <string name="have_an_account"><u>Have an account? Sign In</u></string>
+    <string name="title_activity_sign_up">SignUp</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="remember_me">Remember me</string>
+    <string name="content_description">Create new group session</string>
+    <string name="search_button">Search button</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="enter_username">Enter Username</string>
+    <string name="enter_password">Enter Password</string>
+    <string name="enter_email">Enter Email</string>
+    <string name="sign_in">Sign In</string>
+    <string name="api_key">AIzaSyDCchSvdKfLPE-gRgpMYG41J0h-UW5WVSQ</string>
+    <string name="loading">Loading…</string>
+    <string name="menu_profile">Profile</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="enter_game_name">Enter Game Name</string>
+    <string name="game_type">Game Type</string>
+    <string name="enter_game_type">Enter Game Type</string>
+    <string name="choose_location">Choose Location</string>
+    <string name="set_home"><b>SET HOME</b></string>
+    <string name="set_current_location"><b>SET CURRENT LOCATION</b></string>
+    <string name="location_hiphen">Location:</string>
+    <string name="description_optional">Description (optional)</string>
+    <string name="enter_details_about_your_game">Enter details about your game</string>
+    <string name="max_player_count">Max Player Count</string>
+    <string name="min_player_count">Min Player Count</string>
+    <string name="default_infinite">Default (&#8734;)</string>
+    <string name="default_2">Default (2)</string>
+    <string name="timing_optional">Timing (optional)</string>
+    <string name="set_timing">Set Timing</string>
+    <string name="from"><b>From</b></string>
+    <string name="to"><b>To</b></string>
+    <string name="create_game">Create Game</string>
+    <string-array name="game_types">
+        <item>D&amp;D 5E</item>
+        <item>Call of Cthulhu</item>
+        <item>Cyberpunk 2020</item>
+        <item>Custom</item>
+    </string-array>
+</resources>

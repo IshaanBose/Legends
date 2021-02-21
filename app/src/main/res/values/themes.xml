@@ -1,0 +1,52 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.Legends" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/appbar2</item>
+        <item name="colorPrimaryVariant">#C18A00</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/teal_200</item>
+        <item name="colorSecondaryVariant">@color/teal_700</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">#957000</item>
+        <!-- Customize your theme here. -->
+    </style>
+
+    <style name="Theme.Legends.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.Legends.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Legends.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="Theme.Legends.EditText" parent="Theme.Legends">
+        <item name="colorControlNormal">@color/edittext_underline</item>
+        <item name="colorControlActivated">#E48800</item>
+        <item name="android:textColorHighlight">#43E48800</item>
+    </style>
+
+    <style name="Theme.Legends.ProgressBar" parent="Theme.Legends">
+        <item name="colorAccent">@color/appbar2</item>
+    </style>
+
+    <style name="Theme.Legends.Switch" parent="Widget.AppCompat.CompoundButton.Switch">
+        <item name="colorControlActivated">@color/button_bg</item>
+    </style>
+
+    <style name="Theme.Legends.Fullscreen">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <style name="Theme.AppCompat.Light.NoActionBar.FullScreen" parent="@style/Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+</resources>
