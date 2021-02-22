@@ -1,7 +1,6 @@
 package com.bose.legends;
 
 import androidx.annotation.NonNull;
-import android.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
@@ -34,8 +33,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -43,11 +40,16 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class CreateGame extends AppCompatActivity
 {
@@ -519,7 +521,7 @@ public class CreateGame extends AppCompatActivity
         gameDetails.setGameDescription(game_description.getText().toString());
         gameDetails.setMaxPlayerCount(max_player.getText().toString().length() != 0 ? Integer.parseInt(max_player.getText().toString()) : 999);
         gameDetails.setMinPlayerCount(min_player.getText().toString().length() != 0 ? Integer.parseInt(min_player.getText().toString()) : 2);
-        gameDetails.setGameLocation(currentLocation);
+        gameDetails.setGameLocationFromLocation(currentLocation);
 
         if (enable_timing.isChecked())
         {
@@ -533,9 +535,12 @@ public class CreateGame extends AppCompatActivity
             gameDetails.setToTime(toTime);
         }
 
-        Log.d("xyz", gameDetails.toString());
-
-        writeToFile(ObjectToJSONString.convertToJSONObject(gameDetails));
+//        List<GameDetails> games = new ArrayList<>();
+//        games.add(gameDetails);
+        writeToFile(gameDetails);
+        Log.d("jfs", "Written to file");
+        String s = getJSONStringFromFile();
+        Log.d("jfs", "File contents:\n" + s);
 
 //        FirebaseFirestore db = FirebaseFirestore.getInstance();
 //        DocumentReference docRef = db.collection("games").document();
@@ -600,28 +605,73 @@ public class CreateGame extends AppCompatActivity
 //        });
     }
 
-    private void writeToFile(String data)
+    private void writeToFile(GameDetails gameDetails)
     {
-        try (InputStream inputStream = context.openFileInput("created_games.json"))
+        String filename = mAuth.getUid() + "_created_games.json";
+        File file = getBaseContext().getFileStreamPath(filename);
+        try
         {
             OutputStreamWriter outputStreamWriter;
-            data += "\n";
+            List<GameDetails> games;
 
-            if (inputStream != null)
+            if (file.exists())
             {
-                outputStreamWriter = new OutputStreamWriter(context.openFileOutput("created_games.json", Context.MODE_APPEND));
+                String jsonData = getJSONStringFromFile();
+                Log.d("jfs", "File data before write" + jsonData);
+                games = new ArrayList<>(ObjectToJSONString.convertJSONToGames(jsonData, file));
+                Log.d("jfs", "Game list gotten:\n" + games);
+                games.add(gameDetails);
+                outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
+                Log.d("jfs", "Games list with prev and new data:\n" + games);
+                outputStreamWriter.write(ObjectToJSONString.convertToJSONJacksonAPI(games));
+                Log.d("jfs", "file content immediately after writing\n" + getJSONStringFromFile());
             }
-            else 
+            else
             {
-                outputStreamWriter = new OutputStreamWriter(context.openFileOutput("created_games.json", Context.MODE_PRIVATE));
+                outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
+                games = new ArrayList<>();
+                games.add(gameDetails);
+                outputStreamWriter.write(ObjectToJSONString.convertToJSONJacksonAPI(games));
             }
-
-            outputStreamWriter.write(data);
             outputStreamWriter.close();
+
+            Toast.makeText(context, "File created", Toast.LENGTH_SHORT).show();
         }
         catch (IOException e)
         {
             Log.d("xyz", "File write failed: " + e.toString());
         }
+    }
+
+    private String getJSONStringFromFile()
+    {
+        String filename = mAuth.getUid() + "_created_games.json";
+        File file = getBaseContext().getFileStreamPath(filename);
+
+        try (FileInputStream inputStream = new FileInputStream(file))
+        {
+            Log.d("jfs", "getting json string...");
+            return convertStreamToString(inputStream);
+        }
+        catch (IOException e)
+        {
+            Log.d("xyz", e.getMessage());
+            return null;
+        }
+    }
+
+    public String convertStreamToString(InputStream is) throws IOException
+    {
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+
+        while ((line = reader.readLine()) != null)
+        {
+            sb.append(line).append("\n");
+        }
+        reader.close();
+
+        return sb.toString();
     }
 }

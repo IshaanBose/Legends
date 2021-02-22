@@ -2,6 +2,9 @@ package com.bose.legends;
 
 import org.jetbrains.annotations.NotNull;
 import android.location.Location;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,8 +12,8 @@ public class GameDetails
 {
     private String gameName, gameType, gameDescription, fromTime, toTime, createdBy;
     private List<String> players;
-    private int maxPlayerCount, minPlayerCount;
-    private double[] gameLocation;
+    private int maxPlayerCount, minPlayerCount, playerCount;
+    private List<Double> gameLocation;
 
     public GameDetails()
     {
@@ -29,6 +32,7 @@ public class GameDetails
         this.createdBy = createdBy;
     }
 
+    @JsonIgnore
     public void addPlayer(String playerUID)
     {
         this.players.add(playerUID);
@@ -39,9 +43,19 @@ public class GameDetails
         return players;
     }
 
+    public void setPlayers(List<String> players)
+    {
+        this.players = players;
+    }
+
     public int getPlayerCount()
     {
-        return players.size();
+        return playerCount;
+    }
+
+    public void setPlayerCount(int playerCount)
+    {
+        this.playerCount = playerCount;
     }
 
     public String getGameName()
@@ -94,28 +108,34 @@ public class GameDetails
         this.minPlayerCount = minPlayerCount;
     }
 
-    public double[] getGameLocation()
+    public List<Double> getGameLocation()
     {
         return gameLocation;
     }
 
+    @JsonIgnore
     public Location getGameLocationAsLocation()
     {
         Location loc = new Location("");
-        loc.setLatitude(gameLocation[0]);
-        loc.setLongitude(gameLocation[1]);
+        loc.setLatitude(gameLocation.get(0));
+        loc.setLongitude(gameLocation.get(1));
 
         return loc;
     }
 
-    public void setGameLocation(double[] gameLocation)
+    public void setGameLocation(List<Double> gameLocation)
     {
         this.gameLocation = gameLocation;
     }
 
-    public void setGameLocation(Location location)
+    @JsonIgnore
+    public void setGameLocationFromLocation(Location location)
     {
-        this.gameLocation = new double[]{location.getLatitude(), location.getLongitude()};
+        List<Double> loc = new ArrayList<>();
+        loc.add(location.getLatitude());
+        loc.add(location.getLongitude());
+
+        this.gameLocation = loc;
     }
 
     public String getFromTime()
