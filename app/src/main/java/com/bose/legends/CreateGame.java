@@ -6,6 +6,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Paint;
@@ -33,6 +34,8 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
@@ -48,8 +51,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CreateGame extends AppCompatActivity
 {
@@ -535,74 +539,72 @@ public class CreateGame extends AppCompatActivity
             gameDetails.setToTime(toTime);
         }
 
-//        List<GameDetails> games = new ArrayList<>();
-//        games.add(gameDetails);
         writeToFile(gameDetails);
         Log.d("jfs", "Written to file");
         String s = getJSONStringFromFile();
         Log.d("jfs", "File contents:\n" + s);
 
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//        DocumentReference docRef = db.collection("games").document();
-//
-//        Map<String, Object> details = new HashMap<>();
-//        Map<String, Object> extra_details = new HashMap<>();
-//
-//        details.put("game type", gameDetails.getGameType());
-//        details.put("location", new GeoPoint(gameDetails.getGameLocation().getLatitude(), gameDetails.getGameLocation().getLongitude()));
-//        details.put("from time", gameDetails.getFromTime());
-//        details.put("to time", gameDetails.getToTime());
-//
-//        extra_details.put("created by", gameDetails.getCreatedBy());
-//        extra_details.put("game name", gameDetails.getGameName());
-//        extra_details.put("game description", gameDetails.getGameDescription());
-//        extra_details.put("max player count", gameDetails.getMaxPlayerCount());
-//        extra_details.put("min player count", gameDetails.getMinPlayerCount());
-//        extra_details.put("players", gameDetails.getPlayers());
-//        extra_details.put("player count", gameDetails.getPlayerCount());
-//
-//        final AlertDialog dialog = new BuildAlertMessage().buildAlertIndeterminateProgress(context, true);
-//
-//        docRef.set(details).addOnSuccessListener(new OnSuccessListener<Void>()
-//        {
-//            @Override
-//            public void onSuccess(Void aVoid)
-//            {
-//                Log.d("xyz", "Flag 3");
-//                docRef.collection("details").document("extra details")
-//                        .set(extra_details)
-//                        .addOnSuccessListener(new OnSuccessListener<Void>()
-//                        {
-//                            @Override
-//                            public void onSuccess(Void aVoid)
-//                            {
-//                                Log.d("xyz", "Flag 4");
-//                                dialog.dismiss();
-//                                Toast.makeText(context, "Game created and uploaded!", Toast.LENGTH_SHORT).show();
-//                                context.finish();
-//                            }
-//                        })
-//                        .addOnFailureListener(new OnFailureListener()
-//                        {
-//                            @Override
-//                            public void onFailure(@NonNull Exception e)
-//                            {
-//                                dialog.dismiss();
-//                                Toast.makeText(context, "Something went wrong, try again.", Toast.LENGTH_SHORT).show();
-//                                Log.d("xyz", e.getMessage());
-//                            }
-//                        });
-//            }
-//        }).addOnFailureListener(new OnFailureListener()
-//        {
-//            @Override
-//            public void onFailure(@NonNull Exception e)
-//            {
-//                dialog.dismiss();
-//                Toast.makeText(context, "Something went wrong, try again.", Toast.LENGTH_SHORT).show();
-//                Log.d("xyz", e.getMessage());
-//            }
-//        });
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference docRef = db.collection("games").document();
+
+        Map<String, Object> details = new HashMap<>();
+        Map<String, Object> extra_details = new HashMap<>();
+
+        details.put("game type", gameDetails.getGameType());
+        details.put("location", new GeoPoint(gameDetails.getGameLocationAsLocation().getLatitude(), gameDetails.getGameLocationAsLocation().getLongitude()));
+        details.put("from time", gameDetails.getFromTime());
+        details.put("to time", gameDetails.getToTime());
+
+        extra_details.put("created by", gameDetails.getCreatedBy());
+        extra_details.put("game name", gameDetails.getGameName());
+        extra_details.put("game description", gameDetails.getGameDescription());
+        extra_details.put("max player count", gameDetails.getMaxPlayerCount());
+        extra_details.put("min player count", gameDetails.getMinPlayerCount());
+        extra_details.put("players", gameDetails.getPlayers());
+        extra_details.put("player count", gameDetails.getPlayerCount());
+
+        final AlertDialog dialog = new BuildAlertMessage().buildAlertIndeterminateProgress(context, true);
+
+        docRef.set(details).addOnSuccessListener(new OnSuccessListener<Void>()
+        {
+            @Override
+            public void onSuccess(Void aVoid)
+            {
+                Log.d("xyz", "Flag 3");
+                docRef.collection("details").document("extra details")
+                        .set(extra_details)
+                        .addOnSuccessListener(new OnSuccessListener<Void>()
+                        {
+                            @Override
+                            public void onSuccess(Void aVoid)
+                            {
+                                Log.d("xyz", "Flag 4");
+                                dialog.dismiss();
+                                Toast.makeText(context, "Game created and uploaded!", Toast.LENGTH_SHORT).show();
+                                context.finish();
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener()
+                        {
+                            @Override
+                            public void onFailure(@NonNull Exception e)
+                            {
+                                dialog.dismiss();
+                                Toast.makeText(context, "Something went wrong, try again.", Toast.LENGTH_SHORT).show();
+                                Log.d("xyz", e.getMessage());
+                            }
+                        });
+            }
+        }).addOnFailureListener(new OnFailureListener()
+        {
+            @Override
+            public void onFailure(@NonNull Exception e)
+            {
+                dialog.dismiss();
+                Toast.makeText(context, "Something went wrong, try again.", Toast.LENGTH_SHORT).show();
+                Log.d("xyz", e.getMessage());
+            }
+        });
     }
 
     private void writeToFile(GameDetails gameDetails)
@@ -635,7 +637,7 @@ public class CreateGame extends AppCompatActivity
             }
             outputStreamWriter.close();
 
-            Toast.makeText(context, "File created", Toast.LENGTH_SHORT).show();
+            Log.d("jfs", "File created.");
         }
         catch (IOException e)
         {
@@ -655,7 +657,7 @@ public class CreateGame extends AppCompatActivity
         }
         catch (IOException e)
         {
-            Log.d("xyz", e.getMessage());
+            Log.d("jfs", e.getMessage());
             return null;
         }
     }
