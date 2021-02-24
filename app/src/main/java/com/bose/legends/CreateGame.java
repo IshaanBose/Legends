@@ -27,6 +27,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -57,11 +58,12 @@ import java.util.Map;
 
 public class CreateGame extends AppCompatActivity
 {
-    private EditText game_name, game_type, max_player, min_player;
+    private EditText game_name, game_type, max_player, min_player, repeat_number;
     private Button from_time, to_time;
+    private ToggleButton[] days;
     private TextView game_location, game_description, from_time_value, to_time_value;
-    private Spinner spinner;
-    private SwitchCompat enable_timing;
+    private Spinner game_type_spinner, repeat_spinner;
+    private SwitchCompat enable_timing, schedule_enabled;
     private FusedLocationProviderClient client;
     private Location currentHomeLocation, currentLocation;
     private FirebaseAuth mAuth;
@@ -93,19 +95,23 @@ public class CreateGame extends AppCompatActivity
 
         // EditText
         game_name = findViewById(R.id.game_name); game_type = findViewById(R.id.game_type); max_player = findViewById(R.id.max_player_count);
-        min_player = findViewById(R.id.min_player_count);
+        min_player = findViewById(R.id.min_player_count); repeat_number = findViewById(R.id.repeat_number);
         // Button
         from_time = findViewById(R.id.from_time); to_time = findViewById(R.id.to_time);
         // TextView
         TextView home_location = findViewById(R.id.set_home), current_location = findViewById(R.id.set_current_location), location = findViewById(R.id.location);
+        TextView textView_every = findViewById(R.id.textView_every);
         game_location = findViewById(R.id.game_location); game_description = findViewById(R.id.game_description); from_time_value = findViewById(R.id.from_time_value);
         to_time_value = findViewById(R.id.to_time_value);
         // SwitchCompat
-        enable_timing = findViewById(R.id.timing_enabled);
+        enable_timing = findViewById(R.id.timing_enabled); schedule_enabled = findViewById(R.id.schedule_enabled);
         // Spinner
-        spinner = findViewById(R.id.spinner);
+        game_type_spinner = findViewById(R.id.game_type_spinner); repeat_spinner = findViewById(R.id.repeat_spinner);
 
         int textColor = location.getCurrentTextColor();
+        days = new ToggleButton[]{findViewById(R.id.monday), findViewById(R.id.tuesday),
+                findViewById(R.id.wednesday), findViewById(R.id.thursday), findViewById(R.id.friday),
+                findViewById(R.id.saturday), findViewById(R.id.sunday)};
 
         game_location.setPaintFlags(game_location.getPaintFlags()| Paint.UNDERLINE_TEXT_FLAG);
         game_type.setVisibility(View.GONE);
@@ -180,6 +186,28 @@ public class CreateGame extends AppCompatActivity
             }
         });
 
+        schedule_enabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                if (isChecked)
+                {
+                    for (ToggleButton day : days) day.setEnabled(true);
+                    repeat_number.setEnabled(true);
+                    repeat_spinner.setEnabled(true);
+                    textView_every.setTextColor(textColor);
+                }
+                else
+                {
+                    for (ToggleButton day : days) day.setEnabled(false);
+                    repeat_number.setEnabled(false);
+                    repeat_spinner.setEnabled(false);
+                    textView_every.setTextColor(getResources().getColor(R.color.disabled_text));
+                }
+            }
+        });
+
         max_player.setOnFocusChangeListener(new View.OnFocusChangeListener()
         {
             @Override
@@ -228,8 +256,8 @@ public class CreateGame extends AppCompatActivity
 
         // Spinner configs
         ArrayAdapter <CharSequence> dataAdapter = ArrayAdapter.createFromResource(getApplicationContext(), R.array.game_types, R.layout.spinner_item);
-        spinner.setAdapter(dataAdapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+        game_type_spinner.setAdapter(dataAdapter);
+        game_type_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
         {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
@@ -244,6 +272,10 @@ public class CreateGame extends AppCompatActivity
             public void onNothingSelected(AdapterView<?> parent)
             { }
         });
+
+        dataAdapter = ArrayAdapter.createFromResource(getApplicationContext(), R.array.repeat_times, R.layout.spinner_item);
+        repeat_spinner.setAdapter(dataAdapter);
+        repeat_spinner.setEnabled(false);
     }
 
     @Override
@@ -393,35 +425,29 @@ public class CreateGame extends AppCompatActivity
 
     public static String convertFrom24HourFormat(int hourOfDay, int minute)
     {
-        String am_pm = "am";
+        String ampm = "am";
+        String sHour = "", sMinute = "";
 
-        if (hourOfDay == 0)
-        {
-            hourOfDay = 12;
-            am_pm = "am";
-        }
-        else if (hourOfDay >= 1 && hourOfDay <= 11)
-        {
-            am_pm = "am";
-        }
-        else if (hourOfDay == 12)
-        {
-            am_pm = "pm";
-        }
-        else if (hourOfDay >= 13 && hourOfDay <= 23)
+        // setting am/pm and adjusting hour from 24-hour format
+        if (hourOfDay == 12)
+            ampm = "pm";
+        else if (hourOfDay > 12)
         {
             hourOfDay -= 12;
-            am_pm = "pm";
+            ampm = "pm";
         }
+        else if (hourOfDay == 0)
+            hourOfDay += 12;
 
-        String sHour = String.valueOf(hourOfDay), sMinute = String.valueOf(minute);
-
+        // formatting time
         if (hourOfDay / 10 == 0)
-            sHour = "0" + sHour;
+            sHour = "0";
         if (minute / 10 == 0)
-            sMinute = "0" + sMinute;
+            sMinute = "0";
 
-        return sHour + ":" + sMinute + " " + am_pm;
+        sHour += hourOfDay; sMinute += minute;
+
+        return sHour + ":" + sMinute + " " + ampm;
     }
 
     public static int[] convertTo24HourFormat(String time)
@@ -466,7 +492,7 @@ public class CreateGame extends AppCompatActivity
     public void createGame(View view)
     {
         boolean stop = false;
-        String gameType = spinner.getSelectedItem().toString();
+        String gameType = game_type_spinner.getSelectedItem().toString();
         String errorMessage = "";
 
         if (game_name.getText().toString().length() == 0)
@@ -508,7 +534,30 @@ public class CreateGame extends AppCompatActivity
         if (enable_timing.isChecked() && (from_time_value.getText().toString().length() == 0 || to_time_value.getText().toString().length() == 0))
         {
             stop = true;
-            errorMessage += "Timing is enabled, please set both timings.";
+            errorMessage += "Timing is enabled, please set both timings. ";
+        }
+
+        List<String> selectedDays = new ArrayList<>();
+        String repeat = "Every ";
+
+        if (schedule_enabled.isChecked())
+        {
+            for (ToggleButton day : days)
+                if (day.isChecked())
+                    selectedDays.add(day.getText().toString());
+
+            if (selectedDays.size() == 0)
+            {
+                stop = true;
+                errorMessage += "Schedule enabled, please select at least one day. ";
+            }
+
+            if (repeat_number.getText().toString().length() != 0)
+                repeat += repeat_number.getText().toString();
+            else
+                repeat += 1;
+
+            repeat += " " + repeat_spinner.getSelectedItem().toString();
         }
 
         if (stop)
@@ -526,6 +575,8 @@ public class CreateGame extends AppCompatActivity
         gameDetails.setMaxPlayerCount(max_player.getText().toString().length() != 0 ? Integer.parseInt(max_player.getText().toString()) : 999);
         gameDetails.setMinPlayerCount(min_player.getText().toString().length() != 0 ? Integer.parseInt(min_player.getText().toString()) : 2);
         gameDetails.setGameLocationFromLocation(currentLocation);
+        gameDetails.setSchedule(selectedDays);
+        gameDetails.setRepeat(repeat);
 
         if (enable_timing.isChecked())
         {
@@ -539,13 +590,15 @@ public class CreateGame extends AppCompatActivity
             gameDetails.setToTime(toTime);
         }
 
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference docRef = db.collection("games").document();
+
+        gameDetails.setFirebaseReferenceID(docRef.getId());
+
         writeToFile(gameDetails);
         Log.d("jfs", "Written to file");
         String s = getJSONStringFromFile();
         Log.d("jfs", "File contents:\n" + s);
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference docRef = db.collection("games").document();
 
         Map<String, Object> details = new HashMap<>();
         Map<String, Object> extra_details = new HashMap<>();
@@ -554,6 +607,8 @@ public class CreateGame extends AppCompatActivity
         details.put("location", new GeoPoint(gameDetails.getGameLocationAsLocation().getLatitude(), gameDetails.getGameLocationAsLocation().getLongitude()));
         details.put("from time", gameDetails.getFromTime());
         details.put("to time", gameDetails.getToTime());
+        details.put("repeats", gameDetails.getRepeat());
+        details.put("schedule", gameDetails.getSchedule());
 
         extra_details.put("created by", gameDetails.getCreatedBy());
         extra_details.put("game name", gameDetails.getGameName());
@@ -620,12 +675,19 @@ public class CreateGame extends AppCompatActivity
             {
                 String jsonData = getJSONStringFromFile();
                 Log.d("jfs", "File data before write" + jsonData);
-                games = new ArrayList<>(ObjectToJSONString.convertJSONToGames(jsonData, file));
+                games = LegendsJSONParser.convertJSONToGameDetailsList(jsonData);
+
+                if (games == null)
+                {
+                    Toast.makeText(context, "Couldn't store offline data.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Log.d("jfs", "Game list gotten:\n" + games);
                 games.add(gameDetails);
                 outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
                 Log.d("jfs", "Games list with prev and new data:\n" + games);
-                outputStreamWriter.write(ObjectToJSONString.convertToJSONJacksonAPI(games));
+                outputStreamWriter.write(LegendsJSONParser.convertToJSONJacksonAPI(games));
                 Log.d("jfs", "file content immediately after writing\n" + getJSONStringFromFile());
             }
             else
@@ -633,7 +695,7 @@ public class CreateGame extends AppCompatActivity
                 outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
                 games = new ArrayList<>();
                 games.add(gameDetails);
-                outputStreamWriter.write(ObjectToJSONString.convertToJSONJacksonAPI(games));
+                outputStreamWriter.write(LegendsJSONParser.convertToJSONJacksonAPI(games));
             }
             outputStreamWriter.close();
 
@@ -653,7 +715,7 @@ public class CreateGame extends AppCompatActivity
         try (FileInputStream inputStream = new FileInputStream(file))
         {
             Log.d("jfs", "getting json string...");
-            return convertStreamToString(inputStream);
+            return CreateGame.convertStreamToString(inputStream);
         }
         catch (IOException e)
         {
@@ -662,7 +724,7 @@ public class CreateGame extends AppCompatActivity
         }
     }
 
-    public String convertStreamToString(InputStream is) throws IOException
+    public static String convertStreamToString(InputStream is) throws IOException
     {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();

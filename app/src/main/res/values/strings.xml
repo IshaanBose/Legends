@@ -58,10 +58,37 @@
     <string name="from"><b>From</b></string>
     <string name="to"><b>To</b></string>
     <string name="create_game">Create Game</string>
+    <string name="found_game"><b>Found Games</b></string>
+    <string name="created_games"><b>Created Games</b></string>
+    <string name="game_type_colon">Game Type:</string>
+    <string name="timing_colon">Timing:</string>
+    <string name="days_optional">Days (Optional)</string>
+    <string name="mon">Mon</string>
+    <string name="tue">Tue</string>
+    <string name="wed">Wed</string>
+    <string name="thu">Thu</string>
+    <string name="fri">Fri</string>
+    <string name="sat">Sat</string>
+    <string name="sun">Sun</string>
+    <string name="set_schedule">Set Schedule</string>
+    <string name="every">Every</string>
+    <string name="parenthesis_1">(1)</string>
+    <string name="joined_games"><b>Joined Games</b></string>
+    <string name="players_colon">Players:</string>
+    <string name="backslash">/</string>
+    <string name="word_null">NULL</string>
+    <string name="dnd_5e"><![CDATA[D&D 5E]]></string>
+    <string name="num_1">1</string>
+    <string name="num_999">999</string>
+    <string name="no_created_games">Looks like you haven&#8217;t created any games.<br/>Click on the plus icon to create a new game.</string>
     <string-array name="game_types">
         <item>D&amp;D 5E</item>
         <item>Call of Cthulhu</item>
         <item>Cyberpunk 2020</item>
         <item>Custom</item>
+    </string-array>
+    <string-array name="repeat_times">
+        <item>Week(s)</item>
+        <item>Month(s)</item>
     </string-array>
 </resources>

@@ -25,7 +25,6 @@ import androidx.appcompat.widget.Toolbar;
 
 public class MainActivity extends AppCompatActivity
 {
-
     private AppBarConfiguration mAppBarConfiguration;
     private boolean remember;
     public static String username;
@@ -51,7 +50,7 @@ public class MainActivity extends AppCompatActivity
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_profile, R.id.nav_my_games, R.id.nav_gallery, R.id.nav_slideshow)
+                R.id.nav_profile, R.id.nav_my_games_v2, R.id.nav_gallery, R.id.nav_slideshow)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);

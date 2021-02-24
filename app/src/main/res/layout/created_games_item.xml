@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:orientation="vertical"
+    android:background="?android:attr/selectableItemBackground">
+
+    <TextView
+        android:id="@+id/game_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/enter_game_name"
+        android:textStyle="bold"
+        android:textColor="?attr/colorOnPrimary"
+        android:textSize="18sp"/>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="5dp">
+
+        <TextView
+            android:id="@+id/tv_game_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/game_type_colon"
+            android:textColor="?attr/colorOnPrimary"/>
+
+        <TextView
+            android:id="@+id/game_type"
+            android:layout_width="116dp"
+            android:layout_height="wrap_content"
+            android:text="@string/dnd_5e"
+            android:textColor="?attr/colorOnPrimary"
+            android:paddingLeft="5dp"
+            android:paddingStart="5dp"
+            android:paddingRight="5dp"
+            android:paddingEnd="5dp"/>
+
+        <TextView
+            android:id="@+id/schedule"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewEnd"
+            android:gravity="end"
+            android:text="Mon|Tue|Wed|Thur|Fri|Sat|Sun"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="2dp">
+
+        <TextView
+            android:id="@+id/tv_timing"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/timing_colon"
+            android:textColor="?attr/colorOnPrimary"/>
+
+        <TextView
+            android:id="@+id/timing"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="06:30 pm to 09:30 pm"
+            android:textColor="?attr/colorOnPrimary"
+            android:paddingLeft="5dp"
+            android:paddingStart="5dp"
+            android:paddingRight="5dp"
+            android:paddingEnd="5dp"/>
+
+        <TextView
+            android:id="@+id/repeat"
+            android:layout_width="194dp"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewEnd"
+            android:gravity="end"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="3dp">
+
+        <TextView
+            android:id="@+id/players"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/players_colon"
+            android:textColor="?attr/colorOnPrimary"/>
+
+        <TextView
+            android:id="@+id/current_players"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/num_1"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_marginStart="5dp"
+            android:layout_marginLeft="5dp"/>
+
+        <TextView
+            android:id="@+id/backslash"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/backslash"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_marginStart="3dp"
+            android:layout_marginLeft="3dp"/>
+
+        <TextView
+            android:id="@+id/max_players"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/num_999"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_marginStart="3dp"
+            android:layout_marginLeft="3dp"/>
+
+        <TextView
+            android:id="@+id/game_reference"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

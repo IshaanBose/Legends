@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/nav_my_games">
+    app:startDestination="@+id/nav_my_games_v2">
 
     <fragment
         android:id="@+id/nav_profile"
@@ -12,10 +12,10 @@
         tools:layout="@layout/fragment_profile" />
 
     <fragment
-        android:id="@+id/nav_my_games"
+        android:id="@+id/nav_my_games_v2"
         android:name="com.bose.legends.ui.home.HomeFragment"
-        android:label="@string/menu_my_games"
-        tools:layout="@layout/fragment_home" />
+        android:label="My Games"
+        tools:layout="@layout/fragment_home_v2"/>
 
     <fragment
         android:id="@+id/nav_gallery"

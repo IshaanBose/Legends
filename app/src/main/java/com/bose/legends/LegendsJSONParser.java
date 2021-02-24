@@ -9,10 +9,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ObjectToJSONString
+public class LegendsJSONParser
 {
     public static String convertToJSONJacksonAPI(Object obj)
     {
@@ -28,7 +29,7 @@ public class ObjectToJSONString
         }
     }
 
-    public static List<GameDetails> convertJSONToGames(String json, File file)
+    public static List<GameDetails> convertJSONToGameDetailsList(String json)
     {
         ObjectMapper mapper = new ObjectMapper();
         Log.d("jfs", "Content that was passed:" + json);
@@ -37,7 +38,7 @@ public class ObjectToJSONString
         {
             Log.d("jfs", "convertJSONToGames: object created");
             GameDetails[] gameDetails = mapper.readValue(json, GameDetails[].class);
-            List<GameDetails> games = Arrays.asList(gameDetails);
+            List<GameDetails> games = new ArrayList<>(Arrays.asList(gameDetails));
             Log.d("jfs", "Content of List:\n" + games);
 
             return  games;

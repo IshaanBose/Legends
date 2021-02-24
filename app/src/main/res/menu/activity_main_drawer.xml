@@ -8,7 +8,7 @@
             android:id="@+id/nav_profile"
             android:title="@string/menu_profile" />
         <item
-            android:id="@+id/nav_my_games"
+            android:id="@+id/nav_my_games_v2"
             android:title="@string/menu_my_games" />
         <item
             android:id="@+id/nav_gallery"

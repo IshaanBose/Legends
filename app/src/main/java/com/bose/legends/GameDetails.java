@@ -10,8 +10,8 @@ import java.util.List;
 
 public class GameDetails
 {
-    private String gameName, gameType, gameDescription, fromTime, toTime, createdBy;
-    private List<String> players;
+    private String gameName, gameType, gameDescription, fromTime, toTime, createdBy, repeat, firebaseReferenceID;
+    private List<String> players, schedule;
     private int maxPlayerCount, minPlayerCount, playerCount;
     private List<Double> gameLocation;
 
@@ -36,6 +36,36 @@ public class GameDetails
     public void addPlayer(String playerUID)
     {
         this.players.add(playerUID);
+    }
+
+    public List<String> getSchedule()
+    {
+        return schedule;
+    }
+
+    public void setSchedule(List<String> schedule)
+    {
+        this.schedule = schedule;
+    }
+
+    public String getRepeat()
+    {
+        return repeat;
+    }
+
+    public void setRepeat(String repeat)
+    {
+        this.repeat = repeat;
+    }
+
+    public String getFirebaseReferenceID()
+    {
+        return firebaseReferenceID;
+    }
+
+    public void setFirebaseReferenceID(String firebaseReferenceID)
+    {
+        this.firebaseReferenceID = firebaseReferenceID;
     }
 
     public List<String> getPlayers()
@@ -158,20 +188,24 @@ public class GameDetails
         this.toTime = toTime;
     }
 
-    @NotNull
     @Override
     public String toString()
     {
         return "GameDetails{" +
-                "createdBy='" + createdBy + '\'' +
                 "gameName='" + gameName + '\'' +
                 ", gameType='" + gameType + '\'' +
                 ", gameDescription='" + gameDescription + '\'' +
-                ", maxPlayerCount=" + maxPlayerCount +
-                ", minPlayerCount=" + minPlayerCount +
-                ", gameLocation=" + gameLocation +
                 ", fromTime='" + fromTime + '\'' +
                 ", toTime='" + toTime + '\'' +
+                ", createdBy='" + createdBy + '\'' +
+                ", repeat='" + repeat + '\'' +
+                ", firebaseReferenceID='" + firebaseReferenceID + '\'' +
+                ", players=" + players +
+                ", schedule=" + schedule +
+                ", maxPlayerCount=" + maxPlayerCount +
+                ", minPlayerCount=" + minPlayerCount +
+                ", playerCount=" + playerCount +
+                ", gameLocation=" + gameLocation +
                 '}';
     }
 }
