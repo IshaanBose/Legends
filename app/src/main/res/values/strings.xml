@@ -8,7 +8,7 @@
     <string name="action_settings">Settings</string>
 
     <string name="menu_my_games">My Games</string>
-    <string name="menu_gallery">Gallery</string>
+    <string name="menu_find_game">Find Game</string>
     <string name="menu_slideshow">Slideshow</string>
     <string name="legends">Legends</string>
     <string name="username">Username</string>
@@ -81,6 +81,7 @@
     <string name="num_1">1</string>
     <string name="num_999">999</string>
     <string name="no_created_games">Looks like you haven&#8217;t created any games.<br/>Click on the plus icon to create a new game.</string>
+    <string name="default_find_games">Click on the search icon to find games!</string>
     <string-array name="game_types">
         <item>D&amp;D 5E</item>
         <item>Call of Cthulhu</item>

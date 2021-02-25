@@ -180,7 +180,7 @@ public class SignUp extends AppCompatActivity
 
     public static boolean validatePassword(EditText view, String password)
     {
-        String regexPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@!*#$%^&+=()])(?=\\S+$).{8,}$";
+        String regexPattern = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@!*?#$%^&+=()])(?=\\S+$).{8,}$";
         Pattern pattern = Pattern.compile(regexPattern);
         boolean error = false;
 

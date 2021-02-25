@@ -18,10 +18,10 @@
         tools:layout="@layout/fragment_home_v2"/>
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="com.bose.legends.ui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        android:id="@+id/nav_find_game"
+        android:name="com.bose.legends.ui.find_game.FindGameFragment"
+        android:label="@string/menu_find_game"
+        tools:layout="@layout/fragment_find_game" />
 
     <fragment
         android:id="@+id/nav_slideshow"

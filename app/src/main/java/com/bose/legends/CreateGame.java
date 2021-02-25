@@ -538,7 +538,7 @@ public class CreateGame extends AppCompatActivity
         }
 
         List<String> selectedDays = new ArrayList<>();
-        String repeat = "Every ";
+        String repeat = null;
 
         if (schedule_enabled.isChecked())
         {
@@ -551,6 +551,8 @@ public class CreateGame extends AppCompatActivity
                 stop = true;
                 errorMessage += "Schedule enabled, please select at least one day. ";
             }
+
+            repeat = "Every ";
 
             if (repeat_number.getText().toString().length() != 0)
                 repeat += repeat_number.getText().toString();

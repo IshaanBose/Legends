@@ -32,6 +32,10 @@ public class LegendsJSONParser
     public static List<GameDetails> convertJSONToGameDetailsList(String json)
     {
         ObjectMapper mapper = new ObjectMapper();
+
+        if (json == null)
+            return null;
+
         Log.d("jfs", "Content that was passed:" + json);
 
         try
