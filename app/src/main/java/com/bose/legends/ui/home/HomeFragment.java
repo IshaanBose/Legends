@@ -1,7 +1,6 @@
 package com.bose.legends.ui.home;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -12,8 +11,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,8 +22,6 @@ import com.bose.legends.GameDetails;
 import com.bose.legends.ItemClickSupport;
 import com.bose.legends.LegendsJSONParser;
 import com.bose.legends.R;
-import com.bose.legends.SignUp;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.File;
@@ -32,8 +29,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.content.Context.MODE_PRIVATE;
 
 public class HomeFragment extends Fragment
 {
@@ -46,7 +41,7 @@ public class HomeFragment extends Fragment
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        View root = inflater.inflate(R.layout.fragment_home_v2, container, false);
+        View root = inflater.inflate(R.layout.fragment_home, container, false);
 
         createdGamesList = root.findViewById(R.id.create_games_list);
         createGame = root.findViewById(R.id.createGame);
@@ -164,6 +159,32 @@ public class HomeFragment extends Fragment
                         Toast.makeText(getContext(), details.get(position).getGameName(), Toast.LENGTH_SHORT).show();
                     }
                 }
-        );
+        ).setOnItemLongClickListener(new ItemClickSupport.OnItemLongClickListener()
+        {
+            @Override
+            public boolean onItemLongClicked(RecyclerView recyclerView, int position, View v)
+            {
+                Toast.makeText(getContext(), details.get(position).getGameDescription(), Toast.LENGTH_LONG).show();
+                return false;
+            }
+        });
+
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT)
+        {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target)
+            {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction)
+            {
+                Toast.makeText(getContext(), "Swiped", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(createdGamesList);
     }
 }

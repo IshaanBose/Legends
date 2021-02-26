@@ -56,7 +56,9 @@
     <string name="timing_optional">Timing (optional)</string>
     <string name="set_timing">Set Timing</string>
     <string name="from"><b>From</b></string>
+    <string name="from_colon">From:</string>
     <string name="to"><b>To</b></string>
+    <string name="to_colon">To:</string>
     <string name="create_game">Create Game</string>
     <string name="found_game"><b>Found Games</b></string>
     <string name="created_games"><b>Created Games</b></string>
@@ -80,8 +82,15 @@
     <string name="dnd_5e"><![CDATA[D&D 5E]]></string>
     <string name="num_1">1</string>
     <string name="num_999">999</string>
-    <string name="no_created_games">Looks like you haven&#8217;t created any games.<br/>Click on the plus icon to create a new game.</string>
+    <string name="no_created_games">Looks like you haven&#8217;t created any games. <br/>Click on the plus icon to create a new game.</string>
     <string name="default_find_games">Click on the search icon to find games!</string>
+    <string name="add_filter"><b>ADD FILTER</b></string>
+    <string name="distance_colon">Distance:</string>
+    <string name="parenthesis_2">(2)</string>
+    <string name="km">km</string>
+    <string name="schedule_colon">Schedule:</string>
+    <string name="format_23_59">Format: 23:59</string>
+    <string name="invalid_filter_data">Please fill in proper details for selected filters.</string>
     <string-array name="game_types">
         <item>D&amp;D 5E</item>
         <item>Call of Cthulhu</item>

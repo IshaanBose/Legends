@@ -15,7 +15,7 @@
         android:id="@+id/nav_my_games_v2"
         android:name="com.bose.legends.ui.home.HomeFragment"
         android:label="My Games"
-        tools:layout="@layout/fragment_home_v2"/>
+        tools:layout="@layout/fragment_home"/>
 
     <fragment
         android:id="@+id/nav_find_game"

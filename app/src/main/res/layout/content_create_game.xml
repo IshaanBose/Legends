@@ -81,6 +81,10 @@
             android:text="@string/set_home"
             android:textColor="#E8A600"
             android:textSize="18sp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            android:padding="3dp"
             android:layout_marginTop="8dp"
             android:layout_marginLeft="35dp"
             android:layout_marginStart="35dp"/>
@@ -92,6 +96,10 @@
             android:text="@string/set_current_location"
             android:textColor="#E8A600"
             android:textSize="18sp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            android:padding="3dp"
             android:layout_marginLeft="35dp"
             android:layout_marginStart="35dp" />
 

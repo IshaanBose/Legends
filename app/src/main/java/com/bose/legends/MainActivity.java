@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
-
 import androidx.annotation.NonNull;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -21,9 +20,12 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity
 {
     private AppBarConfiguration mAppBarConfiguration;
+    private FirebaseAuth mAuth;
     private boolean remember;
     public static String username;
     public static String email;
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity
         username = pref.getString("username", "<NIL>");
         email = pref.getString("email", "<NIL>");
         remember = pref.getBoolean("remember", false);
+        mAuth = FirebaseAuth.getInstance();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -83,7 +86,13 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
         if (R.id.action_settings == item.getItemId())
+        {
             Toast.makeText(getApplicationContext(), "Uh oh no settings", Toast.LENGTH_SHORT).show();
+            String dir = getFilesDir().getAbsolutePath();
+            File file = new File(dir, mAuth.getUid() + "_created_games.json");
+            boolean deleted = file.delete();
+            Log.d("xyz", String.valueOf(deleted));
+        }
 
         return super.onOptionsItemSelected(item);
     }

@@ -29,6 +29,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import com.firebase.geofire.GeoFireUtils;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -39,11 +41,11 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -602,6 +604,9 @@ public class CreateGame extends AppCompatActivity
         String s = getJSONStringFromFile();
         Log.d("jfs", "File contents:\n" + s);
 
+        String hash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(gameDetails.getGameLocationAsLocation().getLatitude(),
+                gameDetails.getGameLocationAsLocation().getLongitude()));
+
         Map<String, Object> details = new HashMap<>();
         Map<String, Object> extra_details = new HashMap<>();
 
@@ -611,6 +616,7 @@ public class CreateGame extends AppCompatActivity
         details.put("to time", gameDetails.getToTime());
         details.put("repeats", gameDetails.getRepeat());
         details.put("schedule", gameDetails.getSchedule());
+        details.put("hash", hash);
 
         extra_details.put("created by", gameDetails.getCreatedBy());
         extra_details.put("game name", gameDetails.getGameName());
@@ -619,6 +625,9 @@ public class CreateGame extends AppCompatActivity
         extra_details.put("min player count", gameDetails.getMinPlayerCount());
         extra_details.put("players", gameDetails.getPlayers());
         extra_details.put("player count", gameDetails.getPlayerCount());
+
+        Log.d("xyz", gameDetails.toString());
+
 
         final AlertDialog dialog = new BuildAlertMessage().buildAlertIndeterminateProgress(context, true);
 

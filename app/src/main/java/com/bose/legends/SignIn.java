@@ -49,9 +49,7 @@ public class SignIn extends AppCompatActivity
             public void onFocusChange(View v, boolean hasFocus)
             {
                 if (!hasFocus)
-                {
                     SignUp.validateEmail(email, email.getText().toString());
-                }
             }
         });
 
@@ -60,7 +58,8 @@ public class SignIn extends AppCompatActivity
             @Override
             public void onFocusChange(View v, boolean hasFocus)
             {
-                SignUp.validatePassword(password, password.getText().toString());
+                if (!hasFocus)
+                    SignUp.validatePassword(password, password.getText().toString());
             }
         });
     }
