@@ -183,6 +183,14 @@
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/find_game_time_hint"
+            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"/>
+
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -190,7 +198,7 @@
         android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         android:orientation="vertical">
 
         <androidx.appcompat.widget.LinearLayoutCompat
@@ -230,6 +238,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="M"
+                android:hint="@string/mon"
                 app:buttonTint="@color/black"
                 android:scaleX="0.8"
                 android:scaleY="0.8"/>
@@ -239,6 +248,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Tu"
+                android:hint="@string/tue"
                 app:buttonTint="@color/black"
                 android:scaleX="0.8"
                 android:scaleY="0.8"/>
@@ -248,6 +258,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="W"
+                android:hint="@string/wed"
                 app:buttonTint="@color/black"
                 android:scaleX="0.8"
                 android:scaleY="0.8"/>
@@ -257,6 +268,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Th"
+                android:hint="@string/thu"
                 app:buttonTint="@color/black"
                 android:scaleX="0.8"
                 android:scaleY="0.8"/>
@@ -266,6 +278,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="F"
+                android:hint="@string/fri"
                 app:buttonTint="@color/black"
                 android:scaleX="0.8"
                 android:scaleY="0.8"/>
@@ -275,6 +288,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Sa"
+                android:hint="@string/sat"
                 app:buttonTint="@color/black"
                 android:scaleX="0.8"
                 android:scaleY="0.8"/>
@@ -284,6 +298,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Su"
+                android:hint="@string/sun"
                 app:buttonTint="@color/black"
                 android:scaleX="0.8"
                 android:scaleY="0.8"/>

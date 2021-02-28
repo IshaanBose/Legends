@@ -452,9 +452,9 @@ public class CreateGame extends AppCompatActivity
         return sHour + ":" + sMinute + " " + ampm;
     }
 
-    public static int[] convertTo24HourFormat(String time)
+    public static String convertTo24HourFormat(String time)
     {
-        int [] intTime = new int[2];
+        String sHour = "", sMinute = "";
 
         String am_pm = time.split(" ")[1];
         int hour = Integer.parseInt(time.split(":")[0]);
@@ -469,9 +469,14 @@ public class CreateGame extends AppCompatActivity
             hour += 12;
         }
 
-        intTime[0] = hour; intTime[1] = minute;
+        if (hour / 10 == 0)
+            sHour = "0";
+        if (minute / 10 == 0)
+            sMinute = "0";
 
-        return intTime;
+        sHour += hour; sMinute += minute;
+
+        return sHour + ":" + sMinute;
     }
 
     public void setTime(int hourOfDay, int minute, byte button)
@@ -584,11 +589,8 @@ public class CreateGame extends AppCompatActivity
 
         if (enable_timing.isChecked())
         {
-            int [] fromTimeVals = CreateGame.convertTo24HourFormat(from_time_value.getText().toString());
-            int [] toTimeVals = CreateGame.convertTo24HourFormat(to_time_value.getText().toString());
-
-            String fromTime = fromTimeVals[0] + ":" + fromTimeVals[1];
-            String toTime = toTimeVals[0] + ":" + toTimeVals[1];
+            String fromTime = CreateGame.convertTo24HourFormat(from_time_value.getText().toString());
+            String toTime = CreateGame.convertTo24HourFormat(to_time_value.getText().toString());
 
             gameDetails.setFromTime(fromTime);
             gameDetails.setToTime(toTime);
@@ -608,26 +610,23 @@ public class CreateGame extends AppCompatActivity
                 gameDetails.getGameLocationAsLocation().getLongitude()));
 
         Map<String, Object> details = new HashMap<>();
-        Map<String, Object> extra_details = new HashMap<>();
 
-        details.put("game type", gameDetails.getGameType());
+        details.put("game_name", gameDetails.getGameName());
+        details.put("created_by", gameDetails.getCreatedBy());
+        details.put("game_type", gameDetails.getGameType());
         details.put("location", new GeoPoint(gameDetails.getGameLocationAsLocation().getLatitude(), gameDetails.getGameLocationAsLocation().getLongitude()));
-        details.put("from time", gameDetails.getFromTime());
-        details.put("to time", gameDetails.getToTime());
+        details.put("from_time", gameDetails.getFromTime());
+        details.put("to_time", gameDetails.getToTime());
         details.put("repeats", gameDetails.getRepeat());
         details.put("schedule", gameDetails.getSchedule());
         details.put("hash", hash);
-
-        extra_details.put("created by", gameDetails.getCreatedBy());
-        extra_details.put("game name", gameDetails.getGameName());
-        extra_details.put("game description", gameDetails.getGameDescription());
-        extra_details.put("max player count", gameDetails.getMaxPlayerCount());
-        extra_details.put("min player count", gameDetails.getMinPlayerCount());
-        extra_details.put("players", gameDetails.getPlayers());
-        extra_details.put("player count", gameDetails.getPlayerCount());
+        details.put("game_description", gameDetails.getGameDescription());
+        details.put("max_player_count", gameDetails.getMaxPlayerCount());
+        details.put("min_player_count", gameDetails.getMinPlayerCount());
+        details.put("players", gameDetails.getPlayers());
+        details.put("player_count", gameDetails.getPlayerCount());
 
         Log.d("xyz", gameDetails.toString());
-
 
         final AlertDialog dialog = new BuildAlertMessage().buildAlertIndeterminateProgress(context, true);
 
@@ -637,29 +636,9 @@ public class CreateGame extends AppCompatActivity
             public void onSuccess(Void aVoid)
             {
                 Log.d("xyz", "Flag 3");
-                docRef.collection("details").document("extra details")
-                        .set(extra_details)
-                        .addOnSuccessListener(new OnSuccessListener<Void>()
-                        {
-                            @Override
-                            public void onSuccess(Void aVoid)
-                            {
-                                Log.d("xyz", "Flag 4");
-                                dialog.dismiss();
-                                Toast.makeText(context, "Game created and uploaded!", Toast.LENGTH_SHORT).show();
-                                context.finish();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener()
-                        {
-                            @Override
-                            public void onFailure(@NonNull Exception e)
-                            {
-                                dialog.dismiss();
-                                Toast.makeText(context, "Something went wrong, try again.", Toast.LENGTH_SHORT).show();
-                                Log.d("xyz", e.getMessage());
-                            }
-                        });
+                dialog.dismiss();
+                Toast.makeText(context, "Game created and uploaded!", Toast.LENGTH_SHORT).show();
+                context.finish();
             }
         }).addOnFailureListener(new OnFailureListener()
         {

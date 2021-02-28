@@ -30,7 +30,7 @@ public class CreatedGamesAdapter extends RecyclerView.Adapter<CreatedGamesAdapte
             super(view);
 
             // TextViews
-            game_name = (TextView) view.findViewById(R.id.game_name); tv_game_type = view.findViewById(R.id.tv_game_type);
+            game_name = view.findViewById(R.id.game_name); tv_game_type = view.findViewById(R.id.tv_game_type);
             game_type = view.findViewById(R.id.game_type); schedule = view.findViewById(R.id.schedule);
             tv_timing = view.findViewById(R.id.tv_timing); timing = view.findViewById(R.id.timing);
             repeat = view.findViewById(R.id.repeat); players = view.findViewById(R.id.players);

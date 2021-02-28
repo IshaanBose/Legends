@@ -91,6 +91,7 @@
     <string name="schedule_colon">Schedule:</string>
     <string name="format_23_59">Format: 23:59</string>
     <string name="invalid_filter_data">Please fill in proper details for selected filters.</string>
+    <string name="find_game_time_hint">At least one field must be filled</string>
     <string-array name="game_types">
         <item>D&amp;D 5E</item>
         <item>Call of Cthulhu</item>

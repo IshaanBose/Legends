@@ -22,7 +22,8 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/api_key" />
 
-        <activity android:name=".MapsActivityCurrentPlace" />
+        <activity android:name=".MapsActivityCurrentPlace"
+            android:theme="@style/Theme.Legends.Maps"/>
 
         <activity
             android:name=".CreateGame"

@@ -17,13 +17,13 @@ import java.util.regex.Pattern;
 
 public class ConfigFindGameFilterAlert
 {
-    Context context;
-    List<String> filters;
-    ArrayAdapter adapter;
-    Spinner filtersSpinner, gameTypeSpinner;
-    HashMap<String, Object> filterData;
-    EditText distance, toTime, fromTime, customGameType;
-    CheckBox [] days;
+    private final Context context;
+    private List<String> filters;
+    private ArrayAdapter adapter;
+    private final Spinner filtersSpinner, gameTypeSpinner;
+    private HashMap<String, Object> filterData;
+    private final EditText distance, toTime, fromTime, customGameType;
+    private CheckBox [] days;
 
     public ConfigFindGameFilterAlert(Context context, View root)
     {
@@ -195,12 +195,6 @@ public class ConfigFindGameFilterAlert
 
     public boolean validateTimeFormat(String time, EditText view)
     {
-        if (time.length() == 0)
-        {
-            view.setError("Cannot be empty");
-            return false;
-        }
-
         String regexPattern = "([01]?[0-9]|2[0-3]):[0-5][0-9]";
         Pattern pattern = Pattern.compile(regexPattern);
         Matcher matcher = pattern.matcher(time);
@@ -228,13 +222,25 @@ public class ConfigFindGameFilterAlert
 
         if (!filters.contains("Timing"))
         {
-            if (fromTime.getText().toString().length() == 0 || toTime.getText().toString().length() == 0
-                || !validateTimeFormat(fromTime.getText().toString(), fromTime) || !validateTimeFormat(toTime.getText().toString(), toTime))
+            if (fromTime.getText().toString().length() == 0 && toTime.getText().toString().length() == 0)
                 valid = false;
             else
             {
-                filterData.put("from time", fromTime.getText().toString());
-                filterData.put("to time", toTime.getText().toString());
+                if (fromTime.getText().toString().length() != 0)
+                {
+                    if (validateTimeFormat(fromTime.getText().toString(), fromTime))
+                        filterData.put("from time", fromTime.getText().toString());
+                    else
+                        valid = false;
+                }
+
+                if (toTime.getText().toString().length() != 0)
+                {
+                    if (validateTimeFormat(toTime.getText().toString(), toTime))
+                        filterData.put("to time", toTime.getText().toString());
+                    else
+                        valid = false;
+                }
             }
         }
 
@@ -248,14 +254,14 @@ public class ConfigFindGameFilterAlert
                 if (chk.isChecked())
                 {
                     checked = true;
-                    daysSelected.add(chk.getText().toString());
+                    daysSelected.add(chk.getHint().toString());
                 }
             }
 
             if (!checked)
                 valid = false;
             else
-                filterData.put("days", daysSelected);
+                filterData.put("schedule", daysSelected);
         }
 
         if (distance.getText().toString().length() == 0)
@@ -264,5 +270,10 @@ public class ConfigFindGameFilterAlert
             filterData.put("distance", Double.parseDouble(distance.getText().toString()));
 
         return valid;
+    }
+
+    public HashMap<String, Object> getFilterData()
+    {
+        return filterData;
     }
 }
