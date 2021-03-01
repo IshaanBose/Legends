@@ -6,14 +6,34 @@
     android:orientation="vertical"
     android:background="?android:attr/selectableItemBackground">
 
-    <TextView
-        android:id="@+id/game_name"
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/enter_game_name"
-        android:textStyle="bold"
-        android:textColor="?attr/colorOnPrimary"
-        android:textSize="18sp"/>
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/game_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/enter_game_name"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnPrimary"
+            android:textSize="18sp"/>
+
+        <TextView
+            android:id="@+id/created_by"
+            android:layout_width="246dp"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnPrimary"
+            android:textAlignment="viewEnd"
+            android:gravity="end"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:visibility="gone"
+            android:text="Created By: Ishaan Bose"
+            android:paddingLeft="20dp"
+            android:paddingStart="20dp"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
@@ -127,6 +147,39 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:id="@+id/distance_holder"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingTop="3dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnPrimary"
+            android:text="@string/distance_colon"/>
+
+        <TextView
+            android:id="@+id/distance_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnPrimary"
+            android:text="99.9"
+            android:layout_marginStart="5dp"
+            android:layout_marginLeft="5dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnPrimary"
+            android:text="@string/km"
+            android:layout_marginStart="3dp"
+            android:layout_marginLeft="3dp"/>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 

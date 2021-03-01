@@ -12,11 +12,9 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
 import com.bose.legends.BuildAlertMessage;
 import com.bose.legends.ConfigFindGameFilterAlert;
-import com.bose.legends.FindGamesFromFilters;
+import com.bose.legends.FoundGameDetails;
 import com.bose.legends.GameDetails;
 import com.bose.legends.R;
 import com.firebase.geofire.GeoFireUtils;
@@ -43,6 +41,7 @@ import java.util.List;
 public class FindGameFragment extends Fragment
 {
     private AlertDialog loading;
+    private List<FoundGameDetails> foundGames;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -50,6 +49,7 @@ public class FindGameFragment extends Fragment
 
         Context context = getContext();
         loading = new BuildAlertMessage().buildAlertIndeterminateProgress(context, false);
+        foundGames = new ArrayList<>();
 
         ImageView findGames = root.findViewById(R.id.find_games);
 
@@ -68,7 +68,7 @@ public class FindGameFragment extends Fragment
     class FindGamesFromFilters
     {
         private final HashMap<String, Object> filterData;
-        private final List<GameDetails> games;
+        private final List<FoundGameDetails> games;
         private final FirebaseFirestore db;
         private final FirebaseAuth mAuth;
 
@@ -145,6 +145,16 @@ public class FindGameFragment extends Fragment
                                     if (docIDs.contains(doc.getId()) || doc.get("created_by").equals(mAuth.getUid()))
                                         continue;
 
+                                    List<String> days = (List<String>) doc.get("schedule");
+
+                                    if (filterData.containsKey("schedule"))
+                                    {
+                                        List<String> filterDays = (List<String>) filterData.get("schedule");
+
+                                        if (!filterDays.equals(days))
+                                            continue;
+                                    }
+
                                     GeoPoint loc = doc.getGeoPoint("location");
 
                                     GeoLocation docLocation = new GeoLocation(loc.getLatitude(), loc.getLongitude());
@@ -165,27 +175,43 @@ public class FindGameFragment extends Fragment
                                 }
                             }
 
-                            setFoundGames(matchingDocs);
+                            setFoundGames(matchingDocs, userLocation);
                         }
                     });
         }
 
-        private void setFoundGames(List<DocumentSnapshot> docs)
+        private void setFoundGames(List<DocumentSnapshot> docs, GeoPoint userLocation)
         {
-            List<GameDetails> foundGames = new ArrayList<>();
+            List<FoundGameDetails> foundGames = new ArrayList<>();
             Log.d("find", docs.size() + "");
 
             if (docs.size() != 0)
             {
                 for (DocumentSnapshot doc : docs)
                 {
-                    GameDetails details = new GameDetails();
+                    FoundGameDetails details = new FoundGameDetails();
 
                     details.setFirebaseReferenceID(doc.getId());
                     details.setGameName(doc.getString("game_name"));
                     details.setGameType(doc.getString("game_type"));
                     details.setRepeat(doc.getString("repeats"));
-//                details.setSchedule((List<String>) doc.get("schedule"));
+                    details.setSchedule((List<String>) doc.get("schedule"));
+                    details.setGameDescription(doc.getString("game_description"));
+                    details.setCreatedBy(doc.getString("created_by"));
+                    details.setFromTime(doc.getString("from_time"));
+                    details.setToTime(doc.getString("to_time"));
+                    details.setMaxPlayerCount(doc.getLong("max_player_count").intValue());
+                    details.setMinPlayerCount(doc.getLong("min_player_count").intValue());
+                    details.setPlayerCount(doc.getLong("player_count").intValue());
+                    details.setPlayers((List<String>) doc.get("players"));
+
+                    GeoPoint loc = doc.getGeoPoint("location");
+                    GeoLocation docLocation = new GeoLocation(loc.getLatitude(), loc.getLongitude());
+
+                    GeodesicData data = Geodesic.WGS84.Inverse(userLocation.getLatitude(), userLocation.getLongitude(),
+                            docLocation.latitude, docLocation.longitude, GeodesicMask.DISTANCE);
+
+                    details.setDistance(data.s12);
 
                     foundGames.add(details);
                 }
@@ -248,11 +274,11 @@ public class FindGameFragment extends Fragment
                 });
     }
 
-    private void showGames(List<GameDetails> games)
+    private void showGames(List<FoundGameDetails> games)
     {
         Log.d("find", "hey there");
 
-        for (GameDetails game : games)
+        for (FoundGameDetails game : games)
         {
             Log.d("find", game.getGameName());
             Log.d("find", game.getGameType());

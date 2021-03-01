@@ -6,15 +6,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.recyclerview.widget.RecyclerView;
 import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
-public class CreatedGamesAdapter extends RecyclerView.Adapter<CreatedGamesAdapter.ViewHolder>
+public class FoundGamesAdapter extends RecyclerView.Adapter<FoundGamesAdapter.ViewHolder>
 {
-
-    private List<GameDetails> localDataSet;
+    private final List<FoundGameDetails> localDataSet;
 
     /**
      * Provide a reference to the type of views that you are using
@@ -22,7 +20,8 @@ public class CreatedGamesAdapter extends RecyclerView.Adapter<CreatedGamesAdapte
      */
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
-        private final TextView game_name, game_type, schedule, timing, repeat, current_players, max_players, game_reference;
+        private final TextView game_name, game_type, schedule, timing, repeat, current_players, max_players, game_reference,
+                created_by, distance_value;
 
         public ViewHolder(View view)
         {
@@ -32,6 +31,11 @@ public class CreatedGamesAdapter extends RecyclerView.Adapter<CreatedGamesAdapte
             game_name = view.findViewById(R.id.game_name); game_type = view.findViewById(R.id.game_type); schedule = view.findViewById(R.id.schedule);
             timing = view.findViewById(R.id.timing); repeat = view.findViewById(R.id.repeat); current_players = view.findViewById(R.id.current_players);
             max_players = view.findViewById(R.id.max_players); game_reference = view.findViewById(R.id.game_reference);
+            created_by = view.findViewById(R.id.created_by); distance_value = view.findViewById(R.id.distance_value);
+
+            // Displaying Hidden Views
+            view.findViewById(R.id.distance_holder).setVisibility(View.VISIBLE);
+            created_by.setVisibility(View.VISIBLE);
         }
 
         public TextView getGame_reference()
@@ -73,6 +77,16 @@ public class CreatedGamesAdapter extends RecyclerView.Adapter<CreatedGamesAdapte
         {
             return max_players;
         }
+
+        public TextView getCreated_by()
+        {
+            return created_by;
+        }
+
+        public TextView getDistance_value()
+        {
+            return distance_value;
+        }
     }
 
     /**
@@ -81,7 +95,7 @@ public class CreatedGamesAdapter extends RecyclerView.Adapter<CreatedGamesAdapte
      * @param dataSet String[] containing the data to populate views to be used
      *                by RecyclerView.
      */
-    public CreatedGamesAdapter(List<GameDetails> dataSet)
+    public FoundGamesAdapter(List<FoundGameDetails> dataSet)
     {
         localDataSet = dataSet;
     }
@@ -89,22 +103,22 @@ public class CreatedGamesAdapter extends RecyclerView.Adapter<CreatedGamesAdapte
     // Create new views (invoked by the layout manager)
     @NotNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType)
+    public FoundGamesAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType)
     {
         // Create a new view, which defines the UI of the list item
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.created_games_item, viewGroup, false);
 
-        return new ViewHolder(view);
+        return new FoundGamesAdapter.ViewHolder(view);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, final int position)
+    public void onBindViewHolder(FoundGamesAdapter.ViewHolder viewHolder, final int position)
     {
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
-        GameDetails details = localDataSet.get(position);
+        FoundGameDetails details = localDataSet.get(position);
         List<String> scheduleList = details.getSchedule();
         StringBuilder schedule = new StringBuilder("");
         String timing = "NULL";
@@ -138,6 +152,7 @@ public class CreatedGamesAdapter extends RecyclerView.Adapter<CreatedGamesAdapte
         viewHolder.getRepeat().setText(details.getRepeat());
         viewHolder.getTiming().setText(timing);
         viewHolder.getGame_reference().setText(details.getFirebaseReferenceID());
+        viewHolder.getCreated_by().setText("Created by: " + details.getCreatedBy());
     }
 
     // Return the size of your dataset (invoked by the layout manager)
