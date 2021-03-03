@@ -65,4 +65,41 @@ public class LegendsJSONParser
 
         return null;
     }
+
+    public static List<FoundGameDetails> convertJSONToFoundGamesDetailsList(String json)
+    {
+        ObjectMapper mapper = new ObjectMapper();
+
+        if (json == null)
+            return null;
+
+        Log.d("jfs", "Content that was passed:" + json);
+
+        try
+        {
+            Log.d("jfs", "convertJSONToGames: object created");
+            FoundGameDetails[] gameDetails = mapper.readValue(json, FoundGameDetails[].class);
+            List<FoundGameDetails> games = new ArrayList<>(Arrays.asList(gameDetails));
+            Log.d("jfs", "Content of List:\n" + games);
+
+            return games;
+        }
+        catch (JsonParseException e)
+        {
+            Log.d("xyz", "1");
+            e.printStackTrace();
+        }
+        catch (JsonMappingException e)
+        {
+            Log.d("xyz", "2");
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            Log.d("xyz", "3");
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 }

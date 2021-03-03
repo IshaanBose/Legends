@@ -10,7 +10,7 @@ import java.util.List;
 
 public class GameDetails
 {
-    private String gameName, gameType, gameDescription, fromTime, toTime, createdBy, repeat, firebaseReferenceID;
+    private String gameName, gameType, gameDescription, fromTime, toTime, createdBy, repeat, firebaseReferenceID, createdByID;
     private List<String> players, schedule;
     private int maxPlayerCount, minPlayerCount, playerCount;
     private List<Double> gameLocation;
@@ -20,6 +20,16 @@ public class GameDetails
         players = new ArrayList<>();
         maxPlayerCount = 999;
         minPlayerCount = 2;
+    }
+
+    public String getCreatedByID()
+    {
+        return createdByID;
+    }
+
+    public void setCreatedByID(String createdByID)
+    {
+        this.createdByID = createdByID;
     }
 
     public String getCreatedBy()

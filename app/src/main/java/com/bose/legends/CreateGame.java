@@ -9,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Paint;
 import android.location.Location;
 import android.location.LocationManager;
@@ -577,7 +578,10 @@ public class CreateGame extends AppCompatActivity
             return;
         }
 
-        gameDetails.setCreatedBy(mAuth.getUid());
+        SharedPreferences pref = getSharedPreferences("com.bose.legends.user_details", MODE_PRIVATE);
+
+        gameDetails.setCreatedByID(mAuth.getUid());
+        gameDetails.setCreatedBy(pref.getString("username", "N/A"));
         gameDetails.setGameName(game_name.getText().toString());
         gameDetails.setGameType(gameType.equals("Custom") ? game_type.getText().toString() : gameType);
         gameDetails.setGameDescription(game_description.getText().toString());
@@ -601,9 +605,9 @@ public class CreateGame extends AppCompatActivity
 
         gameDetails.setFirebaseReferenceID(docRef.getId());
 
-        writeToFile(gameDetails);
+        CustomFileOperations.writeJSONToFile(gameDetails, this, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
         Log.d("jfs", "Written to file");
-        String s = getJSONStringFromFile();
+        String s = CustomFileOperations.getJSONStringFromFile(this, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
         Log.d("jfs", "File contents:\n" + s);
 
         String hash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(gameDetails.getGameLocationAsLocation().getLatitude(),
@@ -613,6 +617,7 @@ public class CreateGame extends AppCompatActivity
 
         details.put("game_name", gameDetails.getGameName());
         details.put("created_by", gameDetails.getCreatedBy());
+        details.put("created_by_id", gameDetails.getCreatedByID());
         details.put("game_type", gameDetails.getGameType());
         details.put("location", new GeoPoint(gameDetails.getGameLocationAsLocation().getLatitude(), gameDetails.getGameLocationAsLocation().getLongitude()));
         details.put("from_time", gameDetails.getFromTime());
@@ -650,82 +655,5 @@ public class CreateGame extends AppCompatActivity
                 Log.d("xyz", e.getMessage());
             }
         });
-    }
-
-    private void writeToFile(GameDetails gameDetails)
-    {
-        String filename = mAuth.getUid() + "_created_games.json";
-        File file = getBaseContext().getFileStreamPath(filename);
-        try
-        {
-            OutputStreamWriter outputStreamWriter;
-            List<GameDetails> games;
-
-            if (file.exists())
-            {
-                String jsonData = getJSONStringFromFile();
-                Log.d("jfs", "File data before write" + jsonData);
-                games = LegendsJSONParser.convertJSONToGameDetailsList(jsonData);
-
-                if (games == null)
-                {
-                    Toast.makeText(context, "Couldn't store offline data.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                Log.d("jfs", "Game list gotten:\n" + games);
-                games.add(gameDetails);
-                outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
-                Log.d("jfs", "Games list with prev and new data:\n" + games);
-                outputStreamWriter.write(LegendsJSONParser.convertToJSONJacksonAPI(games));
-                Log.d("jfs", "file content immediately after writing\n" + getJSONStringFromFile());
-            }
-            else
-            {
-                outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
-                games = new ArrayList<>();
-                games.add(gameDetails);
-                outputStreamWriter.write(LegendsJSONParser.convertToJSONJacksonAPI(games));
-            }
-            outputStreamWriter.close();
-
-            Log.d("jfs", "File created.");
-        }
-        catch (IOException e)
-        {
-            Log.d("xyz", "File write failed: " + e.toString());
-        }
-    }
-
-    private String getJSONStringFromFile()
-    {
-        String filename = mAuth.getUid() + "_created_games.json";
-        File file = getBaseContext().getFileStreamPath(filename);
-
-        try (FileInputStream inputStream = new FileInputStream(file))
-        {
-            Log.d("jfs", "getting json string...");
-            return CreateGame.convertStreamToString(inputStream);
-        }
-        catch (IOException e)
-        {
-            Log.d("jfs", e.getMessage());
-            return null;
-        }
-    }
-
-    public static String convertStreamToString(InputStream is) throws IOException
-    {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        StringBuilder sb = new StringBuilder();
-        String line = null;
-
-        while ((line = reader.readLine()) != null)
-        {
-            sb.append(line).append("\n");
-        }
-        reader.close();
-
-        return sb.toString();
     }
 }

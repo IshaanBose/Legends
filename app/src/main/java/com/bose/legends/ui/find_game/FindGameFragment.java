@@ -3,19 +3,31 @@ package com.bose.legends.ui.find_game;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.bose.legends.BuildAlertMessage;
 import com.bose.legends.ConfigFindGameFilterAlert;
+import com.bose.legends.CustomFileOperations;
 import com.bose.legends.FoundGameDetails;
-import com.bose.legends.GameDetails;
+import com.bose.legends.FoundGamesAdapter;
+import com.bose.legends.GamePage;
+import com.bose.legends.ItemClickSupport;
+import com.bose.legends.LegendsJSONParser;
 import com.bose.legends.R;
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
@@ -23,6 +35,7 @@ import com.firebase.geofire.GeoQueryBounds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -42,6 +55,12 @@ public class FindGameFragment extends Fragment
 {
     private AlertDialog loading;
     private List<FoundGameDetails> foundGames;
+    private ImageView findGames;
+    private TextView defaultText;
+    private RecyclerView foundGamesList;
+    private FoundGamesAdapter adapter;
+    private FloatingActionButton fab;
+    private FirebaseAuth mAuth;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -50,8 +69,12 @@ public class FindGameFragment extends Fragment
         Context context = getContext();
         loading = new BuildAlertMessage().buildAlertIndeterminateProgress(context, false);
         foundGames = new ArrayList<>();
+        mAuth = FirebaseAuth.getInstance();
 
-        ImageView findGames = root.findViewById(R.id.find_games);
+        findGames = root.findViewById(R.id.find_games);
+        defaultText = root.findViewById(R.id.default_text);
+        foundGamesList = root.findViewById(R.id.found_games_list);
+        fab = root.findViewById(R.id.fab);
 
         findGames.setOnClickListener(new View.OnClickListener()
         {
@@ -62,7 +85,28 @@ public class FindGameFragment extends Fragment
             }
         });
 
+        fab.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                buildAlertFindGameFilter(context);
+            }
+        });
+
         return root;
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        List<FoundGameDetails> foundGames = LegendsJSONParser.convertJSONToFoundGamesDetailsList(
+                CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES)
+        );
+
+        showGames(foundGames == null ? new ArrayList<>() : foundGames, true);
     }
 
     class FindGamesFromFilters
@@ -142,7 +186,7 @@ public class FindGameFragment extends Fragment
                                 QuerySnapshot snap = task.getResult();
                                 for (DocumentSnapshot doc : snap.getDocuments())
                                 {
-                                    if (docIDs.contains(doc.getId()) || doc.get("created_by").equals(mAuth.getUid()))
+                                    if (docIDs.contains(doc.getId()) || doc.get("created_by_id").equals(mAuth.getUid()))
                                         continue;
 
                                     List<String> days = (List<String>) doc.get("schedule");
@@ -198,6 +242,7 @@ public class FindGameFragment extends Fragment
                     details.setSchedule((List<String>) doc.get("schedule"));
                     details.setGameDescription(doc.getString("game_description"));
                     details.setCreatedBy(doc.getString("created_by"));
+                    details.setCreatedByID(doc.getString("created_by_id"));
                     details.setFromTime(doc.getString("from_time"));
                     details.setToTime(doc.getString("to_time"));
                     details.setMaxPlayerCount(doc.getLong("max_player_count").intValue());
@@ -211,14 +256,14 @@ public class FindGameFragment extends Fragment
                     GeodesicData data = Geodesic.WGS84.Inverse(userLocation.getLatitude(), userLocation.getLongitude(),
                             docLocation.latitude, docLocation.longitude, GeodesicMask.DISTANCE);
 
-                    details.setDistance(data.s12);
+                    details.setDistance(Math.round(data.s12) / 1000.0);
 
                     foundGames.add(details);
                 }
             }
 
             this.games.addAll(foundGames);
-            FindGameFragment.this.showGames(this.games);
+            FindGameFragment.this.showGames(this.games, false);
         }
 
         public void beginFindGames()
@@ -274,16 +319,68 @@ public class FindGameFragment extends Fragment
                 });
     }
 
-    private void showGames(List<FoundGameDetails> games)
+    private void showGames(List<FoundGameDetails> games, boolean fromResume)
     {
-        Log.d("find", "hey there");
-
-        for (FoundGameDetails game : games)
+        if (games.size() == 0)
         {
-            Log.d("find", game.getGameName());
-            Log.d("find", game.getGameType());
+            foundGamesList.setVisibility(View.GONE);
+            defaultText.setVisibility(View.VISIBLE);
+            findGames.setVisibility(View.VISIBLE);
+            fab.setVisibility(View.GONE);
+            defaultText.setText("No games found. Try different filters.");
+        }
+        else
+        {
+            configRecyclerView(games);
+
+            if (!fromResume)
+                CustomFileOperations.writeJSONToFile(games, getActivity(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES);
+
+            foundGamesList.setVisibility(View.VISIBLE);
+            defaultText.setVisibility(View.GONE);
+            findGames.setVisibility(View.GONE);
+            fab.setVisibility(View.VISIBLE);
         }
 
         loading.dismiss();
+    }
+
+    private void configRecyclerView(List<FoundGameDetails> games)
+    {
+        adapter = new FoundGamesAdapter(games);
+        foundGamesList.setAdapter(adapter);
+
+        foundGamesList.setLayoutManager(new LinearLayoutManager(getContext()));
+        RecyclerView.ItemDecoration itemDecoration = new
+                DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL);
+        foundGamesList.addItemDecoration(itemDecoration);
+
+        foundGamesList.addOnScrollListener(new RecyclerView.OnScrollListener()
+        {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy)
+            {
+                if (dy > 0)
+                    fab.hide();
+                else
+                    fab.show();
+            }
+        });
+
+        ItemClickSupport.addTo(foundGamesList).setOnItemClickListener(
+                new ItemClickSupport.OnItemClickListener()
+                {
+                    @Override
+                    public void onItemClicked(RecyclerView recyclerView, int position, View v)
+                    {
+                        Intent intent = new Intent(getContext(), GamePage.class);
+                        intent.putExtra("game_name", games.get(position).getGameName());
+                        intent.putExtra("page_code", CustomFileOperations.FOUND_GAMES);
+                        intent.putExtra("doc_ref", games.get(position).getFirebaseReferenceID());
+
+                        startActivity(intent);
+                    }
+                }
+        );
     }
 }

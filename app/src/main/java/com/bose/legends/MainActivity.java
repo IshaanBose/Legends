@@ -58,7 +58,6 @@ public class MainActivity extends AppCompatActivity
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        Log.d("xyz", "hhhhhhhhhhhhhhhhhhhhhhhh");
         View headerView = navigationView.getHeaderView(0);
         TextView navUsername = headerView.findViewById(R.id.nav_header_username);
         TextView navEmail = headerView.findViewById(R.id.nav_header_email);
@@ -88,9 +87,7 @@ public class MainActivity extends AppCompatActivity
         if (R.id.action_settings == item.getItemId())
         {
             Toast.makeText(getApplicationContext(), "Uh oh no settings", Toast.LENGTH_SHORT).show();
-            String dir = getFilesDir().getAbsolutePath();
-            File file = new File(dir, mAuth.getUid() + "_created_games.json");
-            boolean deleted = file.delete();
+            boolean deleted = CustomFileOperations.deleteFile(getApplicationContext(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
             Log.d("xyz", String.valueOf(deleted));
         }
 
@@ -101,6 +98,7 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy()
     {
         super.onDestroy();
+
         if (!remember)
         {
             Log.d("xyz", "signing out");
@@ -117,5 +115,7 @@ public class MainActivity extends AppCompatActivity
                 editor.apply();
             }
         }
+
+        CustomFileOperations.deleteFile(getApplicationContext(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES);
     }
 }

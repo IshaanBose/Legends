@@ -18,7 +18,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bose.legends.CreateGame;
 import com.bose.legends.CreatedGamesAdapter;
+import com.bose.legends.CustomFileOperations;
 import com.bose.legends.GameDetails;
+import com.bose.legends.GamePage;
 import com.bose.legends.ItemClickSupport;
 import com.bose.legends.LegendsJSONParser;
 import com.bose.legends.R;
@@ -57,7 +59,8 @@ public class HomeFragment extends Fragment
         });
 
         mAuth = FirebaseAuth.getInstance();
-        details = LegendsJSONParser.convertJSONToGameDetailsList(getJSONStringFromFile());
+        details = LegendsJSONParser.convertJSONToGameDetailsList(
+                CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES));
 
         if (details == null)
         {
@@ -81,32 +84,13 @@ public class HomeFragment extends Fragment
         startActivity(intent);
     }
 
-    private String getJSONStringFromFile()
-    {
-        String filename = mAuth.getUid() + "_created_games.json";
-        File file = getActivity().getBaseContext().getFileStreamPath(filename);
-
-        if (!file.exists())
-            return null;
-
-        try (FileInputStream inputStream = new FileInputStream(file))
-        {
-            Log.d("jfs", "getting json string...");
-            return CreateGame.convertStreamToString(inputStream);
-        }
-        catch (IOException e)
-        {
-            Log.d("jfs", e.getMessage());
-            return null;
-        }
-    }
-
     @Override
     public void onResume()
     {
         super.onResume();
 
-        List<GameDetails> newDetails = LegendsJSONParser.convertJSONToGameDetailsList(getJSONStringFromFile());
+        List<GameDetails> newDetails = LegendsJSONParser.convertJSONToGameDetailsList(CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(),
+                CustomFileOperations.CREATED_GAMES));
         List<GameDetails> keepDetails = new ArrayList<>();
         int currSize = details == null ? 0 : details.size();
         int newSize = newDetails == null? 0 : newDetails.size();
@@ -156,18 +140,15 @@ public class HomeFragment extends Fragment
                     @Override
                     public void onItemClicked(RecyclerView recyclerView, int position, View v)
                     {
-                        Toast.makeText(getContext(), details.get(position).getGameName(), Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(getContext(), GamePage.class);
+                        intent.putExtra("game_name", details.get(position).getGameName());
+                        intent.putExtra("page_code", CustomFileOperations.CREATED_GAMES);
+                        intent.putExtra("doc_ref", details.get(position).getFirebaseReferenceID());
+
+                        startActivity(intent);
                     }
                 }
-        ).setOnItemLongClickListener(new ItemClickSupport.OnItemLongClickListener()
-        {
-            @Override
-            public boolean onItemLongClicked(RecyclerView recyclerView, int position, View v)
-            {
-                Toast.makeText(getContext(), details.get(position).getGameDescription(), Toast.LENGTH_LONG).show();
-                return false;
-            }
-        });
+        );
 
         ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT)
         {

@@ -21,7 +21,7 @@ public class FoundGamesAdapter extends RecyclerView.Adapter<FoundGamesAdapter.Vi
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
         private final TextView game_name, game_type, schedule, timing, repeat, current_players, max_players, game_reference,
-                created_by, distance_value;
+                created_by, distance_value, created_by_id;
 
         public ViewHolder(View view)
         {
@@ -32,10 +32,16 @@ public class FoundGamesAdapter extends RecyclerView.Adapter<FoundGamesAdapter.Vi
             timing = view.findViewById(R.id.timing); repeat = view.findViewById(R.id.repeat); current_players = view.findViewById(R.id.current_players);
             max_players = view.findViewById(R.id.max_players); game_reference = view.findViewById(R.id.game_reference);
             created_by = view.findViewById(R.id.created_by); distance_value = view.findViewById(R.id.distance_value);
+            created_by_id = view.findViewById(R.id.created_by_id);
 
             // Displaying Hidden Views
             view.findViewById(R.id.distance_holder).setVisibility(View.VISIBLE);
             created_by.setVisibility(View.VISIBLE);
+        }
+
+        public TextView getCreated_by_id()
+        {
+            return created_by_id;
         }
 
         public TextView getGame_reference()
@@ -152,7 +158,9 @@ public class FoundGamesAdapter extends RecyclerView.Adapter<FoundGamesAdapter.Vi
         viewHolder.getRepeat().setText(details.getRepeat());
         viewHolder.getTiming().setText(timing);
         viewHolder.getGame_reference().setText(details.getFirebaseReferenceID());
+        viewHolder.getDistance_value().setText(String.valueOf(details.getDistance()));
         viewHolder.getCreated_by().setText("Created by: " + details.getCreatedBy());
+        viewHolder.getCreated_by_id().setText(details.getCreatedByID());
     }
 
     // Return the size of your dataset (invoked by the layout manager)

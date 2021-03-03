@@ -7,29 +7,33 @@
     android:background="?android:attr/selectableItemBackground">
 
     <androidx.appcompat.widget.LinearLayoutCompat
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/game_name"
-            android:layout_width="wrap_content"
+            android:layout_width="180dp"
             android:layout_height="wrap_content"
-            android:text="@string/enter_game_name"
+            android:text="Sample's Gamecdcdscds"
             android:textStyle="bold"
+            android:singleLine="true"
+            android:ellipsize="end"
             android:textColor="?attr/colorOnPrimary"
             android:textSize="18sp"/>
 
         <TextView
             android:id="@+id/created_by"
-            android:layout_width="246dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="?attr/colorOnPrimary"
             android:textAlignment="viewEnd"
             android:gravity="end"
+            android:textStyle="bold"
             android:singleLine="true"
             android:ellipsize="end"
+            android:layout_weight="1"
             android:visibility="gone"
-            android:text="Created By: Ishaan Bose"
+            android:text="Created By: Ishaan bose"
             android:paddingLeft="20dp"
             android:paddingStart="20dp"/>
 
@@ -50,7 +54,7 @@
 
         <TextView
             android:id="@+id/game_type"
-            android:layout_width="116dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/dnd_5e"
             android:textColor="?attr/colorOnPrimary"
@@ -61,8 +65,10 @@
 
         <TextView
             android:id="@+id/schedule"
-            android:layout_width="200dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:visibility="visible"
             android:textAlignment="viewEnd"
             android:gravity="end"
             android:text="Mon|Tue|Wed|Thur|Fri|Sat|Sun"/>
@@ -95,9 +101,10 @@
 
         <TextView
             android:id="@+id/repeat"
-            android:layout_width="194dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAlignment="viewEnd"
+            android:layout_weight="1"
             android:gravity="end"/>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
@@ -146,6 +153,12 @@
             android:id="@+id/game_reference"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+        <TextView
+            android:id="@+id/created_by_id"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
             android:visibility="gone"/>
 
     </androidx.appcompat.widget.LinearLayoutCompat>

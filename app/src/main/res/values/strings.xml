@@ -82,7 +82,7 @@
     <string name="dnd_5e"><![CDATA[D&D 5E]]></string>
     <string name="num_1">1</string>
     <string name="num_999">999</string>
-    <string name="no_created_games">Looks like you haven&#8217;t created any games. <br/>Click on the plus icon to create a new game.</string>
+    <string name="no_created_games">Looks like you haven&#8217;t created any games. <br />Click on the plus icon to create a new game.</string>
     <string name="default_find_games">Click on the search icon to find games!</string>
     <string name="add_filter"><b>ADD FILTER</b></string>
     <string name="distance_colon">Distance:</string>
@@ -92,7 +92,18 @@
     <string name="format_23_59">Format: 23:59</string>
     <string name="invalid_filter_data">Please fill in proper details for selected filters.</string>
     <string name="find_game_time_hint">At least one field must be filled</string>
-    <string name="distance_colon">Distance:</string>
+    <string name="description">Description</string>
+    <string name="timing">Timing</string>
+    <string name="in_parenthesis_not_provided">(Not provided)</string>
+    <string name="schedule">Schedule</string>
+    <string name="players">Players</string>
+    <string name="open_parenthesis">(</string>
+    <string name="closed_parenthesis">)</string>
+    <string name="default_text_no_players">No players have joined this game yet.</string>
+    <string name="join_game">Join Game</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_edit">Edit</string>
+    <string name="action_close">Close</string>
     <string-array name="game_types">
         <item>D&amp;D 5E</item>
         <item>Call of Cthulhu</item>
