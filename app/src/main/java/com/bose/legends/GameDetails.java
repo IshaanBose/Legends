@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import android.location.Location;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -196,6 +197,25 @@ public class GameDetails
     public void setToTime(String toTime)
     {
         this.toTime = toTime;
+    }
+
+    @JsonIgnore
+    public void mapDocValues(DocumentSnapshot doc)
+    {
+        this.setFirebaseReferenceID(doc.getId());
+        this.setGameName(doc.getString("game_name"));
+        this.setGameType(doc.getString("game_type"));
+        this.setRepeat(doc.getString("repeats"));
+        this.setSchedule((List<String>) doc.get("schedule"));
+        this.setGameDescription(doc.getString("game_description"));
+        this.setCreatedBy(doc.getString("created_by"));
+        this.setCreatedByID(doc.getString("created_by_id"));
+        this.setFromTime(doc.getString("from_time"));
+        this.setToTime(doc.getString("to_time"));
+        this.setMaxPlayerCount(doc.getLong("max_player_count").intValue());
+        this.setMinPlayerCount(doc.getLong("min_player_count").intValue());
+        this.setPlayerCount(doc.getLong("player_count").intValue());
+        this.setPlayers((List<String>) doc.get("players"));
     }
 
     @Override

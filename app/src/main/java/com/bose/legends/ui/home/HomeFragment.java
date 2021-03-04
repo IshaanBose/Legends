@@ -1,8 +1,8 @@
 package com.bose.legends.ui.home;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bose.legends.BuildAlertMessage;
 import com.bose.legends.CreateGame;
 import com.bose.legends.CreatedGamesAdapter;
 import com.bose.legends.CustomFileOperations;
@@ -24,17 +25,20 @@ import com.bose.legends.GamePage;
 import com.bose.legends.ItemClickSupport;
 import com.bose.legends.LegendsJSONParser;
 import com.bose.legends.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class HomeFragment extends Fragment
 {
-    private ImageView createGame;
     private TextView noGames;
     private RecyclerView createdGamesList;
     private FirebaseAuth mAuth;
@@ -45,8 +49,9 @@ public class HomeFragment extends Fragment
     {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
 
+        mAuth = FirebaseAuth.getInstance();
         createdGamesList = root.findViewById(R.id.create_games_list);
-        createGame = root.findViewById(R.id.createGame);
+        ImageView createGame = root.findViewById(R.id.createGame), syncGames = root.findViewById(R.id.sync_games);
         noGames = root.findViewById(R.id.no_games);
 
         createGame.setOnClickListener(new View.OnClickListener()
@@ -54,11 +59,19 @@ public class HomeFragment extends Fragment
             @Override
             public void onClick(View v)
             {
-                createGame(v);
+                createGame();
             }
         });
 
-        mAuth = FirebaseAuth.getInstance();
+        syncGames.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                syncGames();
+            }
+        });
+
         details = LegendsJSONParser.convertJSONToGameDetailsList(
                 CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES));
 
@@ -78,19 +91,62 @@ public class HomeFragment extends Fragment
         return root;
     }
 
-    private void createGame(View view)
+    private void createGame()
     {
         Intent intent = new Intent(getContext(), CreateGame.class);
         startActivity(intent);
     }
 
-    @Override
-    public void onResume()
+    private void syncGames()
     {
-        super.onResume();
+        AlertDialog alert = new BuildAlertMessage().buildAlertIndeterminateProgress(getContext(), true);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Query query = db.collection("games")
+                .whereEqualTo("created_by_id", mAuth.getUid());
 
-        List<GameDetails> newDetails = LegendsJSONParser.convertJSONToGameDetailsList(CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(),
-                CustomFileOperations.CREATED_GAMES));
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task)
+            {
+                if (task.isSuccessful())
+                {
+                    List<GameDetails> syncedGames = new ArrayList<>();
+
+                    for (QueryDocumentSnapshot doc : task.getResult())
+                    {
+                        GameDetails gameDetails = new GameDetails();
+                        gameDetails.mapDocValues(doc);
+
+                        syncedGames.add(gameDetails);
+                    }
+
+                    if (syncedGames.size() != 0)
+                    {
+                        CustomFileOperations.deleteFile(getContext(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
+                        CustomFileOperations.overwriteFile(getActivity(), syncedGames, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
+                        details = null;
+
+                        updateRecyclerView(syncedGames);
+
+                        Toast.makeText(getContext(), "List updated", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        Toast.makeText(getContext(), "No games found", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else
+                {
+                    Toast.makeText(getContext(), "Something went wrong, please try again.", Toast.LENGTH_SHORT).show();
+                }
+                alert.dismiss();
+            }
+        });
+    }
+
+    private void updateRecyclerView(List<GameDetails> newDetails)
+    {
         List<GameDetails> keepDetails = new ArrayList<>();
         int currSize = details == null ? 0 : details.size();
         int newSize = newDetails == null? 0 : newDetails.size();
@@ -123,6 +179,18 @@ public class HomeFragment extends Fragment
                 createdGamesList.setVisibility(View.VISIBLE);
             }
         }
+    }
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        List<GameDetails> newDetails = LegendsJSONParser.convertJSONToGameDetailsList(
+                CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(),
+                CustomFileOperations.CREATED_GAMES));
+
+        updateRecyclerView(newDetails);
     }
 
     private void configRecyclerView(List<GameDetails> details)

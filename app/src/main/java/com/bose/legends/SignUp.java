@@ -37,6 +37,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 
@@ -286,12 +288,31 @@ public class SignUp extends AppCompatActivity
                                 @Override
                                 public void onSuccess(Void aVoid)
                                 {
-                                    dialog.dismiss();
-                                    Log.d("xyz", "GOOD JOB");
-                                    clearFields();
-                                    mAuth.signOut();
-                                    Intent i = new Intent(SignUp.context, SignIn.class);
-                                    startActivity(i);
+                                    DatabaseReference mDb = FirebaseDatabase.getInstance().getReference("join_requests");
+                                    mDb.child(mAuth.getUid()).child("_").setValue(0) // setting dummy value
+                                            .addOnCompleteListener(new OnCompleteListener<Void>()
+                                            {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task)
+                                                {
+                                                    if (task.isSuccessful())
+                                                    {
+                                                        Log.d("rtdb", "Success");
+                                                        dialog.dismiss();
+                                                        Log.d("xyz", "GOOD JOB");
+                                                        clearFields();
+                                                        mAuth.signOut();
+                                                        Intent i = new Intent(SignUp.context, SignIn.class);
+                                                        startActivity(i);
+                                                    }
+                                                    else
+                                                    {
+                                                        Log.d("rtdb", task.getException().getMessage());
+                                                        dialog.dismiss();
+                                                        Toast.makeText(SignUp.context, "Something went wrong, try again.", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                }
+                                            });
                                 }
                             })
                             .addOnFailureListener(new OnFailureListener()

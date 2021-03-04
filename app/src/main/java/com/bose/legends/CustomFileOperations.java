@@ -31,7 +31,7 @@ public class CustomFileOperations
         }
     }
 
-    public static void writeJSONToFile(GameDetails details, Activity context, String UID, byte fileCode)
+    public static void writeGameDetailAsJSONToFile(GameDetails details, Activity context, String UID, byte fileCode)
     {
         String filename = UID + getFileSuffixFromCode(fileCode);
         File file = context.getBaseContext().getFileStreamPath(filename);
@@ -77,10 +77,31 @@ public class CustomFileOperations
         }
     }
 
-    public static void writeJSONToFile(List<FoundGameDetails> details, Activity context, String UID, byte fileCode)
+    public static void overwriteFile(Activity context, List<GameDetails> details, String UID, byte fileCode)
     {
         String filename = UID + getFileSuffixFromCode(fileCode);
-        File file = context.getBaseContext().getFileStreamPath(filename);
+
+        try
+        {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
+            String json = LegendsJSONParser.convertToJSONJacksonAPI(details);
+            Log.d("jfs", "json: " + json);
+            outputStreamWriter.write(json);
+            outputStreamWriter.close();
+
+            Log.d("jfs", "file content immediately after writing\n" + getJSONStringFromFile(context, UID, fileCode));
+
+            Log.d("jfs", "File created.");
+        }
+        catch (IOException e)
+        {
+            Log.d("xyz", "File write failed: " + e.toString());
+        }
+    }
+
+    public static void overwriteFile(List<FoundGameDetails> details, Activity context, String UID, byte fileCode)
+    {
+        String filename = UID + getFileSuffixFromCode(fileCode);
 
         try
         {

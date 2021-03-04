@@ -11,12 +11,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -235,20 +233,7 @@ public class FindGameFragment extends Fragment
                 {
                     FoundGameDetails details = new FoundGameDetails();
 
-                    details.setFirebaseReferenceID(doc.getId());
-                    details.setGameName(doc.getString("game_name"));
-                    details.setGameType(doc.getString("game_type"));
-                    details.setRepeat(doc.getString("repeats"));
-                    details.setSchedule((List<String>) doc.get("schedule"));
-                    details.setGameDescription(doc.getString("game_description"));
-                    details.setCreatedBy(doc.getString("created_by"));
-                    details.setCreatedByID(doc.getString("created_by_id"));
-                    details.setFromTime(doc.getString("from_time"));
-                    details.setToTime(doc.getString("to_time"));
-                    details.setMaxPlayerCount(doc.getLong("max_player_count").intValue());
-                    details.setMinPlayerCount(doc.getLong("min_player_count").intValue());
-                    details.setPlayerCount(doc.getLong("player_count").intValue());
-                    details.setPlayers((List<String>) doc.get("players"));
+                    details.mapDocValues(doc);
 
                     GeoPoint loc = doc.getGeoPoint("location");
                     GeoLocation docLocation = new GeoLocation(loc.getLatitude(), loc.getLongitude());
@@ -334,7 +319,7 @@ public class FindGameFragment extends Fragment
             configRecyclerView(games);
 
             if (!fromResume)
-                CustomFileOperations.writeJSONToFile(games, getActivity(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES);
+                CustomFileOperations.overwriteFile(games, getActivity(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES);
 
             foundGamesList.setVisibility(View.VISIBLE);
             defaultText.setVisibility(View.GONE);

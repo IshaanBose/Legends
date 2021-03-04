@@ -42,18 +42,11 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -605,7 +598,7 @@ public class CreateGame extends AppCompatActivity
 
         gameDetails.setFirebaseReferenceID(docRef.getId());
 
-        CustomFileOperations.writeJSONToFile(gameDetails, this, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
+        CustomFileOperations.writeGameDetailAsJSONToFile(gameDetails, this, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
         Log.d("jfs", "Written to file");
         String s = CustomFileOperations.getJSONStringFromFile(this, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
         Log.d("jfs", "File contents:\n" + s);
