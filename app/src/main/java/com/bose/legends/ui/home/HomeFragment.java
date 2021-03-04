@@ -99,7 +99,7 @@ public class HomeFragment extends Fragment
 
     private void syncGames()
     {
-        AlertDialog alert = new BuildAlertMessage().buildAlertIndeterminateProgress(getContext(), true);
+        AlertDialog alert = BuildAlertMessage.buildAlertIndeterminateProgress(getContext(), true);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Query query = db.collection("games")
                 .whereEqualTo("created_by_id", mAuth.getUid());

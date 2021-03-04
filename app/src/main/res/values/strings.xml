@@ -100,7 +100,7 @@
     <string name="open_parenthesis">(</string>
     <string name="closed_parenthesis">)</string>
     <string name="default_text_no_players">No players have joined this game yet.</string>
-    <string name="join_game">Join Game</string>
+    <string name="request_join_game">Request Join Game</string>
     <string name="action_delete">Delete</string>
     <string name="action_edit">Edit</string>
     <string name="action_close">Close</string>

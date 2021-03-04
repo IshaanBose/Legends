@@ -15,12 +15,14 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bose.legends.ui.find_game.FindGameFragment;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class BuildAlertMessage extends AppCompatActivity
 {
-    public AlertDialog buildAlertIndeterminateProgress(Context context, boolean autoShow)
+    public static AlertDialog buildAlertIndeterminateProgress(Context context, boolean autoShow)
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -34,49 +36,7 @@ public class BuildAlertMessage extends AppCompatActivity
         return alert;
     }
 
-    public AlertDialog buildAlertFindGameFilter(Context context)
-    {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        LayoutInflater inflater = LayoutInflater.from(context);
-        View alertView = inflater.inflate(R.layout.alert_find_game_filters, null);
-
-        ConfigFindGameFilterAlert config = new ConfigFindGameFilterAlert(context, alertView);
-
-        final AlertDialog alert = new AlertDialog.Builder(context)
-                .setView(alertView)
-                .setTitle("Apply Filters")
-                .setPositiveButton("Find", null)
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        dialog.dismiss();
-                    }
-                })
-                .show();
-
-        alert.getButton(AlertDialog.BUTTON_POSITIVE)
-                .setOnClickListener(new View.OnClickListener()
-                {
-                    @Override
-                    public void onClick(View v)
-                    {
-                        if (config.validateData())
-                        {
-                            alert.dismiss();
-                        }
-                        else
-                        {
-                            alertView.findViewById(R.id.invalid_data).setVisibility(View.VISIBLE);
-                        }
-                    }
-                });
-
-        return alert;
-    }
-
-    public void buildAlertMessageNeutral(Context context, String msg)
+    public static void buildAlertMessageNeutral(Context context, String msg)
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage(msg);
@@ -93,7 +53,23 @@ public class BuildAlertMessage extends AppCompatActivity
         alert.show();
     }
 
-    public void buildAlertMessageNoGps(Context context)
+    public static AlertDialog buildAlertMessagePositiveNegative(Context context, String msg, boolean autoShow,
+                                                         DialogInterface.OnClickListener positiveFunct,
+                                                         DialogInterface.OnClickListener negativeFunct)
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setMessage(msg)
+                .setPositiveButton("Yes", positiveFunct)
+                .setNegativeButton("No", negativeFunct);
+        final AlertDialog alertDialog = builder.create();
+
+        if (autoShow)
+            alertDialog.show();
+
+        return alertDialog;
+    }
+
+    public static void buildAlertMessageNoGps(Context context)
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage("Your GPS seems to be disabled, do you want to enable it? You can turn it off once you are done with the registration process.")

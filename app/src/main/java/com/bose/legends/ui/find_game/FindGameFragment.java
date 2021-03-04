@@ -65,7 +65,7 @@ public class FindGameFragment extends Fragment
         View root = inflater.inflate(R.layout.fragment_find_game, container, false);
 
         Context context = getContext();
-        loading = new BuildAlertMessage().buildAlertIndeterminateProgress(context, false);
+        loading = BuildAlertMessage.buildAlertIndeterminateProgress(context, false);
         foundGames = new ArrayList<>();
         mAuth = FirebaseAuth.getInstance();
 

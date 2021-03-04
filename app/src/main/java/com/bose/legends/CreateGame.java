@@ -341,7 +341,7 @@ public class CreateGame extends AppCompatActivity
             else
             {
                 Log.d("xyz", "hey there else");
-                new BuildAlertMessage().buildAlertMessageNoGps(this);
+                BuildAlertMessage.buildAlertMessageNoGps(this);
             }
         }
         else if (currentHomeLocation.getLatitude() == 0.0 && currentHomeLocation.getLongitude() == 0.0)
@@ -566,7 +566,7 @@ public class CreateGame extends AppCompatActivity
         if (stop)
         {
             if (errorMessage.length() != 0)
-                new BuildAlertMessage().buildAlertMessageNeutral(context, errorMessage);
+                BuildAlertMessage.buildAlertMessageNeutral(context, errorMessage);
             Toast.makeText(context, "Fields not set properly.", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -626,7 +626,7 @@ public class CreateGame extends AppCompatActivity
 
         Log.d("xyz", gameDetails.toString());
 
-        final AlertDialog dialog = new BuildAlertMessage().buildAlertIndeterminateProgress(context, true);
+        final AlertDialog dialog = BuildAlertMessage.buildAlertIndeterminateProgress(context, true);
 
         docRef.set(details).addOnSuccessListener(new OnSuccessListener<Void>()
         {

@@ -29,6 +29,27 @@ public class LegendsJSONParser
         }
     }
 
+    public static List<RequestsFormat> convertJSONToRequestList(String json)
+    {
+        ObjectMapper mapper = new ObjectMapper();
+
+        if (json == null)
+            return null;
+
+        try
+        {
+            RequestsFormat[] requestsFormats = mapper.readValue(json, RequestsFormat[].class);
+
+            return new ArrayList<>(Arrays.asList(requestsFormats));
+        }
+        catch (IOException e)
+        {
+            Log.d("jfs", "Requests error: " + e.getMessage());
+
+            return null;
+        }
+    }
+
     public static List<GameDetails> convertJSONToGameDetailsList(String json)
     {
         ObjectMapper mapper = new ObjectMapper();

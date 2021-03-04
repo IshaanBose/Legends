@@ -18,6 +18,7 @@ public class CustomFileOperations
 {
     public static final byte CREATED_GAMES = 0;
     public static final byte FOUND_GAMES = 1;
+    public static final byte REQUESTS = 2;
 
     private static String getFileSuffixFromCode(byte code)
     {
@@ -27,7 +28,43 @@ public class CustomFileOperations
 
             case 1: return "_found_games.json";
 
+            case 2: return "_requests.json";
+
             default: return "_dump_file.txt";
+        }
+    }
+
+    public static void writeRequestToFile(RequestsFormat rf, Activity activity, String UID, byte fileCode)
+    {
+        String filename = UID + getFileSuffixFromCode(fileCode);
+        File file = activity.getBaseContext().getFileStreamPath(filename);
+
+        try
+        {
+            OutputStreamWriter outputStreamWriter;
+            List<RequestsFormat> requests;
+
+            if (file.exists())
+            {
+                String jsonData = getJSONStringFromFile(activity, UID, fileCode);
+                requests = LegendsJSONParser.convertJSONToRequestList(jsonData);
+
+                if (requests == null)
+                    requests = new ArrayList<>();
+            }
+            else
+            {
+                requests = new ArrayList<>();
+            }
+
+            requests.add(rf);
+            outputStreamWriter = new OutputStreamWriter(activity.openFileOutput(filename, Context.MODE_PRIVATE));
+            outputStreamWriter.write(LegendsJSONParser.convertToJSONJacksonAPI(requests));
+            outputStreamWriter.close();
+        }
+        catch (IOException e)
+        {
+            Log.d("xyz", "File write failed: " + e.toString());
         }
     }
 

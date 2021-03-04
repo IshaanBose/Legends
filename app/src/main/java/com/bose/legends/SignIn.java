@@ -74,7 +74,7 @@ public class SignIn extends AppCompatActivity
         if (SignUp.validateEmail(email, sEmail) || SignUp.validatePassword(password, sPassword))
             return;
 
-        AlertDialog dialog = new BuildAlertMessage().buildAlertIndeterminateProgress(context, true);
+        AlertDialog dialog = BuildAlertMessage.buildAlertIndeterminateProgress(context, true);
 
         mAuth.signInWithEmailAndPassword(sEmail, sPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>()
         {
