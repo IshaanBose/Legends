@@ -92,19 +92,13 @@ public class FindGameFragment extends Fragment
             }
         });
 
-        return root;
-    }
-
-    @Override
-    public void onResume()
-    {
-        super.onResume();
-
         List<FoundGameDetails> foundGames = LegendsJSONParser.convertJSONToFoundGamesDetailsList(
                 CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES)
         );
 
         showGames(foundGames == null ? new ArrayList<>() : foundGames, true);
+
+        return root;
     }
 
     class FindGamesFromFilters
@@ -304,7 +298,7 @@ public class FindGameFragment extends Fragment
                 });
     }
 
-    private void showGames(List<FoundGameDetails> games, boolean fromResume)
+    private void showGames(List<FoundGameDetails> games, boolean fromOnCreate)
     {
         if (games.size() == 0)
         {
@@ -318,8 +312,8 @@ public class FindGameFragment extends Fragment
         {
             configRecyclerView(games);
 
-            if (!fromResume)
-                CustomFileOperations.overwriteFile(games, getActivity(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES);
+            if (!fromOnCreate)
+                CustomFileOperations.overwriteFoundGamesFile(games, getActivity(), mAuth.getUid());
 
             foundGamesList.setVisibility(View.VISIBLE);
             defaultText.setVisibility(View.GONE);

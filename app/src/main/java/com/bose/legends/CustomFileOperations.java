@@ -68,10 +68,10 @@ public class CustomFileOperations
         }
     }
 
-    public static void writeGameDetailAsJSONToFile(GameDetails details, Activity context, String UID, byte fileCode)
+    public static void writeGameDetailAsJSONToFile(GameDetails details, Activity activity, String UID, byte fileCode)
     {
         String filename = UID + getFileSuffixFromCode(fileCode);
-        File file = context.getBaseContext().getFileStreamPath(filename);
+        File file = activity.getBaseContext().getFileStreamPath(filename);
 
         try
         {
@@ -80,26 +80,26 @@ public class CustomFileOperations
 
             if (file.exists())
             {
-                String jsonData = getJSONStringFromFile(context, UID, fileCode);
+                String jsonData = getJSONStringFromFile(activity, UID, fileCode);
                 Log.d("jfs", "File data before write" + jsonData);
                 games = LegendsJSONParser.convertJSONToGameDetailsList(jsonData);
 
                 if (games == null)
                 {
-                    Toast.makeText(context, "Couldn't store offline data.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "Couldn't store offline data.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
                 Log.d("jfs", "Game list gotten:\n" + games);
                 games.add(details);
-                outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
+                outputStreamWriter = new OutputStreamWriter(activity.openFileOutput(filename, Context.MODE_PRIVATE));
                 Log.d("jfs", "Games list with prev and new data:\n" + games);
                 outputStreamWriter.write(LegendsJSONParser.convertToJSONJacksonAPI(games));
-                Log.d("jfs", "file content immediately after writing\n" + getJSONStringFromFile(context, UID, fileCode));
+                Log.d("jfs", "file content immediately after writing\n" + getJSONStringFromFile(activity, UID, fileCode));
             }
             else
             {
-                outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
+                outputStreamWriter = new OutputStreamWriter(activity.openFileOutput(filename, Context.MODE_PRIVATE));
                 games = new ArrayList<>();
                 games.add(details);
                 outputStreamWriter.write(LegendsJSONParser.convertToJSONJacksonAPI(games));
@@ -114,19 +114,20 @@ public class CustomFileOperations
         }
     }
 
-    public static void overwriteFile(Activity context, List<GameDetails> details, String UID, byte fileCode)
+    public static void overwriteCreatedGamesFile(List<GameDetails> details, Activity activity, String UID)
     {
+        byte fileCode = CustomFileOperations.CREATED_GAMES;
         String filename = UID + getFileSuffixFromCode(fileCode);
 
         try
         {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(activity.openFileOutput(filename, Context.MODE_PRIVATE));
             String json = LegendsJSONParser.convertToJSONJacksonAPI(details);
             Log.d("jfs", "json: " + json);
             outputStreamWriter.write(json);
             outputStreamWriter.close();
 
-            Log.d("jfs", "file content immediately after writing\n" + getJSONStringFromFile(context, UID, fileCode));
+            Log.d("jfs", "file content immediately after writing\n" + getJSONStringFromFile(activity, UID, fileCode));
 
             Log.d("jfs", "File created.");
         }
@@ -136,19 +137,20 @@ public class CustomFileOperations
         }
     }
 
-    public static void overwriteFile(List<FoundGameDetails> details, Activity context, String UID, byte fileCode)
+    public static void overwriteFoundGamesFile(List<FoundGameDetails> details, Activity activity, String UID)
     {
+        byte fileCode = CustomFileOperations.FOUND_GAMES;
         String filename = UID + getFileSuffixFromCode(fileCode);
 
         try
         {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(filename, Context.MODE_PRIVATE));
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(activity.openFileOutput(filename, Context.MODE_PRIVATE));
             String json = LegendsJSONParser.convertToJSONJacksonAPI(details);
             Log.d("jfs", "found: " + json);
             outputStreamWriter.write(json);
             outputStreamWriter.close();
 
-            Log.d("jfs", "file content immediately after writing\n" + getJSONStringFromFile(context, UID, fileCode));
+            Log.d("jfs", "file content immediately after writing\n" + getJSONStringFromFile(activity, UID, fileCode));
 
             Log.d("jfs", "File created.");
         }
@@ -158,10 +160,33 @@ public class CustomFileOperations
         }
     }
 
-    public static String getJSONStringFromFile(Activity context, String UID, byte fileCode)
+    public static void overwriteRequestsFile(List<RequestsFormat> details, Activity activity, String UID)
+    {
+        byte fileCode = CustomFileOperations.REQUESTS;
+        String filename = UID + getFileSuffixFromCode(fileCode);
+
+        try
+        {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(activity.openFileOutput(filename, Context.MODE_PRIVATE));
+            String json = LegendsJSONParser.convertToJSONJacksonAPI(details);
+            Log.d("jfs", "found: " + json);
+            outputStreamWriter.write(json);
+            outputStreamWriter.close();
+
+            Log.d("jfs", "file content immediately after writing\n" + getJSONStringFromFile(activity, UID, fileCode));
+
+            Log.d("jfs", "File created.");
+        }
+        catch (IOException e)
+        {
+            Log.d("xyz", "File write failed: " + e.toString());
+        }
+    }
+
+    public static String getJSONStringFromFile(Activity activity, String UID, byte fileCode)
     {
         String filename = UID + getFileSuffixFromCode(fileCode);
-        File file = context.getBaseContext().getFileStreamPath(filename);
+        File file = activity.getBaseContext().getFileStreamPath(filename);
 
         if (file.exists())
         {

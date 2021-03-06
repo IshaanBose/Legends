@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import com.bose.legends.CustomFileOperations;
 import com.bose.legends.R;
 import com.bose.legends.SignUp;
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,12 +21,18 @@ import static android.content.Context.MODE_PRIVATE;
 
 public class ProfileFragment extends Fragment
 {
+    FirebaseAuth mAuth;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState)
     {
         View root = inflater.inflate(R.layout.fragment_profile, container, false);
+
+        mAuth = FirebaseAuth.getInstance();
+
         Button signOut = root.findViewById(R.id.sign_out);
+
         signOut.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -52,6 +59,8 @@ public class ProfileFragment extends Fragment
             editor.clear();
             editor.apply();
         }
+
+        CustomFileOperations.deleteFile(getContext(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES);
 
         Intent intent = new Intent(getContext(), SignUp.class);
         startActivity(intent);

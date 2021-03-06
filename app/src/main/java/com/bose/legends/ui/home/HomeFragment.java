@@ -28,7 +28,6 @@ import com.bose.legends.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -39,7 +38,7 @@ import java.util.List;
 
 public class HomeFragment extends Fragment
 {
-    private TextView noGames;
+    private TextView noGames, noJoinedGames;
     private RecyclerView createdGamesList;
     private FirebaseAuth mAuth;
     private List<GameDetails> details;
@@ -52,7 +51,7 @@ public class HomeFragment extends Fragment
         mAuth = FirebaseAuth.getInstance();
         createdGamesList = root.findViewById(R.id.create_games_list);
         ImageView createGame = root.findViewById(R.id.createGame), syncGames = root.findViewById(R.id.sync_games);
-        noGames = root.findViewById(R.id.no_games);
+        noGames = root.findViewById(R.id.no_games); noJoinedGames = root.findViewById(R.id.no_joined_games);
 
         createGame.setOnClickListener(new View.OnClickListener()
         {
@@ -86,7 +85,7 @@ public class HomeFragment extends Fragment
             createdGamesList.setVisibility(View.VISIBLE);
         }
 
-        configRecyclerView(details);
+        configCreatedGamesRecyclerView(details);
 
         return root;
     }
@@ -124,10 +123,10 @@ public class HomeFragment extends Fragment
                     if (syncedGames.size() != 0)
                     {
                         CustomFileOperations.deleteFile(getContext(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
-                        CustomFileOperations.overwriteFile(getActivity(), syncedGames, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
+                        CustomFileOperations.overwriteCreatedGamesFile(syncedGames, getActivity(), mAuth.getUid());
                         details = null;
 
-                        updateRecyclerView(syncedGames);
+                        updateCreatedGamesRecyclerView(syncedGames);
 
                         Toast.makeText(getContext(), "List updated", Toast.LENGTH_SHORT).show();
                     }
@@ -145,7 +144,7 @@ public class HomeFragment extends Fragment
         });
     }
 
-    private void updateRecyclerView(List<GameDetails> newDetails)
+    private void updateCreatedGamesRecyclerView(List<GameDetails> newDetails)
     {
         List<GameDetails> keepDetails = new ArrayList<>();
         int currSize = details == null ? 0 : details.size();
@@ -174,7 +173,7 @@ public class HomeFragment extends Fragment
 
             if (hideNoGame)
             {
-                configRecyclerView(details);
+                configCreatedGamesRecyclerView(details);
                 noGames.setVisibility(View.GONE);
                 createdGamesList.setVisibility(View.VISIBLE);
             }
@@ -190,10 +189,10 @@ public class HomeFragment extends Fragment
                 CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(),
                 CustomFileOperations.CREATED_GAMES));
 
-        updateRecyclerView(newDetails);
+        updateCreatedGamesRecyclerView(newDetails);
     }
 
-    private void configRecyclerView(List<GameDetails> details)
+    private void configCreatedGamesRecyclerView(List<GameDetails> details)
     {
         adapter = new CreatedGamesAdapter(details);
         createdGamesList.setAdapter(adapter);

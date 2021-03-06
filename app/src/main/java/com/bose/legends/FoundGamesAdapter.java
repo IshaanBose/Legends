@@ -1,11 +1,10 @@
 package com.bose.legends;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import androidx.recyclerview.widget.RecyclerView;
 import org.jetbrains.annotations.NotNull;
 import java.util.List;
@@ -113,7 +112,7 @@ public class FoundGamesAdapter extends RecyclerView.Adapter<FoundGamesAdapter.Vi
     {
         // Create a new view, which defines the UI of the list item
         View view = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.created_games_item, viewGroup, false);
+                .inflate(R.layout.item_created_games, viewGroup, false);
 
         return new FoundGamesAdapter.ViewHolder(view);
     }

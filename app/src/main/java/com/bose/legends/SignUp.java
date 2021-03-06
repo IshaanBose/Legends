@@ -303,7 +303,15 @@ public class SignUp extends AppCompatActivity
                                 {
                                     dialog.dismiss();
                                     Log.d("xyz", e.getMessage());
-                                    Toast.makeText(SignUp.context, "Something went wrong, try again.", Toast.LENGTH_SHORT).show();
+                                    mAuth.getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>()
+                                    {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task)
+                                        {
+                                            if (task.isSuccessful())
+                                                Toast.makeText(SignUp.context, "Something went wrong, try again.", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                                 }
                             });
                 }

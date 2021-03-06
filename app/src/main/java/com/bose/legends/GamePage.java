@@ -3,8 +3,10 @@ package com.bose.legends;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.app.Activity;
+
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -19,9 +21,15 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GamePage extends AppCompatActivity
@@ -30,9 +38,12 @@ public class GamePage extends AppCompatActivity
     private FirebaseAuth mAuth;
     private TextView gameName, createdBy, gameType, description, timing, schedule, repeats, currentPlayers, maxPlayers,
             defaultText, distance, docRef, createdByID;
-    private View repeatHolder, distanceHolder;
-    private RecyclerView playerList;
+    private View repeatHolder, distanceHolder, loadingIcon, requestsHolder, requestsListHolder;
+    private RecyclerView playerList, requestsList;
     private Button joinGame;
+    private GamePage activity;
+    private List<Users> userRequests;
+    private PlayersAdapter requestedPlayersAdapter;
     private int colorOnPrimary;
 
     @Override
@@ -45,6 +56,7 @@ public class GamePage extends AppCompatActivity
 
         mAuth = FirebaseAuth.getInstance();
         Bundle pageDetails = getIntent().getExtras();
+        activity = this;
 
         // TextViews
         gameName = findViewById(R.id.game_name); createdBy = findViewById(R.id.created_by); gameType = findViewById(R.id.game_type);
@@ -54,8 +66,11 @@ public class GamePage extends AppCompatActivity
         createdByID = findViewById(R.id.created_by_id);
         // LayoutView
         repeatHolder = findViewById(R.id.repeat_holder); distanceHolder = findViewById(R.id.distance_holder);
+        requestsHolder = findViewById(R.id.requests_holder); requestsListHolder = findViewById(R.id.requests_list_holder);
+        // ProgressBar
+        loadingIcon = findViewById(R.id.loading_icon);
         // RecyclerView
-        playerList = findViewById(R.id.players);
+        playerList = findViewById(R.id.players); requestsList = findViewById(R.id.requests_list);
         // Button
         joinGame = findViewById(R.id.join_game);
 
@@ -103,7 +118,12 @@ public class GamePage extends AppCompatActivity
                     finish();
                 }
                 else
+                {
+                    userRequests = new ArrayList<>();
+                    configRequestsList();
                     setPageDetails(details);
+                    getRequestsFromDatabase();
+                }
             }
         }
         else
@@ -136,16 +156,106 @@ public class GamePage extends AppCompatActivity
         }
     }
 
-    private void requestJoinGame()
+    private void getRequestsFromDatabase()
     {
-        final AlertDialog alert = BuildAlertMessage.buildAlertIndeterminateProgress(this, true);
-        final DatabaseReference rootNode = FirebaseDatabase.getInstance().getReference("join_requests");
         final String docID = docRef.getText().toString();
-        final String pushKey = rootNode.child(docID).push().getKey();
-        final Activity activity = this;
+        DatabaseReference rootNode = FirebaseDatabase.getInstance()
+                .getReference("join_requests")
+                .child(docID);
 
-        rootNode.child(docID)
-                .child(pushKey)
+        rootNode.addValueEventListener(new ValueEventListener()
+        {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot)
+            {
+                if (snapshot.exists())
+                {
+                    long processedChildren = 0;
+                    long childrenCount = snapshot.getChildrenCount();
+
+                    if (childrenCount != 0)
+                        requestsHolder.setVisibility(View.VISIBLE);
+
+                    for (DataSnapshot snaps : snapshot.getChildren())
+                    {
+                        Users user = new Users();
+                        Log.d("dberror", snaps.getValue().toString());
+                        user.setUID(snaps.getValue().toString());
+                        processedChildren += 1;
+                        long finalProcessedChildren = processedChildren;
+
+                        FirebaseFirestore.getInstance().collection("users")
+                                .document(user.getUID())
+                                .get()
+                                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
+                                {
+                                    @Override
+                                    public void onComplete(@NonNull Task<DocumentSnapshot> task)
+                                    {
+                                        if (task.isSuccessful())
+                                        {
+                                            user.setUsername(task.getResult().getString("username"));
+                                            Log.d("dberror", user.toString());
+                                            userRequests.add(user);
+                                            Log.d("dberror", userRequests.toString());
+                                            updateRequestsList(finalProcessedChildren, childrenCount);
+                                        }
+                                        else
+                                        {
+                                            Log.d("dberror", "noooooooo with firestore");
+                                        }
+                                    }
+                                });
+                    }
+                }
+                else
+                {
+                    Log.d("dberror", "HMMMMMMM");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error)
+            {
+                Log.d("dberror", error.getDetails());
+            }
+        });
+    }
+
+    private void updateRequestsList(long processedChildren, long totalChildren)
+    {
+        Log.d("dberror", String.valueOf(userRequests.size()));
+        requestedPlayersAdapter.notifyDataSetChanged();
+
+        if (userRequests.size() != 0)
+        {
+            requestsListHolder.setVisibility(View.VISIBLE);
+
+            if (processedChildren == totalChildren)
+                loadingIcon.setVisibility(View.GONE);
+        }
+        else
+        {
+            requestsHolder.setVisibility(View.GONE);
+            requestsListHolder.setVisibility(View.GONE);
+        }
+    }
+
+    private void configRequestsList()
+    {
+        requestedPlayersAdapter = new PlayersAdapter(userRequests);
+        requestsList.setAdapter(requestedPlayersAdapter);
+        requestsList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
+        RecyclerView.ItemDecoration itemDecoration = new
+                DividerItemDecoration(getBaseContext(), DividerItemDecoration.VERTICAL);
+        requestsList.addItemDecoration(itemDecoration);
+    }
+
+    private void sendRequest(DatabaseReference rootNode, String docID, AlertDialog loading)
+    {
+        final String pushKey = rootNode.push().getKey();
+
+        rootNode.child(pushKey)
                 .setValue(mAuth.getUid())
                 .addOnCompleteListener(new OnCompleteListener<Void>()
                 {
@@ -170,7 +280,70 @@ public class GamePage extends AppCompatActivity
                         }
                         else
                             Toast.makeText(getApplicationContext(), "Couldn't send request.", Toast.LENGTH_LONG).show();
-                        alert.dismiss();
+                        loading.dismiss();
+                    }
+                });
+    }
+
+    private void requestJoinGame()
+    {
+        final AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(this, true);
+        final String docID = docRef.getText().toString();
+        final DatabaseReference rootNode = FirebaseDatabase.getInstance().getReference("join_requests").child(docID);
+
+        boolean exists = false;
+        String json = CustomFileOperations.getJSONStringFromFile(this, mAuth.getUid(), CustomFileOperations.REQUESTS);
+        Log.d("reqdebug", json != null ? json : "nothing");
+
+        if (json == null)
+        {
+            sendRequest(rootNode, docID, loading);
+            return;
+        }
+
+        final List<RequestsFormat> requests = LegendsJSONParser.convertJSONToRequestList(json);
+        RequestsFormat request = null;
+
+        for (int i = 0; i < requests.size(); i++)
+        {
+            if (requests.get(i).getDocID().equals(docID))
+            {
+                exists = true;
+                request = requests.remove(i);
+                break;
+            }
+        }
+
+        if (!exists) // request to document not sent
+        {
+            sendRequest(rootNode, docID, loading);
+            return;
+        }
+
+        // if request has been sent to the document, we need to check if it still exists
+        rootNode.child(request.getRequestID())
+                .addListenerForSingleValueEvent(new ValueEventListener()
+                {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot)
+                    {
+                        if (snapshot.exists()) // if RequestID is still in the database
+                        {
+                            loading.dismiss();
+                            BuildAlertMessage.buildAlertMessageNeutral(activity, "You've already requested to join this game.");
+                        }
+                        else // if RequestID has been deleted from the database
+                        {
+                            CustomFileOperations.overwriteRequestsFile(requests, activity, mAuth.getUid()); // remove old RequestID from stored file
+                            sendRequest(rootNode, docID, loading);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error)
+                    {
+                        loading.dismiss();
+                        Toast.makeText(getApplicationContext(), "Something went wrong, please try again.", Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -221,7 +394,14 @@ public class GamePage extends AppCompatActivity
         docRef.setText(details.getFirebaseReferenceID());
         createdByID.setText(details.getCreatedByID());
 
-        if (pageCode == CustomFileOperations.FOUND_GAMES)
+        if (pageCode == CustomFileOperations.CREATED_GAMES)
+        {
+            DatabaseReference rootNode = FirebaseDatabase.getInstance()
+                    .getReference("join_requests")
+                    .child(details.getFirebaseReferenceID());
+
+        }
+        else if (pageCode == CustomFileOperations.FOUND_GAMES)
         {
             String strCreatedBy = "Created by: " + details.getCreatedBy();
             createdBy.setText(strCreatedBy);
