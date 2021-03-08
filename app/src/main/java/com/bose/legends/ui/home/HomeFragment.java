@@ -185,6 +185,7 @@ public class HomeFragment extends Fragment
     {
         super.onResume();
 
+        Toast.makeText(getContext(), "onResume", Toast.LENGTH_LONG).show();
         List<GameDetails> newDetails = LegendsJSONParser.convertJSONToGameDetailsList(
                 CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(),
                 CustomFileOperations.CREATED_GAMES));

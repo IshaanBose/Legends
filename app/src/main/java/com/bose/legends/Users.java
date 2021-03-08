@@ -2,7 +2,7 @@ package com.bose.legends;
 
 public class Users
 {
-    private String username, UID;
+    private String username, UID, requestID;
 
     public String getUsername()
     {
@@ -22,6 +22,16 @@ public class Users
     public void setUID(String UID)
     {
         this.UID = UID;
+    }
+
+    public String getRequestID()
+    {
+        return requestID;
+    }
+
+    public void setRequestID(String requestID)
+    {
+        this.requestID = requestID;
     }
 
     @Override

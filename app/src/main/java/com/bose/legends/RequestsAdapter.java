@@ -9,11 +9,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
-public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHolder>
+public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHolder>
 {
 
     private final List<Users> localDataSet;
-    private final byte pageCode;
     private final GamePage gamePageInstance;
 
     /**
@@ -23,7 +22,7 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
         private final TextView username, UID;
-        private ImageView removePlayer, addPlayers;
+        private ImageView addUser, removeRequest;
 
         public ViewHolder(View view)
         {
@@ -33,12 +32,7 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
             username = view.findViewById(R.id.username); UID = view.findViewById(R.id.uid);
 
             // ImageViews
-            removePlayer = view.findViewById(R.id.remove);
-            ImageView addUser = view.findViewById(R.id.add_user);
-
-            addUser.setImageAlpha(0);
-            addUser.setClickable(false);
-            addUser.setFocusable(false);
+            addUser = view.findViewById(R.id.add_user); removeRequest = view.findViewById(R.id.remove);
         }
 
         public TextView getUsername()
@@ -51,14 +45,14 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
             return UID;
         }
 
-        public ImageView getRemovePlayer()
+        public ImageView getAddUser()
         {
-            return removePlayer;
+            return addUser;
         }
 
-        public ImageView getAddPlayers()
+        public ImageView getRemoveRequest()
         {
-            return addPlayers;
+            return removeRequest;
         }
     }
 
@@ -68,28 +62,27 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
      * @param dataSet String[] containing the data to populate views to be used
      *                by RecyclerView.
      */
-    public PlayersAdapter(List<Users> dataSet, GamePage gamePage, byte pageCode)
+    public RequestsAdapter(List<Users> dataSet, GamePage gamePage)
     {
         localDataSet = dataSet;
-        this.pageCode = pageCode;
         gamePageInstance = gamePage;
     }
 
     // Create new views (invoked by the layout manager)
     @NotNull
     @Override
-    public PlayersAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType)
+    public RequestsAdapter.ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType)
     {
         // Create a new view, which defines the UI of the list item
         View view = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.item_players, viewGroup, false);
 
-        return new PlayersAdapter.ViewHolder(view);
+        return new RequestsAdapter.ViewHolder(view);
     }
 
     // Replace the contents of a view (invoked by the layout manager)
     @Override
-    public void onBindViewHolder(PlayersAdapter.ViewHolder viewHolder, final int position)
+    public void onBindViewHolder(RequestsAdapter.ViewHolder viewHolder, final int position)
     {
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
@@ -98,13 +91,14 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
 
         viewHolder.getUsername().setText(user.getUsername());
         viewHolder.getUID().setText(user.getUID());
-
-        if (this.pageCode == CustomFileOperations.FOUND_GAMES)
+        viewHolder.getAddUser().setOnClickListener(new View.OnClickListener()
         {
-            viewHolder.getRemovePlayer().setImageAlpha(0);
-            viewHolder.getRemovePlayer().setClickable(false);
-            viewHolder.getRemovePlayer().setFocusable(false);
-        }
+            @Override
+            public void onClick(View v)
+            {
+                gamePageInstance.addUser(position);
+            }
+        });
     }
 
     // Return the size of your dataset (invoked by the layout manager)

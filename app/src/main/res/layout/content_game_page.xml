@@ -282,7 +282,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:weightSum="15"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -297,18 +297,30 @@
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
+        <TextView
+            android:id="@+id/default_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="?attr/colorOnPrimary"
+            android:textSize="15sp"
+            android:text="@string/default_text_no_players"
+            android:layout_marginTop="5dp"
+            android:visibility="visible"/>
+
         <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/requests_holder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
+            android:visibility="gone"
             android:orientation="vertical">
 
             <androidx.appcompat.widget.LinearLayoutCompat
-                android:id="@+id/requests_holder"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:weightSum="15"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <TextView
                     android:layout_width="0dp"
@@ -326,6 +338,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:indeterminate="true"
+                    android:visibility="gone"
                     android:theme="@style/Theme.Legends.ProgressBar"/>
 
             </androidx.appcompat.widget.LinearLayoutCompat>
@@ -351,18 +364,18 @@
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 
-        </androidx.appcompat.widget.LinearLayoutCompat>
+            <TextView
+                android:id="@+id/default_request_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="?attr/colorOnPrimary"
+                android:textSize="15sp"
+                android:text="@string/no_requests"
+                android:layout_marginTop="5dp"
+                android:visibility="visible"/>
 
-        <TextView
-            android:id="@+id/default_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textColor="?attr/colorOnPrimary"
-            android:textSize="15sp"
-            android:text="@string/default_text_no_players"
-            android:layout_marginTop="5dp"
-            android:visibility="gone"/>
+        </androidx.appcompat.widget.LinearLayoutCompat>
 
         <Button
             android:id="@+id/join_game"

@@ -292,6 +292,7 @@ public class SignUp extends AppCompatActivity
                                     Log.d("xyz", "GOOD JOB");
                                     clearFields();
                                     mAuth.signOut();
+                                    Toast.makeText(getApplicationContext(), "Account created.", Toast.LENGTH_LONG).show();
                                     Intent i = new Intent(SignUp.context, SignIn.class);
                                     startActivity(i);
                                 }
@@ -303,6 +304,7 @@ public class SignUp extends AppCompatActivity
                                 {
                                     dialog.dismiss();
                                     Log.d("xyz", e.getMessage());
+                                    Toast.makeText(getApplicationContext(), "Couldn't create document.", Toast.LENGTH_SHORT).show();
                                     mAuth.getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>()
                                     {
                                         @Override
