@@ -306,14 +306,19 @@ public class FindGameFragment extends Fragment
             defaultText.setVisibility(View.VISIBLE);
             findGames.setVisibility(View.VISIBLE);
             fab.setVisibility(View.GONE);
-            defaultText.setText("No games found. Try different filters.");
+
+            if (!fromOnCreate)
+            {
+                defaultText.setText("No games found. Try different filters.");
+                CustomFileOperations.overwriteFileUsingFoundGamesList(games, getActivity(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES);
+            }
         }
         else
         {
             configRecyclerView(games);
 
             if (!fromOnCreate)
-                CustomFileOperations.overwriteFoundGamesFile(games, getActivity(), mAuth.getUid());
+                CustomFileOperations.overwriteFileUsingFoundGamesList(games, getActivity(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES);
 
             foundGamesList.setVisibility(View.VISIBLE);
             defaultText.setVisibility(View.GONE);

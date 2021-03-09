@@ -99,7 +99,7 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
         viewHolder.getUsername().setText(user.getUsername());
         viewHolder.getUID().setText(user.getUID());
 
-        if (this.pageCode == CustomFileOperations.FOUND_GAMES)
+        if (this.pageCode == CustomFileOperations.FOUND_GAMES || this.pageCode == CustomFileOperations.JOINED_GAMES)
         {
             viewHolder.getRemovePlayer().setImageAlpha(0);
             viewHolder.getRemovePlayer().setClickable(false);

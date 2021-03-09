@@ -1,5 +1,6 @@
 package com.bose.legends;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -39,8 +40,10 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.WriteBatch;
 
 public class SignUp extends AppCompatActivity
 {
@@ -278,46 +281,95 @@ public class SignUp extends AppCompatActivity
                     Map<String, Object> privateDetails = new HashMap<>();
                     privateDetails.put("location", new GeoPoint(currentLocation.getLatitude(), currentLocation.getLongitude()));
 
-                    db.collection("users").document(mAuth.getUid()).set(userDetails);
+                    Map<String, Object> joinedGames = new HashMap<>();
+                    joinedGames.put("game_count", 0);
+                    joinedGames.put("games", new ArrayList<>());
 
-                    db.collection("users").document(mAuth.getUid())
-                            .collection("private").document("private_info")
-                            .set(privateDetails)
-                            .addOnSuccessListener(new OnSuccessListener<Void>()
+                    DocumentReference userBase = db.collection("users").document(mAuth.getUid());
+
+                    userBase.set(userDetails)
+                            .addOnCompleteListener(new OnCompleteListener<Void>()
                             {
                                 @Override
-                                public void onSuccess(Void aVoid)
+                                public void onComplete(@NonNull Task<Void> task)
                                 {
-                                    dialog.dismiss();
-                                    Log.d("xyz", "GOOD JOB");
-                                    clearFields();
-                                    mAuth.signOut();
-                                    Toast.makeText(getApplicationContext(), "Account created.", Toast.LENGTH_LONG).show();
-                                    Intent i = new Intent(SignUp.context, SignIn.class);
-                                    startActivity(i);
-                                }
-                            })
-                            .addOnFailureListener(new OnFailureListener()
-                            {
-                                @Override
-                                public void onFailure(@NonNull Exception e)
-                                {
-                                    dialog.dismiss();
-                                    Log.d("xyz", e.getMessage());
-                                    Toast.makeText(getApplicationContext(), "Couldn't create document.", Toast.LENGTH_SHORT).show();
-                                    mAuth.getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>()
+                                    if (task.isSuccessful()) // check if user's base document has been created; docID = UID
                                     {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task)
+                                        WriteBatch batch = db.batch();
+
+                                        DocumentReference privateInfo = userBase.collection("private").document("private_info");
+                                        DocumentReference games = userBase.collection("joined_games").document("games");
+
+                                        batch.set(privateInfo, privateDetails);
+                                        batch.set(games, joinedGames);
+
+                                        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>()
                                         {
-                                            if (task.isSuccessful())
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task)
+                                            {
+                                                if (task.isSuccessful()) // check if inner collections have been created
+                                                {
+                                                    dialog.dismiss();
+                                                    Log.d("xyz", "GOOD JOB");
+                                                    clearFields();
+                                                    mAuth.signOut();
+                                                    Toast.makeText(getApplicationContext(), "Account created.", Toast.LENGTH_LONG).show();
+                                                    Intent i = new Intent(SignUp.context, SignIn.class);
+                                                    startActivity(i);
+                                                }
+                                                else // if they haven't been created, then we need to delete user's authentication and the base user document
+                                                {
+                                                    Log.d("xyz", task.getException().getMessage());
+                                                    Toast.makeText(getApplicationContext(), "Couldn't create user document.", Toast.LENGTH_SHORT).show();
+
+                                                    if (mAuth.getCurrentUser() != null)
+                                                    {
+                                                        mAuth.getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>()
+                                                        {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task)
+                                                            {
+                                                                if (task.isSuccessful())
+                                                                {
+                                                                    userBase.delete().addOnCompleteListener(new OnCompleteListener<Void>()
+                                                                    {
+                                                                        @Override
+                                                                        public void onComplete(@NonNull Task<Void> task)
+                                                                        {
+                                                                            dialog.dismiss();
+                                                                            Toast.makeText(SignUp.context, "Something went wrong, try again.", Toast.LENGTH_SHORT).show();
+                                                                        }
+                                                                    });
+                                                                }
+                                                                else
+                                                                {
+                                                                    dialog.dismiss();
+                                                                    Toast.makeText(SignUp.context, "Something went wrong, try again.", Toast.LENGTH_SHORT).show();
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    }
+                                    else // if base user document could not be created, then we need to delete the user's authentication still
+                                    {
+                                        mAuth.getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>()
+                                        {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task)
+                                            {
+                                                dialog.dismiss();
                                                 Toast.makeText(SignUp.context, "Something went wrong, try again.", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
+                                            }
+                                        });
+                                    }
                                 }
                             });
                 }
-                else
+                else // if user couldn't login
                 {
                     dialog.dismiss();
                     Toast.makeText(SignUp.context, "Email already in use.", Toast.LENGTH_SHORT).show();

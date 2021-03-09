@@ -19,6 +19,7 @@ public class CustomFileOperations
     public static final byte CREATED_GAMES = 0;
     public static final byte FOUND_GAMES = 1;
     public static final byte REQUESTS = 2;
+    public static final byte JOINED_GAMES = 3;
 
     private static String getFileSuffixFromCode(byte code)
     {
@@ -29,6 +30,8 @@ public class CustomFileOperations
             case 1: return "_found_games.json";
 
             case 2: return "_requests.json";
+
+            case 3: return "_joined_games.json";
 
             default: return "_dump_file.txt";
         }
@@ -137,9 +140,8 @@ public class CustomFileOperations
         }
     }
 
-    public static void overwriteFoundGamesFile(List<FoundGameDetails> details, Activity activity, String UID)
+    public static void overwriteFileUsingFoundGamesList(List<FoundGameDetails> details, Activity activity, String UID, byte fileCode)
     {
-        byte fileCode = CustomFileOperations.FOUND_GAMES;
         String filename = UID + getFileSuffixFromCode(fileCode);
 
         try

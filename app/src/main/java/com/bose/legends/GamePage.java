@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -47,7 +48,7 @@ public class GamePage extends AppCompatActivity
     private Button joinGame;
     private GamePage activity;
     private List<Users> userRequests, players;
-    List<String> requestIDs;
+    private List<String> requestIDs;
     private RequestsAdapter requestedPlayersAdapter;
     private PlayersAdapter playersAdapter;
     private DatabaseReference rootNode;
@@ -260,7 +261,7 @@ public class GamePage extends AppCompatActivity
                 .document(docID)
                 .update(
                         "players", FieldValue.arrayUnion(user.getUID()),
-                        "player_count", gameDetails.get(finalIndex).getPlayerCount() + 1
+                        "player_count", FieldValue.increment(1)
                 )
                 .addOnCompleteListener(new OnCompleteListener<Void>()
                 {
@@ -296,29 +297,47 @@ public class GamePage extends AppCompatActivity
                                                 // now that request has been deleted from the database, we can remove it from our adapter's data set
                                                 userRequests.remove(position);
 
-                                                // all changes are done so we update our two lists
-                                                updatePlayerCount(gameDetails.get(finalIndex).getPlayerCount());
-                                                updateRequestsList(position, true);
-                                                updatePlayersList(players.size());
+                                                // now we need to notify the user that they've been invited to our game, so we need update their joined games collection
+                                                FirebaseFirestore.getInstance().collection("users")
+                                                        .document(user.getUID())
+                                                        .collection("joined_games")
+                                                        .document("games")
+                                                        .update(
+                                                                "games", FieldValue.arrayUnion(docID),
+                                                                "game_count", FieldValue.increment(1)
+                                                        )
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>()
+                                                        {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task)
+                                                            {
+                                                                if (task.isSuccessful())
+                                                                {
+                                                                    // all changes are done so we update our two lists
+                                                                    updatePlayerCount(gameDetails.get(finalIndex).getPlayerCount());
+                                                                    updateRequestsList(position, true);
+                                                                    updatePlayersList(players.size());
 
-                                                loading.dismiss();
+                                                                    // makes sure that created games list in HomeFragment is updated
+                                                                    SharedPreferences pref = getSharedPreferences("com.bose.legends.update_created_games_list", MODE_PRIVATE);
+                                                                    SharedPreferences.Editor editor = pref.edit();
+                                                                    editor.putBoolean("update", true);
+                                                                    editor.apply();
+                                                                }
+                                                                else // since we couldn't add data to user's document, we need to rollback all changes done.
+                                                                {
+                                                                    rollbackChanges(gameDetails, finalIndex);
+                                                                }
+
+                                                                loading.dismiss();
+                                                            }
+                                                        });
                                             }
                                             else // since we couldn't remove the request from the database, we need to rollback all changes done.
                                             {
-                                                players.remove(players.size() - 1); // removing the adapter's data set
-                                                // removing player from json file's data
-                                                List<String> existingPlayers =
-                                                        gameDetails.get(finalIndex).getPlayers() == null
-                                                                ? new ArrayList<>() : gameDetails.get(finalIndex).getPlayers();
-                                                existingPlayers.remove(existingPlayers.size() - 1);
-                                                gameDetails.get(finalIndex).setPlayers(existingPlayers);
-                                                gameDetails.get(finalIndex).setPlayerCount(gameDetails.get(finalIndex).getPlayerCount() - 1);
-
-                                                // overwriting created games file to make it it's original state
-                                                CustomFileOperations.overwriteCreatedGamesFile(gameDetails, activity, mAuth.getUid());
-
-                                                Toast.makeText(getApplicationContext(), "Couldn't add player.", Toast.LENGTH_LONG).show();
+                                                rollbackChanges(gameDetails, finalIndex);
                                             }
+
                                             loading.dismiss();
                                         }
                                     });
@@ -330,6 +349,23 @@ public class GamePage extends AppCompatActivity
                         }
                     }
                 });
+    }
+
+    private void rollbackChanges(List<GameDetails> gameDetails, int finalIndex)
+    {
+        players.remove(players.size() - 1); // removing the adapter's data set
+        // removing player from json file's data
+        List<String> existingPlayers =
+                gameDetails.get(finalIndex).getPlayers() == null
+                        ? new ArrayList<>() : gameDetails.get(finalIndex).getPlayers();
+        existingPlayers.remove(existingPlayers.size() - 1);
+        gameDetails.get(finalIndex).setPlayers(existingPlayers);
+        gameDetails.get(finalIndex).setPlayerCount(gameDetails.get(finalIndex).getPlayerCount() - 1);
+
+        // overwriting created games file to make it it's original state
+        CustomFileOperations.overwriteCreatedGamesFile(gameDetails, activity, mAuth.getUid());
+
+        Toast.makeText(getApplicationContext(), "Couldn't add player.", Toast.LENGTH_LONG).show();
     }
 
     private void updatePlayerCount(int newCount)
@@ -361,7 +397,7 @@ public class GamePage extends AppCompatActivity
 
     private void updatePlayersList(int position)
     {
-        playersAdapter.notifyItemChanged(position == players.size() ? (position - 1) : position);
+        playersAdapter.notifyItemChanged(position);
 
         if (players.size() == 0)
         {
@@ -420,7 +456,18 @@ public class GamePage extends AppCompatActivity
                             Log.d("reqdebug", "json: " + json);
                             Log.d("reqdebug", rf.toString());
 
-                            Toast.makeText(getApplicationContext(), "Request sent!", Toast.LENGTH_LONG).show();
+                            FirebaseDatabase.getInstance().getReference("users_requests")
+                                    .child(mAuth.getUid())
+                                    .child(rf.getDocID())
+                                    .setValue(rf.getRequestID())
+                                    .addOnCompleteListener(new OnCompleteListener<Void>()
+                                    {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task)
+                                        {
+                                            Toast.makeText(getApplicationContext(), "Request sent!", Toast.LENGTH_LONG).show();
+                                        }
+                                    });
                         }
                         else
                             Toast.makeText(getApplicationContext(), "Couldn't send request.", Toast.LENGTH_LONG).show();
@@ -536,7 +583,7 @@ public class GamePage extends AppCompatActivity
         docRef.setText(details.getFirebaseReferenceID());
         createdByID.setText(details.getCreatedByID());
 
-        if (pageCode == CustomFileOperations.FOUND_GAMES)
+        if (pageCode == CustomFileOperations.FOUND_GAMES || pageCode == CustomFileOperations.JOINED_GAMES)
         {
             String strCreatedBy = "Created by: " + details.getCreatedBy();
             createdBy.setText(strCreatedBy);
@@ -547,7 +594,8 @@ public class GamePage extends AppCompatActivity
             distance.setText(distStr);
             distanceHolder.setVisibility(View.VISIBLE);
 
-            joinGame.setVisibility(View.VISIBLE);
+            if (pageCode == CustomFileOperations.FOUND_GAMES)
+                joinGame.setVisibility(View.VISIBLE);
         }
 
         for (String playerID : details.getPlayers())
@@ -594,7 +642,7 @@ public class GamePage extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        if (pageCode == CustomFileOperations.FOUND_GAMES)
+        if (pageCode == CustomFileOperations.FOUND_GAMES || pageCode == CustomFileOperations.JOINED_GAMES)
             getMenuInflater().inflate(R.menu.menu_create_game, menu);
         else
         {
