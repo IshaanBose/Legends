@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,7 +13,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -37,13 +35,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Transaction;
-import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,9 +79,9 @@ public class HomeFragment extends Fragment
                 });
 
         // RecyclerViews
-        createdGamesList = root.findViewById(R.id.create_games_list); joinedGamesList = root.findViewById(R.id.joined_games_list);
+        createdGamesList = root.findViewById(R.id.created_games_list); joinedGamesList = root.findViewById(R.id.joined_games_list);
         // ImageViews
-        ImageView createGame = root.findViewById(R.id.createGame), syncGames = root.findViewById(R.id.sync_games);
+        ImageView createGame = root.findViewById(R.id.createGame);//, syncGames = root.findViewById(R.id.sync_games);
         // TextViews
         noGames = root.findViewById(R.id.no_games); noJoinedGames = root.findViewById(R.id.no_joined_games);
 
@@ -99,14 +94,14 @@ public class HomeFragment extends Fragment
             }
         });
 
-        syncGames.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                syncData();
-            }
-        });
+//        syncGames.setOnClickListener(new View.OnClickListener()
+//        {
+//            @Override
+//            public void onClick(View v)
+//            {
+//                syncData();
+//            }
+//        });
 
         createdGamesDetails = new ArrayList<>();
         joinedGamesDetails = new ArrayList<>();
