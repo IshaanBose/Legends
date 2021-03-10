@@ -20,6 +20,7 @@ public class CustomFileOperations
     public static final byte FOUND_GAMES = 1;
     public static final byte REQUESTS = 2;
     public static final byte JOINED_GAMES = 3;
+    public static final byte STORED_USERS = 4;
 
     private static String getFileSuffixFromCode(byte code)
     {
@@ -32,6 +33,8 @@ public class CustomFileOperations
             case 2: return "_requests.json";
 
             case 3: return "_joined_games.json";
+
+            case 4: return "stored_users.json";
 
             default: return "_dump_file.txt";
         }
@@ -63,6 +66,40 @@ public class CustomFileOperations
             requests.add(rf);
             outputStreamWriter = new OutputStreamWriter(activity.openFileOutput(filename, Context.MODE_PRIVATE));
             outputStreamWriter.write(LegendsJSONParser.convertToJSONJacksonAPI(requests));
+            outputStreamWriter.close();
+        }
+        catch (IOException e)
+        {
+            Log.d("xyz", "File write failed: " + e.toString());
+        }
+    }
+
+    public static void writeUserToFile(Users user, Activity activity, byte fileCode)
+    {
+        String filename = getFileSuffixFromCode(fileCode);
+        File file = activity.getBaseContext().getFileStreamPath(filename);
+
+        try
+        {
+            OutputStreamWriter outputStreamWriter;
+            List<Users> users;
+
+            if (file.exists())
+            {
+                String jsonData = getJSONStringFromFile(activity, "", fileCode);
+                users = LegendsJSONParser.convertJSONToUsersList(jsonData);
+
+                if (users == null)
+                    users = new ArrayList<>();
+            }
+            else
+            {
+                users = new ArrayList<>();
+            }
+
+            users.add(user);
+            outputStreamWriter = new OutputStreamWriter(activity.openFileOutput(filename, Context.MODE_PRIVATE));
+            outputStreamWriter.write(LegendsJSONParser.convertToJSONJacksonAPI(users));
             outputStreamWriter.close();
         }
         catch (IOException e)

@@ -111,6 +111,7 @@ public class SignIn extends AppCompatActivity
                                     editor.putString("username", doc.getString("username"));
                                     editor.putString("email", sEmail);
                                     editor.putBoolean("remember", remember);
+                                    editor.putBoolean("from sign in", true);
                                     editor.apply();
 
                                     dialog.dismiss();

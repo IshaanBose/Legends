@@ -104,29 +104,39 @@ public class HomeFragment extends Fragment
             @Override
             public void onClick(View v)
             {
-                syncCreatedGames();
+                syncData();
             }
         });
 
-        createdGamesDetails = LegendsJSONParser.convertJSONToGameDetailsList(
-                CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES));
+        createdGamesDetails = new ArrayList<>();
         joinedGamesDetails = new ArrayList<>();
 
-        if (createdGamesDetails == null)
+        configCreatedGamesRecyclerView();
+        configJoinedGamesRecyclerView();
+
+        SharedPreferences pref = getActivity().getSharedPreferences("com.bose.legends.user_details", Context.MODE_PRIVATE);
+        
+        if (pref.getBoolean("from sign in", false)) // sync data on sign in
         {
-            noGames.setVisibility(View.VISIBLE);
-            createdGamesList.setVisibility(View.GONE);
-        }
-        else
-        {
-            noGames.setVisibility(View.GONE);
-            createdGamesList.setVisibility(View.VISIBLE);
+            Log.d("sync", "in here");
+            syncData();
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putBoolean("from sign in", false);
+            editor.apply();
+
+            return root;
         }
 
-        configCreatedGamesRecyclerView(createdGamesDetails);
-        getJoinedGames();
+        getCreatedGames(false);
+        getJoinedGames(false);
 
         return root;
+    }
+    
+    private void syncData()
+    {
+        getCreatedGames(true);
+        getJoinedGames(true);
     }
 
     private void createGame()
@@ -134,21 +144,86 @@ public class HomeFragment extends Fragment
         Intent intent = new Intent(getContext(), CreateGame.class);
         startActivity(intent);
     }
-
-    private void getJoinedGames()
+    
+    private void getCreatedGames(boolean fromServer)
     {
-        List<FoundGameDetails> storedJoinedGames = LegendsJSONParser.convertJSONToFoundGamesDetailsList(
-                CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(), CustomFileOperations.JOINED_GAMES)
-        );
-
-        if (storedJoinedGames != null)
+        if (!fromServer)
         {
-            Log.d("joined", storedJoinedGames.toString());
-            updateJoinedGamesList(storedJoinedGames, true);
-            return;
+            List<GameDetails> storedGames = LegendsJSONParser.convertJSONToGameDetailsList(
+                    CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES)
+            );
+            
+            if (storedGames != null)
+            {
+                updateCreatedGamesRecyclerView(storedGames, true);
+                return;
+            }
         }
 
-        AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(getContext(), true);
+        Log.d("sync", "syncing created games");
+        AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(getContext(), "Syncing created games…", true);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        Query query = db.collection("games")
+                .whereEqualTo("created_by_id", mAuth.getUid());
+
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task)
+            {
+                if (task.isSuccessful())
+                {
+                    List<GameDetails> syncedGames = new ArrayList<>();
+
+                    for (QueryDocumentSnapshot doc : task.getResult())
+                    {
+                        GameDetails gameDetails = new GameDetails();
+                        gameDetails.mapDocValues(doc);
+
+                        syncedGames.add(gameDetails);
+                    }
+
+                    if (syncedGames.size() != 0)
+                    {
+                        CustomFileOperations.deleteFile(getContext(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
+                        CustomFileOperations.overwriteCreatedGamesFile(syncedGames, getActivity(), mAuth.getUid());
+                        createdGamesDetails = null;
+
+                        updateCreatedGamesRecyclerView(syncedGames, true);
+
+                        Toast.makeText(getContext(), "Created games list updated", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        Toast.makeText(getContext(), "No games found", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                else
+                {
+                    Toast.makeText(getContext(), "Something went wrong, please try again.", Toast.LENGTH_SHORT).show();
+                }
+                loading.dismiss();
+            }
+        });
+    }
+
+    private void getJoinedGames(boolean fromServer)
+    {
+        if (!fromServer)
+        {
+            List<FoundGameDetails> storedJoinedGames = LegendsJSONParser.convertJSONToFoundGamesDetailsList(
+                    CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(), CustomFileOperations.JOINED_GAMES)
+            );
+
+            if (storedJoinedGames != null)
+            {
+                Log.d("joined", storedJoinedGames.toString());
+                updateJoinedGamesList(storedJoinedGames, true);
+                return;
+            }
+        }
+
+        AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(getContext(), "Syncing joined games…", true);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users")
                 .document(mAuth.getUid())
@@ -203,6 +278,7 @@ public class HomeFragment extends Fragment
                                                         mAuth.getUid(), CustomFileOperations.JOINED_GAMES);
                                                 Log.d("joined", joinedGamesDetails.toString());
                                                 loading.dismiss();
+                                                Toast.makeText(getContext(), "Joined games list updated.", Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     });
@@ -300,7 +376,7 @@ public class HomeFragment extends Fragment
 
             if (hideNoGame)
             {
-                configCreatedGamesRecyclerView(createdGamesDetails);
+                configCreatedGamesRecyclerView();
                 noGames.setVisibility(View.GONE);
                 createdGamesList.setVisibility(View.VISIBLE);
             }
@@ -310,6 +386,7 @@ public class HomeFragment extends Fragment
             if (newDetails != null)
             {
                 createdGamesDetails = new ArrayList<>(newDetails);
+                configCreatedGamesRecyclerView();
                 createdGamesAdapter.notifyItemRangeChanged(0, (newDetails.size()));
                 noGames.setVisibility(View.GONE);
                 createdGamesList.setVisibility(View.VISIBLE);
@@ -419,9 +496,9 @@ public class HomeFragment extends Fragment
         );
     }
 
-    private void configCreatedGamesRecyclerView(List<GameDetails> details)
+    private void configCreatedGamesRecyclerView()
     {
-        createdGamesAdapter = new CreatedGamesAdapter(details);
+        createdGamesAdapter = new CreatedGamesAdapter(createdGamesDetails);
         createdGamesList.setAdapter(createdGamesAdapter);
         createdGamesList.setLayoutManager(new LinearLayoutManager(getContext()));
         RecyclerView.ItemDecoration itemDecoration = new
@@ -435,9 +512,9 @@ public class HomeFragment extends Fragment
                     public void onItemClicked(RecyclerView recyclerView, int position, View v)
                     {
                         Intent intent = new Intent(getContext(), GamePage.class);
-                        intent.putExtra("game_name", details.get(position).getGameName());
+                        intent.putExtra("game_name", createdGamesDetails.get(position).getGameName());
                         intent.putExtra("page_code", CustomFileOperations.CREATED_GAMES);
-                        intent.putExtra("doc_ref", details.get(position).getFirebaseReferenceID());
+                        intent.putExtra("doc_ref", createdGamesDetails.get(position).getFirebaseReferenceID());
 
                         startActivity(intent);
                     }

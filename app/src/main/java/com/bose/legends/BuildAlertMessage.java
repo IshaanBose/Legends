@@ -37,6 +37,25 @@ public class BuildAlertMessage extends AppCompatActivity
         return alert;
     }
 
+    public static AlertDialog buildAlertIndeterminateProgress(Context context, String message, boolean autoShow)
+    {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        LayoutInflater inflater = LayoutInflater.from(context);
+
+        View view = inflater.inflate(R.layout.progress_bar, null);
+        TextView text = view.findViewById(R.id.text_progress_bar);
+        text.setText(message);
+
+        builder.setView(view);
+        final AlertDialog alert = builder.create();
+        alert.setCancelable(false);
+
+        if (autoShow)
+            alert.show();
+
+        return alert;
+    }
+
     public static void buildAlertMessageNeutral(Context context, String msg)
     {
         final AlertDialog.Builder builder = new AlertDialog.Builder(context);
