@@ -231,11 +231,12 @@
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
             android:orientation="horizontal">
 
             <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/chk_mon"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:text="M"
                 android:hint="@string/mon"
@@ -245,7 +246,7 @@
 
             <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/chk_tue"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:text="Tu"
                 android:hint="@string/tue"
@@ -255,7 +256,7 @@
 
             <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/chk_wed"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:text="W"
                 android:hint="@string/wed"
@@ -265,7 +266,7 @@
 
             <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/chk_thu"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:text="Th"
                 android:hint="@string/thu"
@@ -275,7 +276,7 @@
 
             <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/chk_fri"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:text="F"
                 android:hint="@string/fri"
@@ -283,9 +284,17 @@
                 android:scaleX="0.8"
                 android:scaleY="0.8"/>
 
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+
             <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/chk_sat"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:text="Sa"
                 android:hint="@string/sat"
@@ -295,7 +304,7 @@
 
             <androidx.appcompat.widget.AppCompatCheckBox
                 android:id="@+id/chk_sun"
-                android:layout_width="wrap_content"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:text="Su"
                 android:hint="@string/sun"

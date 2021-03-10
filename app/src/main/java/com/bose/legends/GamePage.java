@@ -51,7 +51,7 @@ public class GamePage extends AppCompatActivity
     private List<String> requestIDs;
     private RequestsAdapter requestedPlayersAdapter;
     private PlayersAdapter playersAdapter;
-    private DatabaseReference rootNode;
+    private DatabaseReference joinRequestNode, usersRequestNode;
     private String docID;
     private ChildEventListener requestChildEventListener;
     private int colorOnPrimary;
@@ -96,14 +96,15 @@ public class GamePage extends AppCompatActivity
         pageCode = pageDetails.getByte("page_code");
         docID = pageDetails.getString("doc_ref");
         players = new ArrayList<>();
-        rootNode = FirebaseDatabase.getInstance().getReference("join_requests").child(docID);
+        joinRequestNode = FirebaseDatabase.getInstance().getReference("join_requests").child(docID);
+        usersRequestNode = FirebaseDatabase.getInstance().getReference("users_requests").child(mAuth.getUid()).child(docID);
 
         joinGame.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                requestJoinGame();
+                checkPlayersListBeforeRequest();
             }
         });
 
@@ -235,7 +236,7 @@ public class GamePage extends AppCompatActivity
             { }
         };
 
-        rootNode.addChildEventListener(requestChildEventListener);
+        joinRequestNode.addChildEventListener(requestChildEventListener);
     }
 
     public void addUser(int position)
@@ -271,7 +272,7 @@ public class GamePage extends AppCompatActivity
                         if (task.isSuccessful())
                         {
                             // update game's json file
-                            // add player to the players list
+                            // add player to the existing players list of game document
                             List<String> existingPlayers =
                                     gameDetails.get(finalIndex).getPlayers() == null ? new ArrayList<>() : gameDetails.get(finalIndex).getPlayers();
                             existingPlayers.add(user.getUID());
@@ -285,7 +286,7 @@ public class GamePage extends AppCompatActivity
                             CustomFileOperations.overwriteCreatedGamesFile(gameDetails, activity, mAuth.getUid());
 
                             // now to remove the request from database
-                            rootNode.child(requestIDs.get(position))
+                            joinRequestNode.child(requestIDs.get(position))
                                     .removeValue()
                                     .addOnCompleteListener(new OnCompleteListener<Void>()
                                     {
@@ -431,32 +432,25 @@ public class GamePage extends AppCompatActivity
         playerList.addItemDecoration(itemDecoration);
     }
 
-    private void sendRequest(AlertDialog loading)
+    private void sendRequest()
     {
-        final String pushKey = rootNode.push().getKey();
+        final AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(this, "Sending request…", true);
+        final String pushKey = joinRequestNode.push().getKey();
 
-        rootNode.child(pushKey)
+        joinRequestNode.child(pushKey)
                 .setValue(mAuth.getUid())
                 .addOnCompleteListener(new OnCompleteListener<Void>()
                 {
                     @Override
                     public void onComplete(@NonNull Task<Void> task)
                     {
-                        if (task.isSuccessful())
+                        if (task.isSuccessful()) // request was made in game's document
                         {
                             RequestsFormat rf = new RequestsFormat();
                             rf.setDocID(docID);
                             rf.setRequestID(pushKey);
 
-                            CustomFileOperations.writeRequestToFile(rf, activity, mAuth.getUid(),
-                                    CustomFileOperations.REQUESTS);
-                            String json = CustomFileOperations.getJSONStringFromFile(activity, mAuth.getUid(),
-                                    CustomFileOperations.REQUESTS);
-
-                            Log.d("reqdebug", "json: " + json);
-                            Log.d("reqdebug", rf.toString());
-
-                            FirebaseDatabase.getInstance().getReference("users_requests")
+                            FirebaseDatabase.getInstance().getReference("users_requests") //
                                     .child(mAuth.getUid())
                                     .child(rf.getDocID())
                                     .setValue(rf.getRequestID())
@@ -465,74 +459,148 @@ public class GamePage extends AppCompatActivity
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task)
                                         {
-                                            Toast.makeText(getApplicationContext(), "Request sent!", Toast.LENGTH_LONG).show();
+                                            if (task.isSuccessful()) // request added in user's requests db
+                                            {
+                                                loading.dismiss();
+                                                Toast.makeText(getApplicationContext(), "Request sent!", Toast.LENGTH_LONG).show();
+                                            }
+                                            else // if not, then attempt a rollback
+                                            {
+                                                joinRequestNode.child(pushKey)
+                                                        .removeValue()
+                                                        .addOnCompleteListener(new OnCompleteListener<Void>()
+                                                        {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task)
+                                                            {
+                                                                if (!task.isSuccessful())
+                                                                    Log.d("dberror", "GamePage 477: " + task.getException().getMessage());
+                                                                loading.dismiss();
+                                                                Toast.makeText(getApplicationContext(), "Request could not be sent.", Toast.LENGTH_LONG).show();
+                                                            }
+                                                        });
+                                            }
                                         }
                                     });
                         }
-                        else
-                            Toast.makeText(getApplicationContext(), "Couldn't send request.", Toast.LENGTH_LONG).show();
-                        loading.dismiss();
+                        else // request couldn't be made
+                        {
+                            loading.dismiss();
+                            Toast.makeText(getApplicationContext(), "Request could not be sent.", Toast.LENGTH_LONG).show();
+                        }
                     }
                 });
     }
 
-    private void requestJoinGame()
+    private void requestJoinGame(AlertDialog loading)
     {
-        final AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(this, true);
-
-        boolean exists = false;
-        String json = CustomFileOperations.getJSONStringFromFile(this, mAuth.getUid(), CustomFileOperations.REQUESTS);
-        Log.d("reqdebug", json != null ? json : "nothing");
-
-        if (json == null)
+        usersRequestNode.addListenerForSingleValueEvent(new ValueEventListener()
         {
-            sendRequest(loading);
-            return;
-        }
-
-        final List<RequestsFormat> requests = LegendsJSONParser.convertJSONToRequestList(json);
-        RequestsFormat request = null;
-
-        for (int i = 0; i < requests.size(); i++)
-        {
-            if (requests.get(i).getDocID().equals(docID))
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot)
             {
-                exists = true;
-                request = requests.remove(i);
-                break;
+                if (snapshot.exists()) // checking if user made request to game
+                {
+                    final DataSnapshot snap = snapshot;
+
+                    joinRequestNode.child(snap.getValue().toString())
+                            .addListenerForSingleValueEvent(new ValueEventListener()
+                            {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot)
+                                {
+                                    if (snapshot.exists()) // if request still exists in the game doc
+                                    {
+                                        loading.dismiss();
+                                        BuildAlertMessage.buildAlertMessageNeutral(activity, "You've already requested to join this game.");
+                                    }
+                                    else // if request is not in the doc anymore
+                                    {
+                                        // delete it from users requests and send request again
+                                        joinRequestNode.child(snap.getValue().toString())
+                                                .removeValue()
+                                                .addOnCompleteListener(new OnCompleteListener<Void>()
+                                                {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<Void> task)
+                                                    {
+                                                        if (task.isSuccessful())
+                                                        {
+                                                            loading.dismiss();
+                                                            sendRequest();
+                                                        }
+                                                        else
+                                                        {
+                                                            loading.dismiss();
+                                                            Toast.makeText(getApplicationContext(), "Couldn't send request, please try again",
+                                                                    Toast.LENGTH_LONG).show();
+                                                        }
+                                                    }
+                                                });
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error)
+                                {}
+                            });
+                }
+                else // if user has not made request to the game
+                {
+                    loading.dismiss();
+                    sendRequest();
+                }
             }
-        }
 
-        if (!exists) // request to document not sent
-        {
-            sendRequest(loading);
-            return;
-        }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error)
+            {}
+        });
+    }
 
-        // if request has been sent to the document, we need to check if it still exists
-        rootNode.child(request.getRequestID())
-                .addListenerForSingleValueEvent(new ValueEventListener()
+    private void checkPlayersListBeforeRequest()
+    {
+        final AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(this, "Checking your requests…", true);
+        // we wanna first check if user has already joined the gamed
+        FirebaseFirestore.getInstance().collection("games")
+                .document(docID)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
                 {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot)
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task)
                     {
-                        if (snapshot.exists()) // if RequestID is still in the database
+                        if (task.isSuccessful())
+                        {
+                            DocumentSnapshot snap = task.getResult();
+                            List<String> players = (List<String>) snap.get("players");
+
+                            // if player has joined the game, delete request to join said game, if it still exists
+                            if (players.contains(mAuth.getUid()))
+                            {
+                                usersRequestNode.removeValue().addOnCompleteListener(new OnCompleteListener<Void>()
+                                {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task)
+                                    {
+                                        if (task.isSuccessful())
+                                        {
+                                            loading.dismiss();
+                                            BuildAlertMessage.buildAlertMessageNeutral(activity, "You've joined this game.");
+                                        }
+                                    }
+                                });
+                            }
+                            else // if player hasn't joined the game
+                            {
+                                requestJoinGame(loading);
+                            }
+                        }
+                        else
                         {
                             loading.dismiss();
-                            BuildAlertMessage.buildAlertMessageNeutral(activity, "You've already requested to join this game.");
+                            BuildAlertMessage.buildAlertMessageNeutral(activity, "Couldn't send request, try again.");
                         }
-                        else // if RequestID has been deleted from the database
-                        {
-                            CustomFileOperations.overwriteRequestsFile(requests, activity, mAuth.getUid()); // remove old RequestID from stored file
-                            sendRequest(loading);
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error)
-                    {
-                        loading.dismiss();
-                        Toast.makeText(getApplicationContext(), "Something went wrong, please try again.", Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -677,6 +745,6 @@ public class GamePage extends AppCompatActivity
         super.onDestroy();
 
         if (requestChildEventListener != null)
-            rootNode.removeEventListener(requestChildEventListener);
+            joinRequestNode.removeEventListener(requestChildEventListener);
     }
 }

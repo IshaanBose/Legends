@@ -139,6 +139,8 @@ public class SignUp extends AppCompatActivity
                         Log.d("xyz", "hey there loc");
                         Log.d("xyz", String.valueOf(location.getLatitude()) + " " + String.valueOf(location.getLongitude()));
                         currentLocation = location;
+
+                        signUp();
                     }
                     else
                     {
@@ -158,6 +160,8 @@ public class SignUp extends AppCompatActivity
                                 Location location1 = locationResult.getLastLocation();
                                 Log.d("xyz", String.valueOf(location1.getLatitude()) + " " + String.valueOf(location1.getLongitude()));
                                 currentLocation = location1;
+
+                                signUp();
                             }
                         };
                         client.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
@@ -177,7 +181,11 @@ public class SignUp extends AppCompatActivity
     {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
-        if (!(requestCode == 100 && (grantResults.length > 0) && (grantResults[0] + grantResults[1] == PackageManager.PERMISSION_GRANTED)))
+        if ((requestCode == 100 && (grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)))
+        {
+            Toast.makeText(getApplicationContext(), "Permission granted!", Toast.LENGTH_SHORT).show();
+        }
+        else
         {
             buildAlertMessageGivePermission();
         }
@@ -236,8 +244,6 @@ public class SignUp extends AppCompatActivity
     public void validateSignUp(View view)
     {
         String sUsername = username.getText().toString();
-        String sPassword = password.getText().toString();
-        String sEmail = email.getText().toString();
         boolean stop = false;
 
         if (sUsername.length() == 0)
@@ -256,6 +262,13 @@ public class SignUp extends AppCompatActivity
         }
 
         getLocation();
+    }
+
+    private void signUp()
+    {
+        String sPassword = password.getText().toString();
+        String sEmail = email.getText().toString();
+
         LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
         if (!(locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)))
         {

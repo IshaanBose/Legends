@@ -299,54 +299,6 @@ public class HomeFragment extends Fragment
         offset += 1;
     }
 
-    private void syncCreatedGames()
-    {
-        AlertDialog alert = BuildAlertMessage.buildAlertIndeterminateProgress(getContext(), true);
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        Query query = db.collection("games")
-                .whereEqualTo("created_by_id", mAuth.getUid());
-
-        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>()
-        {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task)
-            {
-                if (task.isSuccessful())
-                {
-                    List<GameDetails> syncedGames = new ArrayList<>();
-
-                    for (QueryDocumentSnapshot doc : task.getResult())
-                    {
-                        GameDetails gameDetails = new GameDetails();
-                        gameDetails.mapDocValues(doc);
-
-                        syncedGames.add(gameDetails);
-                    }
-
-                    if (syncedGames.size() != 0)
-                    {
-                        CustomFileOperations.deleteFile(getContext(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
-                        CustomFileOperations.overwriteCreatedGamesFile(syncedGames, getActivity(), mAuth.getUid());
-                        createdGamesDetails = null;
-
-                        updateCreatedGamesRecyclerView(syncedGames, false);
-
-                        Toast.makeText(getContext(), "List updated", Toast.LENGTH_SHORT).show();
-                    }
-                    else
-                    {
-                        Toast.makeText(getContext(), "No games found", Toast.LENGTH_SHORT).show();
-                    }
-                }
-                else
-                {
-                    Toast.makeText(getContext(), "Something went wrong, please try again.", Toast.LENGTH_SHORT).show();
-                }
-                alert.dismiss();
-            }
-        });
-    }
-
     private void updateCreatedGamesRecyclerView(List<GameDetails> newDetails, boolean updateEntireList)
     {
         List<GameDetails> keepDetails = new ArrayList<>();

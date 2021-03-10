@@ -123,41 +123,4 @@ public class LegendsJSONParser
 
         return null;
     }
-
-    public static List<Users> convertJSONToUsersList(String json)
-    {
-        ObjectMapper mapper = new ObjectMapper();
-
-        if (json == null)
-            return null;
-
-        Log.d("jfs", "Content that was passed:" + json);
-
-        try
-        {
-            Log.d("jfs", "convertJSONToGames: object created");
-            Users[] userDetails = mapper.readValue(json, Users[].class);
-            List<Users> users = new ArrayList<>(Arrays.asList(userDetails));
-            Log.d("jfs", "Content of List:\n" + users);
-
-            return users;
-        }
-        catch (JsonParseException e)
-        {
-            Log.d("xyz", "1");
-            e.printStackTrace();
-        }
-        catch (JsonMappingException e)
-        {
-            Log.d("xyz", "2");
-            e.printStackTrace();
-        }
-        catch (IOException e)
-        {
-            Log.d("xyz", "3");
-            e.printStackTrace();
-        }
-
-        return null;
-    }
 }
