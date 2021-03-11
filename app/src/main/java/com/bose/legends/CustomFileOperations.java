@@ -18,7 +18,6 @@ public class CustomFileOperations
 {
     public static final byte CREATED_GAMES = 0;
     public static final byte FOUND_GAMES = 1;
-    public static final byte REQUESTS = 2;
     public static final byte JOINED_GAMES = 3;
 
     private static String getFileSuffixFromCode(byte code)
@@ -29,45 +28,9 @@ public class CustomFileOperations
 
             case 1: return "_found_games.json";
 
-            case 2: return "_requests.json";
-
             case 3: return "_joined_games.json";
 
             default: return "_dump_file.txt";
-        }
-    }
-
-    public static void writeRequestToFile(RequestsFormat rf, Activity activity, String UID, byte fileCode)
-    {
-        String filename = UID + getFileSuffixFromCode(fileCode);
-        File file = activity.getBaseContext().getFileStreamPath(filename);
-
-        try
-        {
-            OutputStreamWriter outputStreamWriter;
-            List<RequestsFormat> requests;
-
-            if (file.exists())
-            {
-                String jsonData = getJSONStringFromFile(activity, UID, fileCode);
-                requests = LegendsJSONParser.convertJSONToRequestList(jsonData);
-
-                if (requests == null)
-                    requests = new ArrayList<>();
-            }
-            else
-            {
-                requests = new ArrayList<>();
-            }
-
-            requests.add(rf);
-            outputStreamWriter = new OutputStreamWriter(activity.openFileOutput(filename, Context.MODE_PRIVATE));
-            outputStreamWriter.write(LegendsJSONParser.convertToJSONJacksonAPI(requests));
-            outputStreamWriter.close();
-        }
-        catch (IOException e)
-        {
-            Log.d("xyz", "File write failed: " + e.toString());
         }
     }
 
@@ -142,29 +105,6 @@ public class CustomFileOperations
 
     public static void overwriteFileUsingFoundGamesList(List<FoundGameDetails> details, Activity activity, String UID, byte fileCode)
     {
-        String filename = UID + getFileSuffixFromCode(fileCode);
-
-        try
-        {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(activity.openFileOutput(filename, Context.MODE_PRIVATE));
-            String json = LegendsJSONParser.convertToJSONJacksonAPI(details);
-            Log.d("jfs", "found: " + json);
-            outputStreamWriter.write(json);
-            outputStreamWriter.close();
-
-            Log.d("jfs", "file content immediately after writing\n" + getJSONStringFromFile(activity, UID, fileCode));
-
-            Log.d("jfs", "File created.");
-        }
-        catch (IOException e)
-        {
-            Log.d("xyz", "File write failed: " + e.toString());
-        }
-    }
-
-    public static void overwriteRequestsFile(List<RequestsFormat> details, Activity activity, String UID)
-    {
-        byte fileCode = CustomFileOperations.REQUESTS;
         String filename = UID + getFileSuffixFromCode(fileCode);
 
         try

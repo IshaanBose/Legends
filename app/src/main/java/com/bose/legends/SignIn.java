@@ -109,16 +109,44 @@ public class SignIn extends AppCompatActivity
                                     SharedPreferences pref = getSharedPreferences("com.bose.legends.user_details", MODE_PRIVATE);
                                     SharedPreferences.Editor editor = pref.edit();
                                     editor.putString("username", doc.getString("username"));
+                                    editor.putInt("created games count",
+                                            doc.getLong("created_games_count") != null ? doc.getLong("created_games_count").intValue()
+                                            : 0);
+                                    editor.putString("bio",
+                                            doc.getString("bio") != null ? doc.getString("bio")
+                                            : "(Not provided)");
                                     editor.putString("email", sEmail);
                                     editor.putBoolean("remember", remember);
                                     editor.putBoolean("from sign in", true);
-                                    editor.apply();
 
-                                    dialog.dismiss();
+                                    FirebaseFirestore.getInstance()
+                                            .collection("users").document(mAuth.getUid())
+                                            .collection("joined_games").document("games")
+                                            .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
+                                    {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task)
+                                        {
+                                            if (task.isSuccessful())
+                                            {
+                                                DocumentSnapshot snap = task.getResult();
+                                                int count = snap.getLong("game_count") != null ? snap.getLong("game_count").intValue() : 0;
+                                                editor.putInt("joined games count", count);
+                                                Log.d("asdfggh", "yay" + count);
+                                            }
+                                            else
+                                            {
+                                                editor.putInt("joined games count", 0);
+                                                Log.d("asdfggh", "nay");
+                                            }
 
-                                    startActivity(intent);
-                                    SignUp.context.finish();
-                                    finish();
+                                            editor.apply();
+                                            dialog.dismiss();
+                                            startActivity(intent);
+                                            SignUp.context.finish();
+                                            finish();
+                                        }
+                                    });
                                 }
                                 else
                                 {
@@ -128,6 +156,7 @@ public class SignIn extends AppCompatActivity
                             }
                             else
                             {
+                                mAuth.signOut();
                                 dialog.dismiss();
                                 Toast.makeText(getApplicationContext(), "Something went wrong, try again.", Toast.LENGTH_SHORT).show();
                             }

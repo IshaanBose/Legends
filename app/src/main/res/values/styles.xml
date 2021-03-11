@@ -9,4 +9,22 @@
         <item name="android:buttonBarStyle">?android:attr/buttonBarStyle</item>
     </style>
 
+    <style name="Theme.Legends.Divider">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">2dp</item>
+        <item name="android:background">?android:attr/listDivider</item>
+    </style>
+
+    <style name="Theme.Legends.DataDescribers">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/appbar2</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <style name="Theme.Legends.Clickable">
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
 </resources>

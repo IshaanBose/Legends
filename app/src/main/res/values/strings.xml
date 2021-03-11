@@ -107,6 +107,11 @@
     <string name="no_joined_games">Looks like you haven&#8217;t joined any games.</string>
     <string name="requests">Requests</string>
     <string name="no_requests">No requests</string>
+    <string name="joined_games_colon">Joined Games:</string>
+    <string name="created_games_colon">Created Games:</string>
+    <string name="current_home_location_colon">Current Home Location:</string>
+    <string name="change_location">Change Location</string>
+    <string name="bio">Bio</string>
     <string-array name="game_types">
         <item>D&amp;D 5E</item>
         <item>Call of Cthulhu</item>

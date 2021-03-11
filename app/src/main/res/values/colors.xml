@@ -19,4 +19,5 @@
     <color name="edittext_underline">#824e00</color>
     <color name="disabled_text">#838383</color>
     <color name="red">#FF0000</color>
+    <color name="clickable_text">#E8A600</color>
 </resources>

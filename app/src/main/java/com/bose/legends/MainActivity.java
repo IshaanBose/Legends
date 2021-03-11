@@ -88,8 +88,6 @@ public class MainActivity extends AppCompatActivity
         if (R.id.action_settings == item.getItemId())
         {
             Toast.makeText(getApplicationContext(), "Uh oh no settings", Toast.LENGTH_SHORT).show();
-            boolean deleted = CustomFileOperations.deleteFile(getApplicationContext(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
-            Log.d("xyz", String.valueOf(deleted));
         }
 
         return super.onOptionsItemSelected(item);
@@ -103,7 +101,6 @@ public class MainActivity extends AppCompatActivity
         if (!remember)
         {
             Log.d("xyz", "signing out");
-            FirebaseAuth.getInstance().signOut();
             SharedPreferences pref;
             SharedPreferences.Editor editor;
 
@@ -115,6 +112,11 @@ public class MainActivity extends AppCompatActivity
                 editor.clear();
                 editor.apply();
             }
+
+            CustomFileOperations.deleteFile(getApplicationContext(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
+            CustomFileOperations.deleteFile(getApplicationContext(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES);
+
+            FirebaseAuth.getInstance().signOut();
         }
 
         CustomFileOperations.deleteFile(getApplicationContext(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES);

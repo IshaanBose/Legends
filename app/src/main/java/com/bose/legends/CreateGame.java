@@ -109,6 +109,7 @@ public class CreateGame extends AppCompatActivity
                 findViewById(R.id.wednesday), findViewById(R.id.thursday), findViewById(R.id.friday),
                 findViewById(R.id.saturday), findViewById(R.id.sunday)};
 
+        // to make text underlined
         game_location.setPaintFlags(game_location.getPaintFlags()| Paint.UNDERLINE_TEXT_FLAG);
         game_type.setVisibility(View.GONE);
 

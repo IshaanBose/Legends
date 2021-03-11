@@ -94,15 +94,6 @@ public class HomeFragment extends Fragment
             }
         });
 
-//        syncGames.setOnClickListener(new View.OnClickListener()
-//        {
-//            @Override
-//            public void onClick(View v)
-//            {
-//                syncData();
-//            }
-//        });
-
         createdGamesDetails = new ArrayList<>();
         joinedGamesDetails = new ArrayList<>();
 

@@ -1,19 +1,301 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.profile.ProfileFragment">
+    android:layout_width="match_parent"
+    android:fillViewport="true">
 
-    <Button
-        android:id="@+id/sign_out"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/sign_out"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.906" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_marginTop="20dp">
+
+        <ImageView
+            android:id="@+id/profile_pic"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:src="@mipmap/ic_default_user1"
+            android:layout_marginTop="30dp"/>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:weightSum="1.0">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="0.13"/>
+
+            <TextView
+                android:id="@+id/username"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/username"
+                android:textSize="25sp"
+                android:textColor="?attr/colorOnPrimary"
+                android:textAlignment="center"
+                android:gravity="center"
+                android:maxLines="2"
+                android:padding="5dp"
+                android:ellipsize="end"
+                android:layout_weight="0.8"
+                android:visibility="visible"/>
+
+            <EditText
+                android:id="@+id/new_username"
+                android:layout_width="230dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="80dp"
+                android:layout_marginStart="80dp"
+                android:hint="@string/enter_username"
+                android:theme="@style/Theme.Legends.EditText"
+                android:visibility="gone"/>
+
+            <ImageView
+                style="@style/Theme.Legends.Clickable"
+                android:id="@+id/edit_username"
+                android:layout_width="23dp"
+                android:layout_height="23dp"
+                android:src="@drawable/ic_edit"
+                android:layout_gravity="center"
+                app:tint="?attr/colorOnPrimary"
+                android:layout_marginStart="5dp"
+                android:layout_marginLeft="5dp"
+                android:padding="3dp"/>
+
+            <ImageView
+                style="@style/Theme.Legends.Clickable"
+                android:id="@+id/cancel_username"
+                android:layout_width="23dp"
+                android:layout_height="23dp"
+                android:src="@drawable/ic_red_cross"
+                android:layout_gravity="center"
+                app:tint="?attr/colorOnPrimary"
+                android:layout_marginStart="5dp"
+                android:layout_marginLeft="5dp"
+                android:padding="3dp"
+                android:visibility="gone"/>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <TextView
+            android:id="@+id/email"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:text="sample@sample.com"
+            android:textSize="20sp"
+            android:textColor="?attr/colorOnPrimary"
+            android:textAlignment="center"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:paddingLeft="5dp"
+            android:paddingStart="5dp"
+            android:paddingRight="5dp"
+            android:paddingEnd="5dp"
+            android:layout_marginTop="5dp"/>
+
+        <View
+            style="@style/Theme.Legends.Divider"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"/>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
+            android:weightSum="1.0">
+
+            <TextView
+                style="@style/Theme.Legends.DataDescribers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/created_games_colon" />
+
+            <TextView
+                android:id="@+id/created_games_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnPrimary"
+                android:text="999"
+                android:textSize="15sp"
+                android:layout_marginStart="5dp"
+                android:layout_marginLeft="5dp"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="0.99"/>
+
+            <TextView
+                style="@style/Theme.Legends.DataDescribers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/joined_games_colon"/>
+
+            <TextView
+                android:id="@+id/joined_games_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorOnPrimary"
+                android:text="999"
+                android:textSize="15sp"
+                android:layout_marginStart="5dp"
+                android:layout_marginLeft="5dp"/>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <TextView
+            style="@style/Theme.Legends.DataDescribers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/current_home_location_colon"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"/>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginEnd="15dp"
+            android:weightSum="1.0">
+
+            <TextView
+                android:id="@+id/home_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/light_blue_600"
+                android:textSize="15sp"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:id="@+id/change_location"
+                style="@style/Theme.Legends.Clickable"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/change_location"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                android:textColor="@color/clickable_text"
+                android:padding="3dp"/>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp">
+
+            <TextView
+                style="@style/Theme.Legends.DataDescribers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bio"
+                android:layout_gravity="center"/>
+
+            <ImageView
+                android:id="@+id/edit_bio"
+                style="@style/Theme.Legends.Clickable"
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:src="@drawable/ic_edit_themed"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:padding="3dp"/>
+
+            <ImageView
+                android:id="@+id/cancel_bio"
+                style="@style/Theme.Legends.Clickable"
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:src="@drawable/ic_red_cross"
+                android:layout_gravity="center"
+                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"
+                android:padding="3dp"
+                app:tint="@color/appbar2"
+                android:visibility="gone"/>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginEnd="15dp"
+            android:weightSum="1.0">
+
+            <com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                app:maxHeight="170dp"
+                android:scrollbars="vertical"
+                android:scrollbarStyle="insideInset"
+                android:fadeScrollbars="true"
+                android:visibility="visible"
+                android:layout_weight="1.0">
+
+                <TextView
+                    android:id="@+id/bio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/in_parenthesis_not_provided"
+                    android:textColor="?attr/colorOnPrimary"/>
+
+            </com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView>
+
+            <EditText
+                android:id="@+id/new_bio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:theme="@style/Theme.Legends.EditText"
+                android:hint="Enter Bio"
+                android:inputType="textMultiLine"
+                android:gravity="top|start"
+                android:overScrollMode="always"
+                android:scrollbarStyle="insideInset"
+                android:scrollbars="vertical"
+                android:scrollHorizontally="false"
+                android:lines="6"
+                android:visibility="gone"/>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/sign_out"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/sign_out"
+            android:layout_gravity="center"
+            android:layout_marginTop="50dp"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</androidx.core.widget.NestedScrollView>
