@@ -40,6 +40,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,15 +107,14 @@ public class HomeFragment extends Fragment
         {
             Log.d("sync", "in here");
             syncData();
-            SharedPreferences.Editor editor = pref.edit();
-            editor.putBoolean("from sign in", false);
-            editor.apply();
 
             return root;
         }
 
+        Log.d("sync", "out");
+
         getCreatedGames(false);
-        getJoinedGames(false);
+        getJoinedGames(false, false);
 
         return root;
     }
@@ -122,7 +122,7 @@ public class HomeFragment extends Fragment
     private void syncData()
     {
         getCreatedGames(true);
-        getJoinedGames(true);
+        getJoinedGames(true, false);
     }
 
     private void createGame()
@@ -193,7 +193,7 @@ public class HomeFragment extends Fragment
         });
     }
 
-    private void getJoinedGames(boolean fromServer)
+    private void getJoinedGames(boolean fromServer, boolean inBackground)
     {
         if (!fromServer)
         {
@@ -209,7 +209,19 @@ public class HomeFragment extends Fragment
             }
         }
 
-        AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(getContext(), "Syncing joined games…", true);
+        joinedGamesDetails = new ArrayList<>();
+
+        AlertDialog loading;
+
+        if (!inBackground)
+        {
+            loading = BuildAlertMessage.buildAlertIndeterminateProgress(getContext(), "Syncing joined games…", true);
+        }
+        else
+        {
+            loading = BuildAlertMessage.buildAlertIndeterminateProgress(getContext(), "Syncing joined games…", false);
+        }
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users")
                 .document(mAuth.getUid())
@@ -232,6 +244,14 @@ public class HomeFragment extends Fragment
                     {
                         List<String> games = (List<String>) snap.get("games");
                         int docCount = snap.getLong("game_count").intValue();
+
+                        SharedPreferences pref = getActivity().getSharedPreferences("com.bose.legends.user_details", Context.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = pref.edit();
+                        editor.putInt("joined games count", docCount);
+                        editor.apply();
+
+                        if (games != null)
+                            java.util.Collections.reverse(games);
 
                         for (String docID : games)
                         {
@@ -264,7 +284,9 @@ public class HomeFragment extends Fragment
                                                         mAuth.getUid(), CustomFileOperations.JOINED_GAMES);
                                                 Log.d("joined", joinedGamesDetails.toString());
                                                 loading.dismiss();
-                                                Toast.makeText(getContext(), "Joined games list updated.", Toast.LENGTH_SHORT).show();
+
+                                                if (!inBackground)
+                                                    Toast.makeText(getContext(), "Joined games list updated.", Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     });
@@ -404,6 +426,20 @@ public class HomeFragment extends Fragment
                 editor.apply();
             }
         }
+
+        SharedPreferences pref = getActivity().getSharedPreferences("com.bose.legends.user_details", Context.MODE_PRIVATE);
+
+        if (pref.getBoolean("from sign in", false)) // sync data on sign in
+        {
+            Log.d("sync", "in here");
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putBoolean("from sign in", false);
+            editor.apply();
+
+            return;
+        }
+
+        getJoinedGames(true, true);
     }
 
     private void configJoinedGamesRecyclerView()

@@ -13,12 +13,13 @@
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginLeft="15dp"
             android:layout_marginStart="15dp"
             android:layout_marginEnd="15dp"
             android:layout_marginRight="15dp"
-            android:weightSum="10">
+            android:weightSum="10"
+            android:layout_weight="0.04">
 
             <TextView
                 android:id="@+id/textView"
@@ -47,50 +48,71 @@
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/created_games_list"
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:layout_weight="0.5"/>
+            android:layout_height="0dp"
+            android:layout_weight="0.46"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/no_games"
-            android:layout_width="280dp"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:text="@string/no_created_games"
-            android:textAlignment="center"
-            android:visibility="visible"
-            android:layout_marginTop="5dp"/>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/created_games_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="10dp"
+                android:visibility="gone"/>
 
-        <TextView
-            android:id="@+id/textView1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/joined_games"
-            android:textColor="@color/appbar2"
-            android:textSize="18sp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginStart="15dp"
-            android:layout_marginTop="20dp"/>
+            <TextView
+                android:id="@+id/no_games"
+                android:layout_width="280dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:text="@string/no_created_games"
+                android:textAlignment="center"
+                android:visibility="visible"
+                android:layout_marginTop="5dp"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/joined_games_list"
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:layout_weight="0.5"/>
+            android:layout_height="0dp"
+            android:layout_weight="0.04">
 
-        <TextView
-            android:id="@+id/no_joined_games"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/no_joined_games"
-            android:layout_gravity="center"
-            android:layout_marginTop="5dp"
-            android:visibility="visible"/>
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/joined_games"
+                android:textColor="@color/appbar2"
+                android:textSize="18sp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginStart="15dp" />
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.46"
+            android:orientation="vertical">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/joined_games_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"/>
+
+            <TextView
+                android:id="@+id/no_joined_games"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no_joined_games"
+                android:layout_gravity="center"
+                android:layout_marginTop="5dp"
+                android:visibility="visible"/>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
