@@ -112,6 +112,9 @@
     <string name="current_home_location_colon">Current Home Location:</string>
     <string name="change_location">Change Location</string>
     <string name="bio">Bio</string>
+    <string name="go_to_chat">Go to Chat</string>
+    <string name="send_message">Send Message</string>
+    <string name="no_messages">There aren&#8217;t any messages in this group chat. Be the first one to send one!</string>
     <string-array name="game_types">
         <item>D&amp;D 5E</item>
         <item>Call of Cthulhu</item>

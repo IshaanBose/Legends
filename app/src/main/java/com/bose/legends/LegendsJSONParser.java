@@ -29,7 +29,7 @@ public class LegendsJSONParser
         }
     }
 
-    public static List<RequestsFormat> convertJSONToRequestList(String json)
+    public static List<Users> convertJSONToUsersList(String json)
     {
         ObjectMapper mapper = new ObjectMapper();
 
@@ -38,16 +38,28 @@ public class LegendsJSONParser
 
         try
         {
-            RequestsFormat[] requestsFormats = mapper.readValue(json, RequestsFormat[].class);
+            Users[] users = mapper.readValue(json, Users[].class);
+            List<Users> usersList = new ArrayList<>(Arrays.asList(users));
 
-            return new ArrayList<>(Arrays.asList(requestsFormats));
+            return usersList;
+        }
+        catch (JsonParseException e)
+        {
+            Log.d("xyz", "1");
+            e.printStackTrace();
+        }
+        catch (JsonMappingException e)
+        {
+            Log.d("xyz", "2");
+            e.printStackTrace();
         }
         catch (IOException e)
         {
-            Log.d("jfs", "Requests error: " + e.getMessage());
-
-            return null;
+            Log.d("xyz", "3");
+            e.printStackTrace();
         }
+
+        return null;
     }
 
     public static List<GameDetails> convertJSONToGameDetailsList(String json)

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,6 +50,7 @@ public class HomeFragment extends Fragment
     private TextView noGames, noJoinedGames;
     private RecyclerView createdGamesList, joinedGamesList;
     private GeoPoint userLocation;
+    private static boolean ON;
     private int offset = 0;
     private FirebaseAuth mAuth;
     private List<GameDetails> createdGamesDetails;
@@ -59,6 +61,8 @@ public class HomeFragment extends Fragment
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
+
+        ON = true;
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -115,6 +119,23 @@ public class HomeFragment extends Fragment
 
         getCreatedGames(false);
         getJoinedGames(false, false);
+
+        pref = getActivity().getSharedPreferences("com.bose.legends.settings", Context.MODE_PRIVATE);
+        int delay = pref.getInt("sync delay", 300000);
+
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                if (HomeFragment.ON)
+                {
+                    getJoinedGames(true, true);
+                    handler.postDelayed(this, delay);
+                }
+            }
+        }, delay);
 
         return root;
     }
@@ -406,6 +427,8 @@ public class HomeFragment extends Fragment
     {
         super.onResume();
 
+        ON = true;
+
         List<GameDetails> newDetails = LegendsJSONParser.convertJSONToGameDetailsList(
                 CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(),
                 CustomFileOperations.CREATED_GAMES));
@@ -439,7 +462,23 @@ public class HomeFragment extends Fragment
             return;
         }
 
-        getJoinedGames(true, true);
+//        getJoinedGames(true, true);
+    }
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+
+        ON = false;
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+
+        ON = false;
     }
 
     private void configJoinedGamesRecyclerView()

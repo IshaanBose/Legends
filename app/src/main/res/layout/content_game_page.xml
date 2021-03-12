@@ -392,6 +392,16 @@
             android:layout_marginTop="30dp"
             android:layout_marginBottom="30dp"/>
 
+        <Button
+            android:id="@+id/go_to_chat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:text="@string/go_to_chat"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="30dp"/>
+
         <TextView
             android:id="@+id/doc_ref"
             android:layout_width="wrap_content"

@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -45,7 +46,7 @@ public class GamePage extends AppCompatActivity
     private View repeatHolder;
     private View distanceHolder, loadingIcon, requestsListHolder, playersListHolder;
     private RecyclerView playerList, requestsList;
-    private Button joinGame;
+    private Button joinGame, goToChat;
     private GamePage activity;
     private List<Users> userRequests, players;
     private List<String> requestIDs;
@@ -84,7 +85,7 @@ public class GamePage extends AppCompatActivity
         // RecyclerView
         playerList = findViewById(R.id.players); requestsList = findViewById(R.id.requests_list);
         // Button
-        joinGame = findViewById(R.id.join_game);
+        joinGame = findViewById(R.id.join_game); goToChat = findViewById(R.id.go_to_chat);
 
         colorOnPrimary = gameName.getCurrentTextColor();
 
@@ -99,12 +100,33 @@ public class GamePage extends AppCompatActivity
         joinRequestNode = FirebaseDatabase.getInstance().getReference("join_requests").child(docID);
         usersRequestNode = FirebaseDatabase.getInstance().getReference("users_requests").child(mAuth.getUid()).child(docID);
 
+        // For found games.
         joinGame.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
                 checkPlayersListBeforeRequest();
+            }
+        });
+
+        // for joined games
+        Intent intent = new Intent(this, ChatActivity.class);
+        goToChat.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                intent.putExtra("docID", docID);
+                intent.putExtra("doc name", pageDetails.getString("game_name"));
+                intent.putExtra("created by id", createdByID.getText().toString());
+                intent.putExtra("created by", createdBy.getText().toString());
+                intent.putExtra("page code", pageCode);
+
+                String playersJson = LegendsJSONParser.convertToJSONJacksonAPI(players);
+                intent.putExtra("players json", playersJson);
+
+                startActivity(intent);
             }
         });
 
@@ -180,6 +202,192 @@ public class GamePage extends AppCompatActivity
             }
         }
     }
+
+    /* ----------------------------------------------------------------- 1. Multipurpose Code -------------------------------------------------------- */
+
+    private void updatePlayersList(int position)
+    {
+        playersAdapter.notifyItemChanged(position);
+
+        if (players.size() == 0)
+        {
+            playersListHolder.setVisibility(View.GONE);
+            defaultText.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+            playersListHolder.setVisibility(View.VISIBLE);
+            defaultText.setVisibility(View.GONE);
+        }
+    }
+
+    private void configRequestsList()
+    {
+        requestedPlayersAdapter = new RequestsAdapter(userRequests, this);
+        requestsList.setAdapter(requestedPlayersAdapter);
+        requestsList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
+        RecyclerView.ItemDecoration itemDecoration = new
+                DividerItemDecoration(getBaseContext(), DividerItemDecoration.VERTICAL);
+        requestsList.addItemDecoration(itemDecoration);
+    }
+
+    private void configPlayersList()
+    {
+        playersAdapter = new PlayersAdapter(players, this, pageCode);
+        playerList.setAdapter(playersAdapter);
+        playerList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
+        RecyclerView.ItemDecoration itemDecoration = new
+                DividerItemDecoration(getBaseContext(), DividerItemDecoration.VERTICAL);
+        playerList.addItemDecoration(itemDecoration);
+    }
+
+    private void setPageDetails(GameDetails details)
+    {
+        gameName.setText(details.getGameName());
+        gameType.setText(details.getGameType());
+
+        if (details.getGameDescription().length() != 0)
+            description.setText(details.getGameDescription());
+
+        if (details.getFromTime() != null && details.getToTime() != null)
+        {
+            String fromTime24 = details.getFromTime(), toTime24 = details.getToTime();
+
+            String fromTime = CreateGame.convertFrom24HourFormat(Integer.parseInt(fromTime24.split(":")[0]),
+                    Integer.parseInt(fromTime24.split(":")[1])),
+                    toTime = CreateGame.convertFrom24HourFormat(Integer.parseInt(toTime24.split(":")[0]),
+                            Integer.parseInt(toTime24.split(":")[1]));
+
+            String time = fromTime + " to " + toTime;
+
+            timing.setText(time);
+        }
+
+        if (details.getSchedule().size() != 0)
+        {
+            List<String> days = details.getSchedule();
+            StringBuilder daysScheduled = new StringBuilder();
+
+            for (int i = 0; i < days.size(); i++)
+            {
+                if (i == (days.size() - 1))
+                    daysScheduled.append(getFullDay(days.get(i))).append(".");
+                else
+                    daysScheduled.append(getFullDay(days.get(i))).append(", ");
+            }
+
+            schedule.setText(daysScheduled);
+
+            repeatHolder.setVisibility(View.VISIBLE);
+            repeats.setText(details.getRepeat());
+        }
+
+        currentPlayers.setText(String.valueOf(details.getPlayerCount()));
+        maxPlayers.setText(String.valueOf(details.getMaxPlayerCount()));
+        docRef.setText(details.getFirebaseReferenceID());
+        createdByID.setText(details.getCreatedByID());
+
+        if (pageCode == CustomFileOperations.FOUND_GAMES || pageCode == CustomFileOperations.JOINED_GAMES)
+        {
+            String strCreatedBy = "Created by: " + details.getCreatedBy();
+            createdBy.setText(strCreatedBy);
+            createdBy.setVisibility(View.VISIBLE);
+
+            double dist = ((FoundGameDetails) details).getDistance();
+            String distStr = dist + " km";
+            distance.setText(distStr);
+            distanceHolder.setVisibility(View.VISIBLE);
+
+            if (pageCode == CustomFileOperations.FOUND_GAMES)
+                joinGame.setVisibility(View.VISIBLE);
+        }
+
+        if (pageCode == CustomFileOperations.CREATED_GAMES || pageCode == CustomFileOperations.JOINED_GAMES)
+            goToChat.setVisibility(View.VISIBLE);
+
+        for (String playerID : details.getPlayers())
+        {
+            Log.d("dberror", playerID);
+            Users user = new Users();
+            user.setUID(playerID);
+
+            FirebaseFirestore.getInstance().collection("users")
+                    .document(playerID)
+                    .get()
+                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
+                    {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task)
+                        {
+                            if (task.isSuccessful())
+                            {
+                                Log.d("dberror", "Flag 1");
+                                user.setUsername(task.getResult().getString("username"));
+                                players.add(user);
+                                Log.d("dberror", players.toString());
+                                updatePlayersList(players.size());
+                            }
+                        }
+                    });
+        }
+    }
+
+    private String getFullDay(String day)
+    {
+        switch (day)
+        {
+            case "Mon": return "Monday";
+            case "Tue": return "Tuesday";
+            case "Wed": return "Wednesday";
+            case "Thu": return "Thursday";
+            case "Fri": return "Friday";
+            case "Sat": return "Saturday";
+            default: return "Sunday";
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        if (pageCode == CustomFileOperations.FOUND_GAMES || pageCode == CustomFileOperations.JOINED_GAMES)
+            getMenuInflater().inflate(R.menu.menu_create_game, menu);
+        else
+        {
+            getMenuInflater().inflate(R.menu.menu_edit_game, menu);
+
+            int noOfItems = 2;
+
+            for (int i = 0; i < noOfItems; i++)
+            {
+                MenuItem item = menu.getItem(i);
+                SpannableString title = new SpannableString(item.getTitle());
+                title.setSpan(new ForegroundColorSpan(colorOnPrimary), 0, title.length(), 0);
+                item.setTitle(title);
+            }
+        }
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item)
+    {
+        if (item.getTitle().equals("Close"))
+            finish();
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+
+        if (requestChildEventListener != null)
+            joinRequestNode.removeEventListener(requestChildEventListener);
+    }
+
+    /* ----------------------------------------------------------------- 2. Code for created games -------------------------------------------------------- */
 
     private void getRequestsFromDatabase()
     {
@@ -396,41 +604,7 @@ public class GamePage extends AppCompatActivity
         }
     }
 
-    private void updatePlayersList(int position)
-    {
-        playersAdapter.notifyItemChanged(position);
-
-        if (players.size() == 0)
-        {
-            playersListHolder.setVisibility(View.GONE);
-            defaultText.setVisibility(View.VISIBLE);
-        }
-        else
-        {
-            playersListHolder.setVisibility(View.VISIBLE);
-            defaultText.setVisibility(View.GONE);
-        }
-    }
-
-    private void configRequestsList()
-    {
-        requestedPlayersAdapter = new RequestsAdapter(userRequests, this);
-        requestsList.setAdapter(requestedPlayersAdapter);
-        requestsList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
-        RecyclerView.ItemDecoration itemDecoration = new
-                DividerItemDecoration(getBaseContext(), DividerItemDecoration.VERTICAL);
-        requestsList.addItemDecoration(itemDecoration);
-    }
-
-    private void configPlayersList()
-    {
-        playersAdapter = new PlayersAdapter(players, this, pageCode);
-        playerList.setAdapter(playersAdapter);
-        playerList.setLayoutManager(new LinearLayoutManager(getBaseContext()));
-        RecyclerView.ItemDecoration itemDecoration = new
-                DividerItemDecoration(getBaseContext(), DividerItemDecoration.VERTICAL);
-        playerList.addItemDecoration(itemDecoration);
-    }
+    /* ----------------------------------------------------------------- 3. Code for found games -------------------------------------------------------- */
 
     private void sendRequest()
     {
@@ -603,148 +777,5 @@ public class GamePage extends AppCompatActivity
                         }
                     }
                 });
-    }
-
-    private void setPageDetails(GameDetails details)
-    {
-        gameName.setText(details.getGameName());
-        gameType.setText(details.getGameType());
-
-        if (details.getGameDescription().length() != 0)
-            description.setText(details.getGameDescription());
-
-        if (details.getFromTime() != null && details.getToTime() != null)
-        {
-            String fromTime24 = details.getFromTime(), toTime24 = details.getToTime();
-
-            String fromTime = CreateGame.convertFrom24HourFormat(Integer.parseInt(fromTime24.split(":")[0]),
-                    Integer.parseInt(fromTime24.split(":")[1])),
-            toTime = CreateGame.convertFrom24HourFormat(Integer.parseInt(toTime24.split(":")[0]),
-                    Integer.parseInt(toTime24.split(":")[1]));
-
-            String time = fromTime + " to " + toTime;
-
-            timing.setText(time);
-        }
-
-        if (details.getSchedule().size() != 0)
-        {
-            List<String> days = details.getSchedule();
-            StringBuilder daysScheduled = new StringBuilder();
-
-            for (int i = 0; i < days.size(); i++)
-            {
-                if (i == (days.size() - 1))
-                    daysScheduled.append(getFullDay(days.get(i))).append(".");
-                else
-                    daysScheduled.append(getFullDay(days.get(i))).append(", ");
-            }
-
-            schedule.setText(daysScheduled);
-
-            repeatHolder.setVisibility(View.VISIBLE);
-            repeats.setText(details.getRepeat());
-        }
-
-        currentPlayers.setText(String.valueOf(details.getPlayerCount()));
-        maxPlayers.setText(String.valueOf(details.getMaxPlayerCount()));
-        docRef.setText(details.getFirebaseReferenceID());
-        createdByID.setText(details.getCreatedByID());
-
-        if (pageCode == CustomFileOperations.FOUND_GAMES || pageCode == CustomFileOperations.JOINED_GAMES)
-        {
-            String strCreatedBy = "Created by: " + details.getCreatedBy();
-            createdBy.setText(strCreatedBy);
-            createdBy.setVisibility(View.VISIBLE);
-
-            double dist = ((FoundGameDetails) details).getDistance();
-            String distStr = dist + " km";
-            distance.setText(distStr);
-            distanceHolder.setVisibility(View.VISIBLE);
-
-            if (pageCode == CustomFileOperations.FOUND_GAMES)
-                joinGame.setVisibility(View.VISIBLE);
-        }
-
-        for (String playerID : details.getPlayers())
-        {
-            Log.d("dberror", playerID);
-            Users user = new Users();
-            user.setUID(playerID);
-
-            FirebaseFirestore.getInstance().collection("users")
-                    .document(playerID)
-                    .get()
-                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
-                    {
-                        @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task)
-                        {
-                            if (task.isSuccessful())
-                            {
-                                Log.d("dberror", "Flag 1");
-                                user.setUsername(task.getResult().getString("username"));
-                                players.add(user);
-                                Log.d("dberror", players.toString());
-                                updatePlayersList(players.size());
-                            }
-                        }
-                    });
-        }
-    }
-
-    private String getFullDay(String day)
-    {
-        switch (day)
-        {
-            case "Mon": return "Monday";
-            case "Tue": return "Tuesday";
-            case "Wed": return "Wednesday";
-            case "Thu": return "Thursday";
-            case "Fri": return "Friday";
-            case "Sat": return "Saturday";
-            default: return "Sunday";
-        }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        if (pageCode == CustomFileOperations.FOUND_GAMES || pageCode == CustomFileOperations.JOINED_GAMES)
-            getMenuInflater().inflate(R.menu.menu_create_game, menu);
-        else
-        {
-            getMenuInflater().inflate(R.menu.menu_edit_game, menu);
-
-            int noOfItems = 2;
-
-            for (int i = 0; i < noOfItems; i++)
-            {
-                MenuItem item = menu.getItem(i);
-                SpannableString title = new SpannableString(item.getTitle());
-                title.setSpan(new ForegroundColorSpan(colorOnPrimary), 0, title.length(), 0);
-                item.setTitle(title);
-            }
-        }
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item)
-    {
-        if (item.getTitle().equals("Close"))
-            finish();
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onDestroy()
-    {
-        super.onDestroy();
-
-        if (requestChildEventListener != null)
-            joinRequestNode.removeEventListener(requestChildEventListener);
     }
 }

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/message_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    android:layout_weight="0.065"
+    android:weightSum="1.0">
+
+    <EditText
+        android:id="@+id/message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="0.99"
+        android:background="@drawable/round_rect_shape"
+        android:maxLines="5"
+        android:paddingStart="8dp"
+        android:paddingLeft="8dp"
+        android:paddingTop="7dp"
+        android:paddingEnd="8dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="7dp"
+        android:scrollbars="vertical"
+        android:textSize="18sp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/send_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:src="@drawable/ic_menu_send"
+        app:backgroundTint="@color/appbar2"
+        app:elevation="0dp"
+        app:fabSize="mini"
+        app:tint="@null"
+        android:contentDescription="@string/send_message" />
+
+</androidx.appcompat.widget.LinearLayoutCompat>
