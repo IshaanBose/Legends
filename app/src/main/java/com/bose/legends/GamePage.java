@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -30,9 +31,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +56,7 @@ public class GamePage extends AppCompatActivity
     private RequestsAdapter requestedPlayersAdapter;
     private PlayersAdapter playersAdapter;
     private DatabaseReference joinRequestNode, usersRequestNode;
+    private FirebaseFirestore db;
     private String docID;
     private ChildEventListener requestChildEventListener;
     private int colorOnPrimary;
@@ -69,6 +73,7 @@ public class GamePage extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         Bundle pageDetails = getIntent().getExtras();
         activity = this;
+        db = FirebaseFirestore.getInstance();
 
         // TextViews
         gameName = findViewById(R.id.game_name); createdBy = findViewById(R.id.created_by); gameType = findViewById(R.id.game_type);
@@ -111,22 +116,15 @@ public class GamePage extends AppCompatActivity
         });
 
         // for joined games
-        Intent intent = new Intent(this, ChatActivity.class);
         goToChat.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                intent.putExtra("docID", docID);
-                intent.putExtra("doc name", pageDetails.getString("game_name"));
-                intent.putExtra("created by id", createdByID.getText().toString());
-                intent.putExtra("created by", createdBy.getText().toString());
-                intent.putExtra("page code", pageCode);
-
-                String playersJson = LegendsJSONParser.convertToJSONJacksonAPI(players);
-                intent.putExtra("players json", playersJson);
-
-                startActivity(intent);
+                if (pageCode == CustomFileOperations.JOINED_GAMES)
+                    checkIfStillInGame();
+                else
+                    goToChatPage();
             }
         });
 
@@ -205,9 +203,12 @@ public class GamePage extends AppCompatActivity
 
     /* ----------------------------------------------------------------- 1. Multipurpose Code -------------------------------------------------------- */
 
-    private void updatePlayersList(int position)
+    private void updatePlayersList(int position, boolean remove)
     {
-        playersAdapter.notifyItemChanged(position);
+        if (remove)
+            playersAdapter.notifyItemRemoved(position);
+        else
+            playersAdapter.notifyItemChanged(position);
 
         if (players.size() == 0)
         {
@@ -311,7 +312,7 @@ public class GamePage extends AppCompatActivity
             Users user = new Users();
             user.setUID(playerID);
 
-            FirebaseFirestore.getInstance().collection("users")
+            db.collection("users")
                     .document(playerID)
                     .get()
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
@@ -325,7 +326,7 @@ public class GamePage extends AppCompatActivity
                                 user.setUsername(task.getResult().getString("username"));
                                 players.add(user);
                                 Log.d("dberror", players.toString());
-                                updatePlayersList(players.size());
+                                updatePlayersList(players.size(), false);
                             }
                         }
                     });
@@ -344,6 +345,21 @@ public class GamePage extends AppCompatActivity
             case "Sat": return "Saturday";
             default: return "Sunday";
         }
+    }
+
+    private void goToChatPage()
+    {
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra("docID", docID);
+        intent.putExtra("doc name", gameName.getText().toString());
+        intent.putExtra("created by id", createdByID.getText().toString());
+        intent.putExtra("created by", createdBy.getText().toString());
+        intent.putExtra("page code", pageCode);
+
+        String playersJson = LegendsJSONParser.convertToJSONJacksonAPI(players);
+        intent.putExtra("players json", playersJson);
+
+        startActivity(intent);
     }
 
     @Override
@@ -403,7 +419,7 @@ public class GamePage extends AppCompatActivity
                 Log.d("halp", snapshot.getValue().toString());
                 requestIDs.add(snapshot.getKey());
 
-                FirebaseFirestore.getInstance().collection("users")
+                db.collection("users")
                         .document(user.getUID())
                         .get()
                         .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
@@ -444,7 +460,49 @@ public class GamePage extends AppCompatActivity
             { }
         };
 
-        joinRequestNode.addChildEventListener(requestChildEventListener);
+        joinRequestNode.orderByKey().addChildEventListener(requestChildEventListener);
+    }
+
+    public void removeUser(int position)
+    {
+        final AlertDialog removing = BuildAlertMessage.buildAlertIndeterminateProgress(this, "Removing player...", true);
+
+        WriteBatch batch = db.batch();
+        String playerID = players.get(position).getUID();
+
+        batch.update(db.collection("games").document(docID),
+                "players", FieldValue.arrayRemove(playerID),
+                "player_count", FieldValue.increment(-1));
+        batch.update(db.collection("users").document(playerID)
+                        .collection("joined_games").document("games"),
+                "game_count", FieldValue.increment(-1),
+                "games", FieldValue.arrayRemove(docID));
+
+        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<Void> task)
+            {
+                if (task.isSuccessful())
+                {
+                    players.remove(position);
+                    updatePlayersList(position, true);
+
+                    CustomFileOperations.deleteFile(getApplicationContext(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
+
+                    removing.dismiss();
+
+                    Toast.makeText(getApplicationContext(), "Player removed.", Toast.LENGTH_LONG).show();
+                }
+                else
+                {
+                    removing.dismiss();
+
+                    Toast.makeText(getApplicationContext(), "Couldn't remove player.", Toast.LENGTH_LONG).show();
+                    Log.d("chatting", task.getException().getMessage());
+                }
+            }
+        });
     }
 
     public void addUser(int position)
@@ -466,7 +524,7 @@ public class GamePage extends AppCompatActivity
         final int finalIndex = index;
 
         // add player to game document
-        FirebaseFirestore.getInstance().collection("games")
+        db.collection("games")
                 .document(docID)
                 .update(
                         "players", FieldValue.arrayUnion(user.getUID()),
@@ -507,7 +565,7 @@ public class GamePage extends AppCompatActivity
                                                 userRequests.remove(position);
 
                                                 // now we need to notify the user that they've been invited to our game, so we need update their joined games collection
-                                                FirebaseFirestore.getInstance().collection("users")
+                                                db.collection("users")
                                                         .document(user.getUID())
                                                         .collection("joined_games")
                                                         .document("games")
@@ -525,7 +583,7 @@ public class GamePage extends AppCompatActivity
                                                                     // all changes are done so we update our two lists
                                                                     updatePlayerCount(gameDetails.get(finalIndex).getPlayerCount());
                                                                     updateRequestsList(position, true);
-                                                                    updatePlayersList(players.size());
+                                                                    updatePlayersList(players.size(), false);
 
                                                                     // makes sure that created games list in HomeFragment is updated
                                                                     SharedPreferences pref = getSharedPreferences("com.bose.legends.update_created_games_list", MODE_PRIVATE);
@@ -556,6 +614,34 @@ public class GamePage extends AppCompatActivity
                             Toast.makeText(getApplicationContext(), "Could not add player.", Toast.LENGTH_LONG).show();
                             loading.dismiss();
                         }
+                    }
+                });
+    }
+
+    public void removeRequest(int position)
+    {
+        final AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(this, true);
+        String requestID = requestIDs.get(position);
+
+        joinRequestNode.child(requestID)
+                .removeValue()
+                .addOnCompleteListener(new OnCompleteListener<Void>()
+                {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task)
+                    {
+                        if (task.isSuccessful()) // request removed from game's db
+                        {
+                            requestIDs.remove(position);
+                            userRequests.remove(position);
+                            updateRequestsList(position, true);
+
+                            loading.dismiss();
+
+                            Toast.makeText(getApplicationContext(), "Request removed!", Toast.LENGTH_SHORT).show();
+                        }
+                        else
+                            Toast.makeText(getApplicationContext(), "Could not remove request.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -606,7 +692,7 @@ public class GamePage extends AppCompatActivity
 
     /* ----------------------------------------------------------------- 3. Code for found games -------------------------------------------------------- */
 
-    private void sendRequest()
+    private void sendRequest(boolean finishAfter)
     {
         final AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(this, "Sending request…", true);
         final String pushKey = joinRequestNode.push().getKey();
@@ -624,7 +710,7 @@ public class GamePage extends AppCompatActivity
                             rf.setDocID(docID);
                             rf.setRequestID(pushKey);
 
-                            FirebaseDatabase.getInstance().getReference("users_requests") //
+                            FirebaseDatabase.getInstance().getReference("users_requests")
                                     .child(mAuth.getUid())
                                     .child(rf.getDocID())
                                     .setValue(rf.getRequestID())
@@ -636,7 +722,11 @@ public class GamePage extends AppCompatActivity
                                             if (task.isSuccessful()) // request added in user's requests db
                                             {
                                                 loading.dismiss();
+
                                                 Toast.makeText(getApplicationContext(), "Request sent!", Toast.LENGTH_LONG).show();
+
+                                                if (finishAfter)
+                                                    activity.finish();
                                             }
                                             else // if not, then attempt a rollback
                                             {
@@ -666,7 +756,7 @@ public class GamePage extends AppCompatActivity
                 });
     }
 
-    private void requestJoinGame(AlertDialog loading)
+    private void requestJoinGame(AlertDialog loading, boolean finishAfter)
     {
         usersRequestNode.addListenerForSingleValueEvent(new ValueEventListener()
         {
@@ -701,7 +791,7 @@ public class GamePage extends AppCompatActivity
                                                         if (task.isSuccessful())
                                                         {
                                                             loading.dismiss();
-                                                            sendRequest();
+                                                            sendRequest(finishAfter);
                                                         }
                                                         else
                                                         {
@@ -722,7 +812,7 @@ public class GamePage extends AppCompatActivity
                 else // if user has not made request to the game
                 {
                     loading.dismiss();
-                    sendRequest();
+                    sendRequest(finishAfter);
                 }
             }
 
@@ -736,7 +826,7 @@ public class GamePage extends AppCompatActivity
     {
         final AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(this, "Checking your requests…", true);
         // we wanna first check if user has already joined the gamed
-        FirebaseFirestore.getInstance().collection("games")
+        db.collection("games")
                 .document(docID)
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
@@ -767,7 +857,7 @@ public class GamePage extends AppCompatActivity
                             }
                             else // if player hasn't joined the game
                             {
-                                requestJoinGame(loading);
+                                requestJoinGame(loading, false);
                             }
                         }
                         else
@@ -775,6 +865,82 @@ public class GamePage extends AppCompatActivity
                             loading.dismiss();
                             BuildAlertMessage.buildAlertMessageNeutral(activity, "Couldn't send request, try again.");
                         }
+                    }
+                });
+    }
+
+    /* --------------------------------------------------------------- 4. Code for joined games -------------------------------------------------------- */
+
+    private void checkIfStillInGame()
+    {
+        final AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(this, true);
+
+        db.collection("games")
+                .document(docID)
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task)
+            {
+                if (task.isSuccessful())
+                {
+                    DocumentSnapshot snap = task.getResult();
+
+                    List<String> playerIDs = (List<String>) snap.get("players");
+                    boolean inGame = false;
+
+                    for (String ID : playerIDs)
+                        if (ID.equals(mAuth.getUid()))
+                            inGame = true;
+
+                    if (inGame)
+                    {
+                        loading.dismiss();
+
+                        goToChatPage();
+                    }
+                    else // user is no longer in the game.
+                    {
+                        removeJoinedGame(loading);
+                    }
+                }
+            }
+        });
+    }
+
+    private void removeJoinedGame(AlertDialog loading)
+    {
+        loading.dismiss();
+
+        SharedPreferences pref = getSharedPreferences("com.bose.legends.flags", MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putBoolean("finish game page", true);
+        editor.apply();
+
+        CustomFileOperations.deleteFile(getApplicationContext(), mAuth.getUid(), CustomFileOperations.JOINED_GAMES);
+
+        BuildAlertMessage.buildAlertMessagePositiveNegative(activity,
+                "You appear to have been removed from this game, do you want to send a request to join the game again?",
+                true,
+                new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.dismiss();
+
+                        requestJoinGame(
+                                BuildAlertMessage.buildAlertIndeterminateProgress(activity, true),
+                                true
+                        );
+                    }
+                },
+                new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        activity.finish();
                     }
                 });
     }

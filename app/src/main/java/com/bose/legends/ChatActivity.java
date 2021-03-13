@@ -11,9 +11,7 @@ import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,11 +28,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class ChatActivity extends AppCompatActivity
@@ -164,7 +160,7 @@ public class ChatActivity extends AppCompatActivity
         newMessage.setMessage(sMessage);
         newMessage.setUsername(username);
         newMessage.setUID(mAuth.getUid());
-        newMessage.setTimestamp(parseTime(Calendar.getInstance()));
+        newMessage.setTimestamp(getTimestamp(Calendar.getInstance()));
 
         messagesRoot.push().setValue(newMessage)
                 .addOnCompleteListener(new OnCompleteListener<Void>()
@@ -192,86 +188,6 @@ public class ChatActivity extends AppCompatActivity
                 });
     }
 
-    private String parseTime(Calendar currentTime)
-    {
-        String month = getMonth(currentTime.get(Calendar.MONTH));
-        String day = getDay(currentTime.get(Calendar.DAY_OF_MONTH));
-        String hour = getHour(currentTime.get(Calendar.HOUR_OF_DAY));
-        String minute = getMinute(currentTime.get(Calendar.MINUTE));
-        String ampm = currentTime.get(Calendar.AM_PM) == Calendar.AM ? "AM" : "PM";
-
-        return month + " " + day + ", " + hour + ":" + minute + " " + ampm;
-    }
-
-    private String getMinute(int minute)
-    {
-        String sMinute = "";
-
-        if (minute / 10 == 0)
-            sMinute = "0" + minute;
-        else
-            sMinute += minute;
-
-        return sMinute;
-    }
-
-    private String getHour(int hour)
-    {
-        if (hour > 12)
-            hour -= 12;
-        else if (hour == 0)
-            hour = 12;
-
-        return String.valueOf(hour);
-    }
-
-    private String getDay(int day)
-    {
-        String postfix = "th";
-
-        if (day >= 11 && day <= 13)
-            postfix = "th";
-        else
-        {
-            switch (day % 10)
-            {
-                case 1: postfix = "st";
-                    break;
-
-                case 2: postfix = "nd";
-                    break;
-
-                case 3: postfix = "rd";
-                    break;
-
-                default: postfix = "th";
-            }
-        }
-
-        return day + postfix;
-    }
-
-    private String getMonth(int monthCode)
-    {
-        switch (monthCode)
-        {
-            case Calendar.JANUARY: return "January";
-            case Calendar.FEBRUARY: return "February";
-            case Calendar.MARCH: return "March";
-            case Calendar.APRIL: return "April";
-            case Calendar.MAY: return "May";
-            case Calendar.JUNE: return "June";
-            case Calendar.JULY: return "July";
-            case Calendar.AUGUST: return "August";
-            case Calendar.SEPTEMBER: return "September";
-            case Calendar.OCTOBER: return "October";
-            case Calendar.NOVEMBER: return "November";
-            case Calendar.DECEMBER: return "December";
-
-            default: return "Uhhh...";
-        }
-    }
-
     private void getMessages()
     {
         messagesRoot.orderByKey().limitToLast(50)
@@ -283,7 +199,6 @@ public class ChatActivity extends AppCompatActivity
                         if (snapshot.exists())
                         {
                             int docCount = (int) snapshot.getChildrenCount();
-                            Log.d("chatting", docCount + "");
 
                             for (DataSnapshot snap : snapshot.getChildren())
                             {
@@ -298,7 +213,9 @@ public class ChatActivity extends AppCompatActivity
                                     }
 
                                 if (!changed)
-                                    message.setUsername(username);
+                                    message.setUsername("(Removed)");
+
+                                message.setTimestamp(parseTimestamp(message.getTimestamp()));
 
                                 messages.add(message);
 
@@ -357,6 +274,8 @@ public class ChatActivity extends AppCompatActivity
                         if (user.getUID().equals(message.getUID()))
                             message.setUsername(user.getUsername());
 
+                    message.setTimestamp(parseTimestamp(message.getTimestamp()));
+
                     if (noMessages.getVisibility() == View.VISIBLE)
                         noMessages.setVisibility(View.GONE);
                     if (loadingIcon.getVisibility() == View.VISIBLE)
@@ -412,6 +331,143 @@ public class ChatActivity extends AppCompatActivity
 
         if (messageListener != null)
             messagesRoot.removeEventListener(messageListener);
+    }
+
+    /* -------------------------------------------------------------- Timestamp related methods --------------------------------------------------------------- */
+    /**
+     * Returns time in the format: dd/mm/yyyy H:mm AM/PM
+     * **/
+    private String getTimestamp(Calendar currentTime)
+    {
+        String year = String.valueOf(currentTime.get(Calendar.YEAR));
+
+        int month = currentTime.get(Calendar.MONTH) + 1;
+        String sMonth = month / 10 == 0 ? "0" + month : "" + month;
+
+        int day = currentTime.get(Calendar.DAY_OF_MONTH);
+        String sDay = day / 10 == 0 ? "0" + day : "" + day;
+
+        String hour = getHour(currentTime.get(Calendar.HOUR_OF_DAY));
+        String minute = getMinute(currentTime.get(Calendar.MINUTE));
+        String ampm = currentTime.get(Calendar.AM_PM) == Calendar.AM ? "AM" : "PM";
+
+        return sDay + "/" + sMonth + "/" + year + " " + hour + ":" + minute + " " + ampm;
+    }
+
+    /**
+     * Converts time string of format: dd/mm/yyyy H:mm AM/PM, into displayable time string of the following formats:
+     * if sent today: Today, H:mm AM/PM
+     * if sent yesterday: Yesterday, H:mm AM/PM
+     * else if sent within the year: Month D(st/nd/rd/th), H:mm AM/PM
+     * else: dd/mm/yyyy hh:mm AM/PM
+     * **/
+    private String parseTimestamp(String timestamp)
+    {
+        String [] timeArray = timestamp.split(" ");
+        String [] date = timeArray[0].split("/");
+        String time = timeArray[1] + " " + timeArray[2];
+        Calendar currentTime = Calendar.getInstance();
+
+        String sDate = "";
+
+        // parsing date
+        if (Integer.parseInt(date[2]) == currentTime.get(Calendar.YEAR)) // same year
+        {
+            int month = Integer.parseInt(date[1]);
+            int day = Integer.parseInt(date[0]);
+
+            if (month == currentTime.get(Calendar.MONTH) + 1
+                    && day + 1 >= currentTime.get(Calendar.DAY_OF_MONTH)) // between today or yesterday
+            {
+                if (day == currentTime.get(Calendar.DAY_OF_MONTH)) // same day
+                {
+                    sDate = "Today, ";
+                }
+                else
+                {
+                    sDate = "Yesterday, ";
+                }
+            }
+            else // any day before yesterday
+            {
+                sDate = getMonthName(month - 1) + " " + getDayWithPostfix(day) + ", ";
+            }
+        }
+        else // different year
+        {
+            sDate = timeArray[0] + " ";
+        }
+
+        return sDate + time;
+    }
+
+    private String getMinute(int minute)
+    {
+        String sMinute = "";
+
+        if (minute / 10 == 0)
+            sMinute = "0" + minute;
+        else
+            sMinute += minute;
+
+        return sMinute;
+    }
+
+    private String getHour(int hour)
+    {
+        if (hour > 12)
+            hour -= 12;
+        else if (hour == 0)
+            hour = 12;
+
+        return String.valueOf(hour);
+    }
+
+    private String getDayWithPostfix(int day)
+    {
+        String postfix = "th";
+
+        if (day >= 11 && day <= 13)
+            postfix = "th";
+        else
+        {
+            switch (day % 10)
+            {
+                case 1: postfix = "st";
+                    break;
+
+                case 2: postfix = "nd";
+                    break;
+
+                case 3: postfix = "rd";
+                    break;
+
+                default: postfix = "th";
+            }
+        }
+
+        return day + postfix;
+    }
+
+    private String getMonthName(int monthCode)
+    {
+        switch (monthCode)
+        {
+            case Calendar.JANUARY: return "January";
+            case Calendar.FEBRUARY: return "February";
+            case Calendar.MARCH: return "March";
+            case Calendar.APRIL: return "April";
+            case Calendar.MAY: return "May";
+            case Calendar.JUNE: return "June";
+            case Calendar.JULY: return "July";
+            case Calendar.AUGUST: return "August";
+            case Calendar.SEPTEMBER: return "September";
+            case Calendar.OCTOBER: return "October";
+            case Calendar.NOVEMBER: return "November";
+            case Calendar.DECEMBER: return "December";
+
+            default: return "Uhhh...";
+        }
     }
 
     class VerticalSpaceItemDecoration extends RecyclerView.ItemDecoration

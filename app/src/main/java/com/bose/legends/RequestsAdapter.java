@@ -99,6 +99,14 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
                 gamePageInstance.addUser(position);
             }
         });
+        viewHolder.getRemoveRequest().setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                gamePageInstance.removeRequest(position);
+            }
+        });
     }
 
     // Return the size of your dataset (invoked by the layout manager)

@@ -23,7 +23,7 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
         private final TextView username, UID;
-        private ImageView removePlayer, addPlayers;
+        private ImageView removePlayer;
 
         public ViewHolder(View view)
         {
@@ -54,11 +54,6 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
         public ImageView getRemovePlayer()
         {
             return removePlayer;
-        }
-
-        public ImageView getAddPlayers()
-        {
-            return addPlayers;
         }
     }
 
@@ -104,6 +99,17 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
             viewHolder.getRemovePlayer().setImageAlpha(0);
             viewHolder.getRemovePlayer().setClickable(false);
             viewHolder.getRemovePlayer().setFocusable(false);
+        }
+        else
+        {
+            viewHolder.getRemovePlayer().setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    gamePageInstance.removeUser(position);
+                }
+            });
         }
     }
 

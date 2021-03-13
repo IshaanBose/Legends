@@ -117,7 +117,11 @@ public class SignIn extends AppCompatActivity
                                             : "(Not provided)");
                                     editor.putString("email", sEmail);
                                     editor.putBoolean("remember", remember);
-                                    editor.putBoolean("from sign in", true);
+
+                                    SharedPreferences flagsPref = getSharedPreferences("com.bose.legends.flags", MODE_PRIVATE);
+                                    SharedPreferences.Editor editFlags = flagsPref.edit();
+                                    editFlags.putBoolean("from sign in", true);
+                                    editFlags.apply();
 
                                     FirebaseFirestore.getInstance()
                                             .collection("users").document(mAuth.getUid())

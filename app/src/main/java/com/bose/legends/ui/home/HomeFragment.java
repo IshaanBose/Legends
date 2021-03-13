@@ -239,9 +239,7 @@ public class HomeFragment extends Fragment
             loading = BuildAlertMessage.buildAlertIndeterminateProgress(getContext(), "Syncing joined games…", true);
         }
         else
-        {
-            loading = BuildAlertMessage.buildAlertIndeterminateProgress(getContext(), "Syncing joined games…", false);
-        }
+            loading = null;
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("users")
@@ -259,7 +257,10 @@ public class HomeFragment extends Fragment
 
                     if (snap.getLong("game_count") == 0)
                     {
-                        loading.dismiss();
+                        if (!inBackground)
+                            loading.dismiss();
+
+                        updateJoinedGamesList(joinedGamesDetails, true);
                     }
                     else
                     {
@@ -304,10 +305,12 @@ public class HomeFragment extends Fragment
                                                 CustomFileOperations.overwriteFileUsingFoundGamesList(joinedGamesDetails, getActivity(),
                                                         mAuth.getUid(), CustomFileOperations.JOINED_GAMES);
                                                 Log.d("joined", joinedGamesDetails.toString());
-                                                loading.dismiss();
 
                                                 if (!inBackground)
+                                                {
+                                                    loading.dismiss();
                                                     Toast.makeText(getContext(), "Joined games list updated.", Toast.LENGTH_SHORT).show();
+                                                }
                                             }
                                         }
                                     });
@@ -411,13 +414,22 @@ public class HomeFragment extends Fragment
         }
         else
         {
+            joinedGamesDetails = new ArrayList<>(newDetails);
+            configJoinedGamesRecyclerView();
+            joinedGamesAdapter.notifyItemRangeChanged(0, (newDetails.size()));
+
             if (newDetails != null)
             {
-                joinedGamesDetails = new ArrayList<>(newDetails);
-                configJoinedGamesRecyclerView();
-                joinedGamesAdapter.notifyItemRangeChanged(0, (newDetails.size()));
-                noJoinedGames.setVisibility(View.GONE);
-                joinedGamesList.setVisibility(View.VISIBLE);
+                if (newDetails.size() == 0)
+                {
+                    noJoinedGames.setVisibility(View.VISIBLE);
+                    joinedGamesList.setVisibility(View.GONE);
+                }
+                else
+                {
+                    noJoinedGames.setVisibility(View.GONE);
+                    joinedGamesList.setVisibility(View.VISIBLE);
+                }
             }
         }
     }
@@ -450,7 +462,7 @@ public class HomeFragment extends Fragment
             }
         }
 
-        SharedPreferences pref = getActivity().getSharedPreferences("com.bose.legends.user_details", Context.MODE_PRIVATE);
+        SharedPreferences pref = getActivity().getSharedPreferences("com.bose.legends.flags", Context.MODE_PRIVATE);
 
         if (pref.getBoolean("from sign in", false)) // sync data on sign in
         {
@@ -462,7 +474,14 @@ public class HomeFragment extends Fragment
             return;
         }
 
-//        getJoinedGames(true, true);
+        if (pref.getBoolean("finish game page", false))
+        {
+            SharedPreferences.Editor editor = pref.edit();
+            editor.putBoolean("finish game page", false);
+            editor.apply();
+
+            getJoinedGames(true, false);
+        }
     }
 
     @Override
