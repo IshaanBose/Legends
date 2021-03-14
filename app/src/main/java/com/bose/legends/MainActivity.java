@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity
             SharedPreferences pref;
             SharedPreferences.Editor editor;
 
-            pref = getSharedPreferences("com.bose.legends.user_details", MODE_PRIVATE);
+            pref = getSharedPreferences(SharedPrefsValues.USER_DETAILS.getValue(), MODE_PRIVATE);
 
             if (pref != null)
             {
