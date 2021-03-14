@@ -59,6 +59,7 @@ public class GamePage extends AppCompatActivity
     private String docID;
     private ChildEventListener requestChildEventListener;
     private int colorOnPrimary;
+    private GameDetails gamePageDetails;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -245,6 +246,7 @@ public class GamePage extends AppCompatActivity
 
     private void setPageDetails(GameDetails details)
     {
+        gamePageDetails = details;
         gameName.setText(details.getGameName());
         gameType.setText(details.getGameType());
 
@@ -389,8 +391,18 @@ public class GamePage extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
-        if (item.getTitle().equals("Close"))
+        if (item.getTitle().toString().equals("Close"))
             finish();
+        else if (item.getTitle().toString().equals("Edit"))
+        {
+            Intent intent = new Intent(this, CreateGame.class);
+            intent.putExtra("edit", true);
+
+            String detailsJSON = LegendsJSONParser.convertToJSONJacksonAPI(gamePageDetails);
+            intent.putExtra("details", detailsJSON);
+
+            startActivity(intent);
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -402,6 +414,23 @@ public class GamePage extends AppCompatActivity
 
         if (requestChildEventListener != null)
             joinRequestNode.removeEventListener(requestChildEventListener);
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        SharedPreferences flags = getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
+
+        if (flags.getBoolean("edited created games", false))
+        {
+            SharedPreferences.Editor flagsEditor = flags.edit();
+            flagsEditor.putBoolean("edited created games", false);
+            flagsEditor.apply();
+
+            this.finish();
+        }
     }
 
     /* ----------------------------------------------------------------- 2. Code for created games -------------------------------------------------------- */

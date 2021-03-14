@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences.Editor flagsEditor = flags.edit();
         flagsEditor.clear();
 
-
         String lastSynced = CustomFileOperations.getLastSynced(this, mAuth.getUid());
 
         if (lastSynced == null)
@@ -100,6 +99,8 @@ public class MainActivity extends AppCompatActivity
         TextView navEmail = headerView.findViewById(R.id.nav_header_email);
         navUsername.setText(username);
         navEmail.setText(email);
+
+//        CustomFileOperations.deleteFile(this, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
     }
 
     @Override

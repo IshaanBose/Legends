@@ -5,6 +5,7 @@ import android.location.Location;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.GeoPoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,12 +42,6 @@ public class GameDetails
     public void setCreatedBy(String createdBy)
     {
         this.createdBy = createdBy;
-    }
-
-    @JsonIgnore
-    public void addPlayer(String playerUID)
-    {
-        this.players.add(playerUID);
     }
 
     public List<String> getSchedule()
@@ -216,6 +211,13 @@ public class GameDetails
         this.setMinPlayerCount(doc.getLong("min_player_count").intValue());
         this.setPlayerCount(doc.getLong("player_count").intValue());
         this.setPlayers((List<String>) doc.get("players"));
+
+        GeoPoint docLocation = doc.getGeoPoint("location");
+        List<Double> docLocationList = new ArrayList<>();
+        docLocationList.add(docLocation.getLatitude());
+        docLocationList.add(docLocation.getLongitude());
+
+        this.setGameLocation(docLocationList);
     }
 
     @Override

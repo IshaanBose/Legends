@@ -8,6 +8,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Paint;
@@ -58,7 +59,7 @@ import java.util.Map;
 public class CreateGame extends AppCompatActivity
 {
     private EditText game_name, game_type, max_player, min_player, repeat_number;
-    private Button from_time, to_time;
+    private Button from_time, to_time, create_game_button;
     private ToggleButton[] days;
     private TextView game_location, game_description, from_time_value, to_time_value;
     private Spinner game_type_spinner, repeat_spinner;
@@ -68,6 +69,8 @@ public class CreateGame extends AppCompatActivity
     private FirebaseAuth mAuth;
     private GameDetails gameDetails;
     private CreateGame context;
+    private ArrayAdapter <CharSequence> gameTypeAdapter, repeatAdapter;
+    private boolean editGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -96,7 +99,7 @@ public class CreateGame extends AppCompatActivity
         game_name = findViewById(R.id.game_name); game_type = findViewById(R.id.game_type); max_player = findViewById(R.id.max_player_count);
         min_player = findViewById(R.id.min_player_count); repeat_number = findViewById(R.id.repeat_number);
         // Button
-        from_time = findViewById(R.id.from_time); to_time = findViewById(R.id.to_time);
+        from_time = findViewById(R.id.from_time); to_time = findViewById(R.id.to_time); create_game_button = findViewById(R.id.create_game_button);
         // TextView
         TextView home_location = findViewById(R.id.set_home), current_location = findViewById(R.id.set_current_location), location = findViewById(R.id.location);
         TextView textView_every = findViewById(R.id.textView_every);
@@ -255,8 +258,8 @@ public class CreateGame extends AppCompatActivity
         });
 
         // Spinner configs
-        ArrayAdapter <CharSequence> dataAdapter = ArrayAdapter.createFromResource(getApplicationContext(), R.array.game_types, R.layout.spinner_item);
-        game_type_spinner.setAdapter(dataAdapter);
+        gameTypeAdapter = ArrayAdapter.createFromResource(getApplicationContext(), R.array.game_types, R.layout.spinner_item);
+        game_type_spinner.setAdapter(gameTypeAdapter);
         game_type_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
         {
             @Override
@@ -273,9 +276,23 @@ public class CreateGame extends AppCompatActivity
             { }
         });
 
-        dataAdapter = ArrayAdapter.createFromResource(getApplicationContext(), R.array.repeat_times, R.layout.spinner_item);
-        repeat_spinner.setAdapter(dataAdapter);
+        repeatAdapter = ArrayAdapter.createFromResource(getApplicationContext(), R.array.repeat_times, R.layout.spinner_item);
+        repeat_spinner.setAdapter(repeatAdapter);
         repeat_spinner.setEnabled(false);
+
+        Bundle extras = getIntent().getExtras();
+
+        if (extras != null)
+        {
+            editGame = extras.getBoolean("edit");
+
+            if (editGame)
+            {
+                GameDetails gameDetails = LegendsJSONParser.convertJSONToGameDetails(extras.getString("details"));
+                Log.d("edit", gameDetails.toString());
+                setGameDetails(gameDetails);
+            }
+        }
     }
 
     @Override
@@ -288,8 +305,57 @@ public class CreateGame extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item)
     {
-        finish();
+        if (editGame)
+        {
+            BuildAlertMessage.buildAlertMessagePositiveNegative(this, "Do you want to discard all changes made?", true,
+                    new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            dialog.dismiss();
+
+                            finish();
+                        }
+                    },
+                    new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            dialog.dismiss();
+                        }
+                    });
+        }
+        else
+            finish();
+
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if (editGame)
+            BuildAlertMessage.buildAlertMessagePositiveNegative(this, "Do you want to discard all changes made?", true,
+                    new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            dialog.dismiss();
+
+                            CreateGame.super.onBackPressed();
+                        }
+                    },
+                    new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            dialog.dismiss();
+                        }
+                    });
     }
 
     @SuppressLint("MissingPermission")
@@ -598,9 +664,15 @@ public class CreateGame extends AppCompatActivity
         }
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        DocumentReference docRef = db.collection("games").document();
+        DocumentReference docRef;
 
-        gameDetails.setFirebaseReferenceID(docRef.getId());
+        if (editGame)
+            docRef = db.collection("games").document(gameDetails.getFirebaseReferenceID());
+        else
+        {
+            docRef = db.collection("games").document();
+            gameDetails.setFirebaseReferenceID(docRef.getId());
+        }
 
         String hash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(gameDetails.getGameLocationAsLocation().getLatitude(),
                 gameDetails.getGameLocationAsLocation().getLongitude()));
@@ -629,8 +701,10 @@ public class CreateGame extends AppCompatActivity
 
         WriteBatch writeBatch = db.batch();
         writeBatch.set(docRef, details);
-        writeBatch.update(db.collection("users").document(mAuth.getUid()),
-                "created_games_count", FieldValue.increment(1));
+
+        if (!editGame)
+            writeBatch.update(db.collection("users").document(mAuth.getUid()),
+                    "created_games_count", FieldValue.increment(1));
 
         writeBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>()
         {
@@ -639,15 +713,48 @@ public class CreateGame extends AppCompatActivity
             {
                 dialog.dismiss();
 
-                // Storing created game in offline file
-                CustomFileOperations.writeGameDetailAsJSONToFile(gameDetails, context, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
+                if (!editGame)
+                {
+                    // Storing created game in offline file
+                    CustomFileOperations.writeGameDetailAsJSONToFile(gameDetails, context, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
 
-                SharedPreferences pref = context.getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = pref.edit();
-                editor.putBoolean("game added", true);
-                editor.apply();
+                    SharedPreferences pref = context.getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = pref.edit();
+                    editor.putBoolean("game added", true);
+                    editor.apply();
 
-                Toast.makeText(context, "Game created and uploaded!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Game created and uploaded!", Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    List<GameDetails> existingGames = LegendsJSONParser.convertJSONToGameDetailsList(
+                            CustomFileOperations.getJSONStringFromFile(context, mAuth.getUid(),
+                                    CustomFileOperations.CREATED_GAMES)
+                    );
+
+                    for (int i = 0; i < existingGames.size(); i++)
+                    {
+                        if (existingGames.get(i).getFirebaseReferenceID().equals(gameDetails.getFirebaseReferenceID()))
+                        {
+                            existingGames.remove(i); // removing old game
+                            existingGames.add(i, gameDetails); // adding updated game to list
+
+                            break;
+                        }
+                    }
+
+                    // updating offline game file
+                    CustomFileOperations.overwriteCreatedGamesFile(existingGames, context, mAuth.getUid());
+
+                    SharedPreferences flags = getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
+                    SharedPreferences.Editor flagsEditor = flags.edit();
+                    flagsEditor.putBoolean("edited created games", true);
+                    flagsEditor.putBoolean("update created games", true);
+                    flagsEditor.putString("created games ref", gameDetails.getFirebaseReferenceID());
+                    flagsEditor.apply();
+
+                    Toast.makeText(context, "Game details edited.", Toast.LENGTH_SHORT).show();
+                }
 
                 context.finish();
             }
@@ -662,5 +769,113 @@ public class CreateGame extends AppCompatActivity
                 Log.d("xyz", e.getMessage());
             }
         });
+    }
+
+    /*------------------------------------------------------ Code for editing game -------------------------------------------------------------*/
+
+    private void setGameDetails(GameDetails details)
+    {
+        game_name.setText(details.getGameName());
+
+        int spinnerItemPosition = getGameTypePosition(details.getGameType());
+
+        if (!gameTypeAdapter.getItem(spinnerItemPosition).toString().equals("Custom"))
+        {
+            game_type_spinner.setSelection(getGameTypePosition(details.getGameType()));
+        }
+        else
+        {
+            game_type_spinner.setSelection(getGameTypePosition(details.getGameType()));
+            game_type.setText(details.getGameType());
+            game_type.setVisibility(View.VISIBLE);
+        }
+
+        List<Double> gameLocation = details.getGameLocation();
+
+        game_location.setText(getLocationString(gameLocation.get(0), gameLocation.get(1)));
+        game_location.setVisibility(View.VISIBLE);
+
+        game_description.setText(details.getGameDescription());
+
+        max_player.setText(details.getMaxPlayerCount() == 999 ? "" : String.valueOf(details.getMaxPlayerCount()));
+        min_player.setText(details.getMinPlayerCount() == 2 ? "" : String.valueOf(details.getMinPlayerCount()));
+
+        if (details.getFromTime() != null)
+        {
+            enable_timing.setChecked(true);
+
+            String [] fromTimeValues = details.getFromTime().split(":");
+            String [] toTimeValues = details.getToTime().split(":");
+
+            from_time_value.setText(convertFrom24HourFormat(Integer.parseInt(fromTimeValues[0]),
+                    Integer.parseInt(fromTimeValues[1])));
+            to_time_value.setText(convertFrom24HourFormat(Integer.parseInt(toTimeValues[0]),
+                    Integer.parseInt(toTimeValues[1])));
+        }
+
+        if (details.getRepeat() != null)
+        {
+            schedule_enabled.setChecked(true);
+
+            List<String> daysSelected = details.getSchedule();
+
+            for (String day : daysSelected)
+            {
+                days[getDayIndex(day)].setChecked(true);
+            }
+
+            String [] repeatsVals = details.getRepeat().split(" ");
+
+            repeat_number.setText(repeatsVals[1].equals("1") ? "" : repeatsVals[1]);
+            repeat_spinner.setSelection(getRepeatTypePosition(repeatsVals[2]));
+        }
+
+        gameDetails = details;
+
+        create_game_button.setText(getResources().getString(R.string.apply_changes));
+    }
+
+    private int getDayIndex(String day)
+    {
+        switch (day)
+        {
+            case "Mon": return 0;
+
+            case "Tue": return 1;
+
+            case "Wed": return 2;
+
+            case "Thu": return 3;
+
+            case "Fri": return 4;
+
+            case "Sat": return 5;
+
+            case "Sun": return 6;
+
+            default: return 7;
+        }
+    }
+
+    private int getGameTypePosition(String gameType)
+    {
+        String [] gameTypeArray = getResources().getStringArray(R.array.game_types);
+
+        for (int i = 0; i < gameTypeArray.length; i++)
+            if (gameTypeArray[i].equals(gameType))
+                return i;
+
+        return gameTypeArray.length - 1;
+    }
+
+    private int getRepeatTypePosition(String repeatType)
+    {
+        String [] repeatTypeArray = getResources().getStringArray(R.array.repeat_times);
+
+        for (int i = 0; i < repeatTypeArray.length; i++)
+            if (repeatTypeArray[i].equals(repeatType))
+                return i;
+
+        return repeatTypeArray.length - 1;
     }
 }

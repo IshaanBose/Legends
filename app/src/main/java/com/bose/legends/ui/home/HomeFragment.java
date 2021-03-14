@@ -561,15 +561,6 @@ public class HomeFragment extends Fragment
                         )
                 );
 
-                int index = 0;
-
-                for (int i = 0; i < createdGamesDetails.size(); i++)
-                    if (createdGamesDetails.get(i).getFirebaseReferenceID().equals(docID))
-                    {
-                        index = i;
-                        break;
-                    }
-
                 // updating our RecyclerView
                 updateCreatedGamesRecyclerView(createdGamesDetails, true);
 
