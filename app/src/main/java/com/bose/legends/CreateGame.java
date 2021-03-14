@@ -44,9 +44,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.WriteBatch;
 
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -410,7 +413,7 @@ public class CreateGame extends AppCompatActivity
         return sLatitude + latSign + ", " + sLongitude + longSign;
     }
 
-    public void createTImePicker(View view)
+    public void createTimePicker(View view)
     {
         if (view.getId() == from_time.getId()) // from_time button given code 0
             TimePickerFragment.button = 0;
@@ -577,7 +580,7 @@ public class CreateGame extends AppCompatActivity
         gameDetails.setCreatedByID(mAuth.getUid());
         gameDetails.setCreatedBy(pref.getString("username", "N/A"));
         gameDetails.setGameName(game_name.getText().toString());
-        gameDetails.setGameType(gameType.equals("Custom") ? game_type.getText().toString() : gameType);
+        gameDetails.setGameType(gameType.equals("Custom") ? game_type.getText().toString().trim() : gameType);
         gameDetails.setGameDescription(game_description.getText().toString());
         gameDetails.setMaxPlayerCount(max_player.getText().toString().length() != 0 ? Integer.parseInt(max_player.getText().toString()) : 999);
         gameDetails.setMinPlayerCount(min_player.getText().toString().length() != 0 ? Integer.parseInt(min_player.getText().toString()) : 2);
@@ -598,11 +601,6 @@ public class CreateGame extends AppCompatActivity
         DocumentReference docRef = db.collection("games").document();
 
         gameDetails.setFirebaseReferenceID(docRef.getId());
-
-        CustomFileOperations.writeGameDetailAsJSONToFile(gameDetails, this, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
-        Log.d("jfs", "Written to file");
-        String s = CustomFileOperations.getJSONStringFromFile(this, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
-        Log.d("jfs", "File contents:\n" + s);
 
         String hash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(gameDetails.getGameLocationAsLocation().getLatitude(),
                 gameDetails.getGameLocationAsLocation().getLongitude()));
@@ -627,16 +625,30 @@ public class CreateGame extends AppCompatActivity
 
         Log.d("xyz", gameDetails.toString());
 
-        final AlertDialog dialog = BuildAlertMessage.buildAlertIndeterminateProgress(context, true);
+        final AlertDialog dialog = BuildAlertMessage.buildAlertIndeterminateProgress(this, true);
 
-        docRef.set(details).addOnSuccessListener(new OnSuccessListener<Void>()
+        WriteBatch writeBatch = db.batch();
+        writeBatch.set(docRef, details);
+        writeBatch.update(db.collection("users").document(mAuth.getUid()),
+                "created_games_count", FieldValue.increment(1));
+
+        writeBatch.commit().addOnSuccessListener(new OnSuccessListener<Void>()
         {
             @Override
             public void onSuccess(Void aVoid)
             {
-                Log.d("xyz", "Flag 3");
                 dialog.dismiss();
+
+                // Storing created game in offline file
+                CustomFileOperations.writeGameDetailAsJSONToFile(gameDetails, context, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
+
+                SharedPreferences pref = context.getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = pref.edit();
+                editor.putBoolean("game added", true);
+                editor.apply();
+
                 Toast.makeText(context, "Game created and uploaded!", Toast.LENGTH_SHORT).show();
+
                 context.finish();
             }
         }).addOnFailureListener(new OnFailureListener()
@@ -645,6 +657,7 @@ public class CreateGame extends AppCompatActivity
             public void onFailure(@NonNull Exception e)
             {
                 dialog.dismiss();
+
                 Toast.makeText(context, "Something went wrong, try again.", Toast.LENGTH_SHORT).show();
                 Log.d("xyz", e.getMessage());
             }

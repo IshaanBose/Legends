@@ -246,7 +246,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/from"
                 android:enabled="false"
-                android:onClick="createTImePicker"
+                android:onClick="createTimePicker"
                 android:layout_gravity="center"
                 android:layout_marginLeft="40dp"
                 android:layout_marginStart="40dp" />
@@ -275,7 +275,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/to"
                 android:enabled="false"
-                android:onClick="createTImePicker"
+                android:onClick="createTimePicker"
                 android:layout_gravity="center"
                 android:layout_marginLeft="40dp"
                 android:layout_marginStart="40dp" />

@@ -21,6 +21,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -39,11 +41,45 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Log.d("xyz", "In main activity");
 
-        SharedPreferences pref = getSharedPreferences("com.bose.legends.user_details", MODE_PRIVATE);
+        SharedPreferences pref = getSharedPreferences(SharedPrefsValues.USER_DETAILS.getValue(), MODE_PRIVATE);
         username = pref.getString("username", "<NIL>");
         email = pref.getString("email", "<NIL>");
         remember = pref.getBoolean("remember", false);
         mAuth = FirebaseAuth.getInstance();
+
+        // clearing all flags
+        SharedPreferences flags = getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
+        SharedPreferences.Editor flagsEditor = flags.edit();
+        flagsEditor.clear();
+
+
+        String lastSynced = CustomFileOperations.getLastSynced(this, mAuth.getUid());
+
+        if (lastSynced == null)
+        {
+            flagsEditor.putBoolean("sync joined games", true);
+        }
+        else
+        {
+            Calendar currentTime = Calendar.getInstance();
+            String [] lastSyncedVals = lastSynced.split(" ");
+
+            if (currentTime.get(Calendar.MINUTE) - (Integer.parseInt(lastSyncedVals[0])) >= 5 // last sync more than or equal to 5 minutes ago
+                    || currentTime.get(Calendar.HOUR_OF_DAY) != (Integer.parseInt(lastSyncedVals[1])) // same minute, different hour
+                    || currentTime.get(Calendar.DAY_OF_MONTH) != (Integer.parseInt(lastSyncedVals[2])) // same time, different day
+                    || currentTime.get(Calendar.MONTH) != (Integer.parseInt(lastSyncedVals[3])) // same time and day, different month
+                    || currentTime.get(Calendar.YEAR) != (Integer.parseInt(lastSyncedVals[4].split("\n")[0])) // same time, day and month, different year
+            )
+            {
+                flagsEditor.putBoolean("sync joined games", true);
+            }
+            else
+            {
+                flagsEditor.putBoolean("sync joined games", false);
+            }
+        }
+
+        flagsEditor.apply();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

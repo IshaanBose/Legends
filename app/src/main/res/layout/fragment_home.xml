@@ -24,21 +24,21 @@
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:text="@string/created_games"
                 android:textColor="@color/appbar2"
                 android:textSize="18sp"
                 android:layout_weight="4"/>
 
-            <TextView
+            <View
                 android:layout_width="0dp"
-                android:layout_height="0dp"
+                android:layout_height="match_parent"
                 android:layout_weight="5"/>
 
             <ImageView
                 android:id="@+id/createGame"
                 android:layout_width="24dp"
-                android:layout_height="24dp"
+                android:layout_height="match_parent"
                 android:background="?attr/selectableItemBackground"
                 android:clickable="true"
                 android:focusable="true"
@@ -48,10 +48,20 @@
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
+        <View
+            style="@style/Theme.Legends.Divider"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.002"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"/>
+
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.46"
+            android:layout_weight="0.458"
             android:orientation="vertical">
 
             <androidx.recyclerview.widget.RecyclerView
@@ -83,18 +93,45 @@
                 android:id="@+id/textView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center"
                 android:text="@string/joined_games"
                 android:textColor="@color/appbar2"
                 android:textSize="18sp"
                 android:layout_marginLeft="15dp"
                 android:layout_marginStart="15dp" />
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+            <ImageView
+                style="@style/Theme.Legends.Clickable"
+                android:id="@+id/sync_joined_games"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:padding="5dp"
+                android:src="@drawable/ic_cloud_sync"
+                android:layout_gravity="center"
+                android:layout_marginRight="15dp"
+                android:layout_marginEnd="15dp"/>
+
         </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <View
+            style="@style/Theme.Legends.Divider"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.002"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginLeft="10dp"/>
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.46"
+            android:layout_weight="0.458"
             android:orientation="vertical">
 
             <androidx.recyclerview.widget.RecyclerView

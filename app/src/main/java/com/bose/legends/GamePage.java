@@ -31,7 +31,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -123,8 +122,10 @@ public class GamePage extends AppCompatActivity
             {
                 if (pageCode == CustomFileOperations.JOINED_GAMES)
                     checkIfStillInGame();
-                else
+                else if (players.size() != 0)
                     goToChatPage();
+                else
+                    BuildAlertMessage.buildAlertMessageNeutral(activity, "You need at least one active player to access group chat.");
             }
         });
 
@@ -485,10 +486,12 @@ public class GamePage extends AppCompatActivity
             {
                 if (task.isSuccessful())
                 {
+                    // updating players list
                     players.remove(position);
                     updatePlayersList(position, true);
 
-                    CustomFileOperations.deleteFile(getApplicationContext(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
+                    // update offline created games file and current game page
+                    updatePlayers();
 
                     removing.dismiss();
 
@@ -580,16 +583,10 @@ public class GamePage extends AppCompatActivity
                                                             {
                                                                 if (task.isSuccessful())
                                                                 {
-                                                                    // all changes are done so we update our two lists
-                                                                    updatePlayerCount(gameDetails.get(finalIndex).getPlayerCount());
+                                                                    // all changes are done so we update our two lists and game page
+                                                                    updatePlayers();
                                                                     updateRequestsList(position, true);
                                                                     updatePlayersList(players.size(), false);
-
-                                                                    // makes sure that created games list in HomeFragment is updated
-                                                                    SharedPreferences pref = getSharedPreferences("com.bose.legends.update_created_games_list", MODE_PRIVATE);
-                                                                    SharedPreferences.Editor editor = pref.edit();
-                                                                    editor.putBoolean("update", true);
-                                                                    editor.apply();
                                                                 }
                                                                 else // since we couldn't add data to user's document, we need to rollback all changes done.
                                                                 {
@@ -616,6 +613,58 @@ public class GamePage extends AppCompatActivity
                         }
                     }
                 });
+    }
+
+    private void updatePlayers()
+    {
+        // update page details
+        currentPlayers.setText(String.valueOf(players.size()));
+
+        // update offline game file
+        List<GameDetails> existingGames = LegendsJSONParser.convertJSONToGameDetailsList(
+                CustomFileOperations.getJSONStringFromFile(
+                        activity, mAuth.getUid(), CustomFileOperations.CREATED_GAMES
+                )
+        );
+
+        // find currently viewed game
+        for (int i = 0; i < existingGames.size(); i++)
+        {
+            if (existingGames.get(i).getFirebaseReferenceID().equals(docID))
+            {
+                existingGames.get(i).setPlayerCount(players.size()); // update the player count
+                List<String> playerIDs = new ArrayList<>();
+
+                for (Users user : players)
+                    playerIDs.add(user.getUID());
+
+                existingGames.get(i).setPlayers(playerIDs);
+
+                CustomFileOperations.overwriteCreatedGamesFile(existingGames, activity, mAuth.getUid()); // update game file
+
+                String json = CustomFileOperations.getJSONStringFromFile(activity, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
+                Log.d("new sync", "after change: " + json);
+
+                break;
+            }
+        }
+
+        // set flags to indicate a change in the created games document
+        SharedPreferences flags = activity.getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
+
+        Log.d("new sync", "before setting: " + flags.getBoolean("update created games", false));
+
+        if (!flags.getBoolean("update created games", false))
+        {
+            SharedPreferences.Editor flagsEditor = flags.edit();
+
+            flagsEditor.putBoolean("update created games", true);
+            flagsEditor.putString("created games ref", docID);
+
+            flagsEditor.apply();
+        }
+
+        Log.d("new sync", "after setting: " + flags.getBoolean("update created games", false));
     }
 
     public void removeRequest(int position)
@@ -661,11 +710,6 @@ public class GamePage extends AppCompatActivity
         CustomFileOperations.overwriteCreatedGamesFile(gameDetails, activity, mAuth.getUid());
 
         Toast.makeText(getApplicationContext(), "Couldn't add player.", Toast.LENGTH_LONG).show();
-    }
-
-    private void updatePlayerCount(int newCount)
-    {
-        currentPlayers.setText(String.valueOf(newCount));
     }
 
     private void updateRequestsList(int position, boolean remove)

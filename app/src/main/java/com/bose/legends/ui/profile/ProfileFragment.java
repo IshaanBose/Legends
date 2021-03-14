@@ -37,6 +37,7 @@ import com.bose.legends.BuildAlertMessage;
 import com.bose.legends.CustomFileOperations;
 import com.bose.legends.MapsActivityCurrentPlace;
 import com.bose.legends.R;
+import com.bose.legends.SharedPrefsValues;
 import com.bose.legends.SignUp;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -45,6 +46,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -80,13 +82,13 @@ public class ProfileFragment extends Fragment
         View root = inflater.inflate(R.layout.fragment_profile, container, false);
 
         mAuth = FirebaseAuth.getInstance();
-        pref = getActivity().getSharedPreferences("com.bose.legends.user_details", MODE_PRIVATE);
-        imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        pref = requireActivity().getSharedPreferences(SharedPrefsValues.USER_DETAILS.getValue(), MODE_PRIVATE);
+        imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         userDB = db.collection("users").document(mAuth.getUid());
         currentHomeLocation = new GeoPoint(0, 0);
-        client = LocationServices.getFusedLocationProviderClient(getActivity());
+        client = LocationServices.getFusedLocationProviderClient(requireActivity());
 
         // TextViews
         username = root.findViewById(R.id.username); email = root.findViewById(R.id.email); bio = root.findViewById(R.id.bio);
@@ -186,6 +188,7 @@ public class ProfileFragment extends Fragment
     {
         username.setText(pref.getString("username", "<NIL>"));
         email.setText(pref.getString("email", "<NIL>>"));
+        Log.d("asdfggh", pref.getInt("joined games count", 0) + "");
         createdGamesCount.setText(String.valueOf(pref.getInt("created games count", 0)));
         joinedGamesCount.setText(String.valueOf(pref.getInt("joined games count", 0)));
         bio.setText(pref.getString("bio", "(Not provided)"));
@@ -397,6 +400,11 @@ public class ProfileFragment extends Fragment
                                 editor.putString("username", sUsername);
                                 editor.apply();
 
+                                NavigationView navView = requireActivity().findViewById(R.id.nav_view);
+                                View headerView = navView.getHeaderView(0);
+                                TextView navUsername = headerView.findViewById(R.id.nav_header_username);
+                                navUsername.setText(sUsername);
+
                                 loading.dismiss();
                             }
                             else
@@ -476,7 +484,7 @@ public class ProfileFragment extends Fragment
         SharedPreferences pref;
         SharedPreferences.Editor editor;
 
-        pref = requireActivity().getSharedPreferences("com.bose.legends.user_details", MODE_PRIVATE);
+        pref = requireActivity().getSharedPreferences(SharedPrefsValues.USER_DETAILS.getValue(), MODE_PRIVATE);
 
         if (pref != null)
         {

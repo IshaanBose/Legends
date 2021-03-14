@@ -106,7 +106,7 @@ public class SignIn extends AppCompatActivity
 
                                 if (doc.exists())
                                 {
-                                    SharedPreferences pref = getSharedPreferences("com.bose.legends.user_details", MODE_PRIVATE);
+                                    SharedPreferences pref = getSharedPreferences(SharedPrefsValues.USER_DETAILS.getValue(), MODE_PRIVATE);
                                     SharedPreferences.Editor editor = pref.edit();
                                     editor.putString("username", doc.getString("username"));
                                     editor.putInt("created games count",
@@ -118,7 +118,7 @@ public class SignIn extends AppCompatActivity
                                     editor.putString("email", sEmail);
                                     editor.putBoolean("remember", remember);
 
-                                    SharedPreferences flagsPref = getSharedPreferences("com.bose.legends.flags", MODE_PRIVATE);
+                                    SharedPreferences flagsPref = getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
                                     SharedPreferences.Editor editFlags = flagsPref.edit();
                                     editFlags.putBoolean("from sign in", true);
                                     editFlags.apply();
@@ -145,6 +145,7 @@ public class SignIn extends AppCompatActivity
                                             }
 
                                             editor.apply();
+                                            Log.d("asdfggh", pref.getInt("joined games count", 0) + "");
                                             dialog.dismiss();
                                             startActivity(intent);
                                             SignUp.context.finish();

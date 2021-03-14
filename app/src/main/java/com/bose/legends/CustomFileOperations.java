@@ -12,6 +12,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class CustomFileOperations
@@ -19,6 +20,7 @@ public class CustomFileOperations
     public static final byte CREATED_GAMES = 0;
     public static final byte FOUND_GAMES = 1;
     public static final byte JOINED_GAMES = 3;
+    public static final byte LAST_SYNCED = 4;
 
     private static String getFileSuffixFromCode(byte code)
     {
@@ -29,6 +31,8 @@ public class CustomFileOperations
             case 1: return "_found_games.json";
 
             case 3: return "_joined_games.json";
+
+            case 4: return "_last_synced.txt";
 
             default: return "_dump_file.txt";
         }
@@ -123,6 +127,30 @@ public class CustomFileOperations
         {
             Log.d("xyz", "File write failed: " + e.toString());
         }
+    }
+
+    public static void writeLastSynced(Activity activity, String UID, Calendar syncTime)
+    {
+        String filename = UID + getFileSuffixFromCode(CustomFileOperations.LAST_SYNCED);
+        String time = syncTime.get(Calendar.MINUTE) + " " + syncTime.get(Calendar.HOUR_OF_DAY) + " "
+                + syncTime.get(Calendar.DAY_OF_MONTH) + " " + syncTime.get(Calendar.MONTH) + " "
+                + syncTime.get(Calendar.YEAR);
+
+        try
+        {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(activity.openFileOutput(filename, Context.MODE_PRIVATE));
+            outputStreamWriter.write(time);
+            outputStreamWriter.close();
+        }
+        catch (IOException e)
+        {
+            Log.d("file error", e.getMessage());
+        }
+    }
+
+    public static String getLastSynced(Activity activity, String UID)
+    {
+        return getJSONStringFromFile(activity, UID, LAST_SYNCED);
     }
 
     public static String getJSONStringFromFile(Activity activity, String UID, byte fileCode)

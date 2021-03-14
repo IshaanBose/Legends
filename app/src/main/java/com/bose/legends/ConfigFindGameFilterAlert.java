@@ -217,7 +217,8 @@ public class ConfigFindGameFilterAlert
             if (gameTypeSpinner.getSelectedItem().toString().equals("Custom") && customGameType.getText().toString().length() == 0)
                 valid = false;
             else
-                filterData.put("game type", gameTypeSpinner.getSelectedItem().toString());
+                filterData.put("game type", gameTypeSpinner.getSelectedItem().toString().equals("Custom") ?
+                        customGameType.getText().toString().trim() : gameTypeSpinner.getSelectedItem().toString());
         }
 
         if (!filters.contains("Timing"))
