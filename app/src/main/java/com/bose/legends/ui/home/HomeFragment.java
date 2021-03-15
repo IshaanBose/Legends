@@ -599,14 +599,6 @@ public class HomeFragment extends Fragment
         ON = false;
     }
 
-    @Override
-    public void onDestroy()
-    {
-        super.onDestroy();
-
-        ON = false;
-    }
-
     private void configJoinedGamesRecyclerView()
     {
         joinedGamesAdapter = new FoundGamesAdapter(joinedGamesDetails);

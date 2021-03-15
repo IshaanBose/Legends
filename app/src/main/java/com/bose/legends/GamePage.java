@@ -681,8 +681,6 @@ public class GamePage extends AppCompatActivity
         // set flags to indicate a change in the created games document
         SharedPreferences flags = activity.getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
 
-        Log.d("new sync", "before setting: " + flags.getBoolean("update created games", false));
-
         if (!flags.getBoolean("update created games", false))
         {
             SharedPreferences.Editor flagsEditor = flags.edit();
@@ -692,8 +690,6 @@ public class GamePage extends AppCompatActivity
 
             flagsEditor.apply();
         }
-
-        Log.d("new sync", "after setting: " + flags.getBoolean("update created games", false));
     }
 
     public void removeRequest(int position)

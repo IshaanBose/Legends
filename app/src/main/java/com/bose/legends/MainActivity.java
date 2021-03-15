@@ -135,6 +135,8 @@ public class MainActivity extends AppCompatActivity
     {
         super.onDestroy();
 
+        String uid = mAuth.getUid();
+
         if (!remember)
         {
             Log.d("xyz", "signing out");
@@ -150,12 +152,12 @@ public class MainActivity extends AppCompatActivity
                 editor.apply();
             }
 
-            CustomFileOperations.deleteFile(getApplicationContext(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
-            CustomFileOperations.deleteFile(getApplicationContext(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES);
+            CustomFileOperations.deleteFile(getApplicationContext(), uid, CustomFileOperations.CREATED_GAMES);
+            CustomFileOperations.deleteFile(getApplicationContext(), uid, CustomFileOperations.FOUND_GAMES);
 
             FirebaseAuth.getInstance().signOut();
         }
 
-        CustomFileOperations.deleteFile(getApplicationContext(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES);
+        CustomFileOperations.deleteFile(getApplicationContext(), uid, CustomFileOperations.FOUND_GAMES);
     }
 }
