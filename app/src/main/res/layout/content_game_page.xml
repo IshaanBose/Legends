@@ -279,6 +279,21 @@
                 android:layout_marginLeft="2dp"
                 android:layout_marginStart="2dp"/>
 
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+            <ProgressBar
+                android:id="@+id/loading_players"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:indeterminate="true"
+                android:visibility="gone"
+                android:theme="@style/Theme.Legends.ProgressBar"
+                android:layout_marginRight="15dp"
+                android:layout_marginEnd="15dp"/>
+
         </androidx.appcompat.widget.LinearLayoutCompat>
 
         <androidx.appcompat.widget.LinearLayoutCompat
@@ -401,6 +416,16 @@
             android:layout_gravity="center"
             android:layout_marginTop="30dp"
             android:layout_marginBottom="30dp"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/leave_game"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/leave_game"
+            android:visibility="gone"
+            android:layout_gravity="center"
+            android:layout_marginBottom="30dp"
+            app:backgroundTint="@color/red"/>
 
         <TextView
             android:id="@+id/doc_ref"

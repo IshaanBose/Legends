@@ -45,13 +45,13 @@ public class GamePage extends AppCompatActivity
     private FirebaseAuth mAuth;
     private TextView gameName, createdBy, gameType, description, timing, schedule, repeats, currentPlayers, maxPlayers,
             defaultText, distance, docRef, createdByID, defaultRequestText;
-    private View repeatHolder;
-    private View distanceHolder, loadingIcon, requestsListHolder, playersListHolder;
+    private View repeatHolder, distanceHolder, loadingIcon, requestsListHolder, playersListHolder, loadingPlayers;
     private RecyclerView playerList, requestsList;
-    private Button joinGame, goToChat;
+    private Button joinGame, goToChat, leaveGame;
     private GamePage activity;
     private List<Users> userRequests, players;
     private List<String> requestIDs;
+    private List<Integer> deletedPlayersIndexes;
     private RequestsAdapter requestedPlayersAdapter;
     private PlayersAdapter playersAdapter;
     private DatabaseReference joinRequestNode, usersRequestNode;
@@ -86,11 +86,11 @@ public class GamePage extends AppCompatActivity
         requestsListHolder = findViewById(R.id.requests_list_holder); playersListHolder = findViewById(R.id.players_list_holder);
         View requestsHolder = findViewById(R.id.requests_holder);
         // ProgressBar
-        loadingIcon = findViewById(R.id.loading_icon);
+        loadingIcon = findViewById(R.id.loading_icon); loadingPlayers = findViewById(R.id.loading_players);
         // RecyclerView
         playerList = findViewById(R.id.players); requestsList = findViewById(R.id.requests_list);
         // Button
-        joinGame = findViewById(R.id.join_game); goToChat = findViewById(R.id.go_to_chat);
+        joinGame = findViewById(R.id.join_game); goToChat = findViewById(R.id.go_to_chat); leaveGame = findViewById(R.id.leave_game);
 
         colorOnPrimary = gameName.getCurrentTextColor();
 
@@ -102,6 +102,7 @@ public class GamePage extends AppCompatActivity
         pageCode = pageDetails.getByte("page_code");
         docID = pageDetails.getString("doc_ref");
         players = new ArrayList<>();
+        deletedPlayersIndexes = new ArrayList<>();
         joinRequestNode = FirebaseDatabase.getInstance().getReference("join_requests").child(docID);
         usersRequestNode = FirebaseDatabase.getInstance().getReference("users_requests").child(mAuth.getUid()).child(docID);
 
@@ -127,6 +128,33 @@ public class GamePage extends AppCompatActivity
                     goToChatPage();
                 else
                     BuildAlertMessage.buildAlertMessageNeutral(activity, "You need at least one active player to access group chat.");
+            }
+        });
+
+        leaveGame.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                BuildAlertMessage.buildAlertMessagePositiveNegative(activity, "Are you sure you want to leave this game?", true,
+                        new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                dialog.dismiss();
+
+                                leaveGame();
+                            }
+                        },
+                        new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                dialog.dismiss();
+                            }
+                        });
             }
         });
 
@@ -307,11 +335,17 @@ public class GamePage extends AppCompatActivity
         }
 
         if (pageCode == CustomFileOperations.CREATED_GAMES || pageCode == CustomFileOperations.JOINED_GAMES)
+        {
             goToChat.setVisibility(View.VISIBLE);
+
+            if (pageCode == CustomFileOperations.JOINED_GAMES)
+                leaveGame.setVisibility(View.VISIBLE);
+        }
 
         for (String playerID : details.getPlayers())
         {
-            Log.d("dberror", playerID);
+            loadingPlayers.setVisibility(View.VISIBLE);
+
             Users user = new Users();
             user.setUID(playerID);
 
@@ -325,14 +359,35 @@ public class GamePage extends AppCompatActivity
                         {
                             if (task.isSuccessful())
                             {
-                                Log.d("dberror", "Flag 1");
                                 user.setUsername(task.getResult().getString("username"));
                                 players.add(user);
                                 Log.d("dberror", players.toString());
                                 updatePlayersList(players.size(), false);
+
+                                if (!task.getResult().exists()) // if player no longer exists
+                                    deletedPlayersIndexes.add(players.size() - 1);
+
+                                if (gotAllPlayers(details.getPlayers().size()))
+                                {
+                                    loadingPlayers.setVisibility(View.GONE);
+                                    removeDeletedUsers();
+                                }
                             }
                         }
                     });
+        }
+    }
+
+    private boolean gotAllPlayers(int totalPlayers)
+    {
+        return players.size() == totalPlayers;
+    }
+
+    private void removeDeletedUsers()
+    {
+        for (Integer index : deletedPlayersIndexes)
+        {
+            removeUser(index, true);
         }
     }
 
@@ -493,9 +548,14 @@ public class GamePage extends AppCompatActivity
         joinRequestNode.orderByKey().addChildEventListener(requestChildEventListener);
     }
 
-    public void removeUser(int position)
+    public void removeUser(int position, boolean deletedUser)
     {
-        final AlertDialog removing = BuildAlertMessage.buildAlertIndeterminateProgress(this, "Removing player...", true);
+        AlertDialog removing;
+
+        if (deletedUser)
+            removing = BuildAlertMessage.buildAlertIndeterminateProgress(this, "Removing deleted player...", true);
+        else
+            removing = BuildAlertMessage.buildAlertIndeterminateProgress(this, "Removing player...", true);
 
         WriteBatch batch = db.batch();
         String playerID = players.get(position).getUID();
@@ -503,10 +563,14 @@ public class GamePage extends AppCompatActivity
         batch.update(db.collection("games").document(docID),
                 "players", FieldValue.arrayRemove(playerID),
                 "player_count", FieldValue.increment(-1));
-        batch.update(db.collection("users").document(playerID)
-                        .collection("joined_games").document("games"),
-                "game_count", FieldValue.increment(-1),
-                "games", FieldValue.arrayRemove(docID));
+
+        if (!deletedUser)
+        {
+            batch.update(db.collection("users").document(playerID)
+                            .collection("joined_games").document("games"),
+                    "game_count", FieldValue.increment(-1),
+                    "games", FieldValue.arrayRemove(docID));
+        }
 
         batch.commit().addOnCompleteListener(new OnCompleteListener<Void>()
         {
@@ -524,7 +588,8 @@ public class GamePage extends AppCompatActivity
 
                     removing.dismiss();
 
-                    Toast.makeText(getApplicationContext(), "Player removed.", Toast.LENGTH_LONG).show();
+                    if (!deletedUser)
+                        Toast.makeText(getApplicationContext(), "Player removed.", Toast.LENGTH_LONG).show();
                 }
                 else
                 {
@@ -1012,5 +1077,46 @@ public class GamePage extends AppCompatActivity
                         activity.finish();
                     }
                 });
+    }
+
+    private void leaveGame()
+    {
+        WriteBatch batch = db.batch();
+
+        batch.update(db.collection("users").document(mAuth.getUid())
+                .collection("joined_games").document("games"),
+                "game_count", FieldValue.increment(-1),
+                "games", FieldValue.arrayRemove(docID));
+        batch.update(db.collection("games").document(docID),
+                "player_count", FieldValue.increment(-1),
+                "players", FieldValue.arrayRemove(mAuth.getUid()));
+
+        final AlertDialog leaving = BuildAlertMessage.buildAlertIndeterminateProgress(activity, "Leaving game...", true);
+
+        SharedPreferences flags = getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
+
+        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<Void> task)
+            {
+                if (task.isSuccessful())
+                {
+                    SharedPreferences.Editor flagsEditor = flags.edit();
+                    flagsEditor.putBoolean("update joined games", true);
+                    flagsEditor.apply();
+
+                    leaving.dismiss();
+
+                    activity.finish();
+                }
+                else
+                {
+                    leaving.dismiss();
+
+                    BuildAlertMessage.buildAlertMessageNeutral(activity, "Could not leave game, try again.");
+                }
+            }
+        });
     }
 }

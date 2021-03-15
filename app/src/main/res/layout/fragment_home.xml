@@ -36,6 +36,17 @@
                 android:layout_weight="5"/>
 
             <ImageView
+                style="@style/Theme.Legends.Clickable"
+                android:id="@+id/sync_created_games"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:padding="5dp"
+                android:src="@drawable/ic_cloud_sync"
+                android:layout_gravity="center"
+                android:layout_marginRight="5dp"
+                android:layout_marginEnd="5dp"/>
+
+            <ImageView
                 android:id="@+id/createGame"
                 android:layout_width="24dp"
                 android:layout_height="match_parent"

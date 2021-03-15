@@ -107,7 +107,7 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
                 @Override
                 public void onClick(View v)
                 {
-                    gamePageInstance.removeUser(position);
+                    gamePageInstance.removeUser(position, false);
                 }
             });
         }

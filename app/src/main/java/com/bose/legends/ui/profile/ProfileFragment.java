@@ -3,6 +3,7 @@ package com.bose.legends.ui.profile;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -35,6 +36,8 @@ import android.widget.Toast;
 
 import com.bose.legends.BuildAlertMessage;
 import com.bose.legends.CustomFileOperations;
+import com.bose.legends.GameDetails;
+import com.bose.legends.LegendsJSONParser;
 import com.bose.legends.MapsActivityCurrentPlace;
 import com.bose.legends.R;
 import com.bose.legends.SharedPrefsValues;
@@ -48,6 +51,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -57,12 +61,14 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
+import java.util.List;
+
 import static android.content.Context.MODE_PRIVATE;
 
 public class ProfileFragment extends Fragment
 {
     private FirebaseAuth mAuth;
-    private TextView username, email, bio, createdGamesCount, joinedGamesCount, homeLocation, changeLocation;
+    private TextView username, email, bio, createdGamesCount, joinedGamesCount, homeLocation;
     private EditText newBio, newUsername;
     private ImageView profilePic, editUsername, editBio, cancelUsername, cancelBio;
     private GeoPoint currentHomeLocation;
@@ -74,6 +80,7 @@ public class ProfileFragment extends Fragment
     private FusedLocationProviderClient client;
     private final byte EDIT_USERNAME = 0;
     private final byte EDIT_BIO = 1;
+    private int docsDeleted = 0, totalDocs = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -93,7 +100,8 @@ public class ProfileFragment extends Fragment
         // TextViews
         username = root.findViewById(R.id.username); email = root.findViewById(R.id.email); bio = root.findViewById(R.id.bio);
         createdGamesCount = root.findViewById(R.id.created_games_count); joinedGamesCount = root.findViewById(R.id.joined_games_count);
-        homeLocation = root.findViewById(R.id.home_location); changeLocation = root.findViewById(R.id.change_location);
+        homeLocation = root.findViewById(R.id.home_location);
+        TextView changeLocation = root.findViewById(R.id.change_location);
         // EditTexts
         newBio = root.findViewById(R.id.new_bio); newUsername = root.findViewById(R.id.new_username);
         // ImageViews
@@ -101,7 +109,7 @@ public class ProfileFragment extends Fragment
         editBio = root.findViewById(R.id.edit_bio); cancelUsername = root.findViewById(R.id.cancel_username);
         cancelBio = root.findViewById(R.id.cancel_bio);
         // Buttons
-        Button signOut = root.findViewById(R.id.sign_out);
+        Button signOut = root.findViewById(R.id.sign_out), deleteAccount = root.findViewById(R.id.delete_account);
         // ProgressBar
         loadingIcon = root.findViewById(R.id.loading_icon);
 
@@ -133,6 +141,33 @@ public class ProfileFragment extends Fragment
             public void onClick(View v)
             {
                 signOut();
+            }
+        });
+
+        deleteAccount.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                BuildAlertMessage.buildAlertMessagePositiveNegative(requireActivity(), "Are you sure you want to delete your account?" +
+                                " Once you've deleted your account, there is no way to retrieve your data.", true,
+                        new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                dialog.dismiss();
+                                beginAccountDeletion();
+                            }
+                        },
+                        new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                dialog.dismiss();
+                            }
+                        });
             }
         });
 
@@ -182,6 +217,126 @@ public class ProfileFragment extends Fragment
         });
 
         return root;
+    }
+
+    private void beginAccountDeletion()
+    {
+        final AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(requireActivity(), "Please wait, this might take a minute...", true);
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        String UID = mAuth.getUid();
+
+        // first we delete the user's account because even if we can't delete the account, we shouldn't wipe the user's data
+        mAuth.getCurrentUser().delete().addOnCompleteListener(new OnCompleteListener<Void>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<Void> task)
+            {
+                if (task.isSuccessful()) // user's account has been deleted from the server, now we begin the deletion of all of user's data
+                {
+                    db.collection("users").document(UID).delete()
+                            .addOnCompleteListener(new OnCompleteListener<Void>()
+                            {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) // deletion of user details
+                                {
+                                    db.collection("games").whereEqualTo("created_by_id", UID)
+                                            .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>()
+                                    {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task)
+                                        {
+                                            if (task.isSuccessful()) // able to retrieve user created games
+                                            {
+                                                Log.d("delete account", "here1");
+                                                totalDocs = task.getResult().getDocuments().size();
+                                                Log.d("delete account", "Total docs " + totalDocs);
+
+                                                if (totalDocs == 0 || task.getResult().getDocuments().isEmpty())
+                                                {
+                                                    Log.d("delete account", "in here");
+                                                    deleteRestOfUsersDocs(UID, loading);
+                                                }
+                                                else
+                                                {
+                                                    for (QueryDocumentSnapshot snap : task.getResult())
+                                                    {
+                                                        db.collection("games").document(snap.getId())
+                                                                .delete().addOnCompleteListener(new OnCompleteListener<Void>()
+                                                        {
+                                                            @Override
+                                                            public void onComplete(@NonNull Task<Void> task)
+                                                            {
+                                                                incrementDocsDeleted();
+
+                                                                if (allDocsDeleted()) // all user created games have been deleted
+                                                                {
+                                                                    deleteRestOfUsersDocs(UID, loading);
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                            else // not able to retrieve user created games
+                                            {
+                                                deleteRestOfUsersDocs(UID, loading);
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                }
+                else // if the user's account could not be deleted
+                {
+                    loading.dismiss();
+
+                    BuildAlertMessage.buildAlertMessageNeutral(requireActivity(), "Couldn't delete account, try again.");
+                }
+            }
+        });
+    }
+
+    private void incrementDocsDeleted()
+    {
+        docsDeleted += 1;
+        Log.d("delete account", "Docs deleted: " + docsDeleted);
+    }
+
+    private boolean allDocsDeleted()
+    {
+        return docsDeleted == totalDocs;
+    }
+
+    private void deleteRestOfUsersDocs(String UID, AlertDialog loading)
+    {
+        FirebaseDatabase.getInstance().getReference("users_requests")
+        .child(UID)
+        .removeValue()
+        .addOnCompleteListener(new OnCompleteListener<Void>() // deleting all documents in Realtime Database
+        {
+            @Override
+            public void onComplete(@NonNull Task<Void> task)
+            {
+                // deleting all locally stored files
+                CustomFileOperations.deleteFile(requireActivity(), UID, CustomFileOperations.CREATED_GAMES);
+                CustomFileOperations.deleteFile(requireActivity(), UID, CustomFileOperations.JOINED_GAMES);
+                CustomFileOperations.deleteFile(requireActivity(), UID, CustomFileOperations.FOUND_GAMES);
+
+                // clear SharedPreferences
+                SharedPreferences userDetails =
+                        requireActivity().getSharedPreferences(SharedPrefsValues.USER_DETAILS.getValue(), MODE_PRIVATE);
+                SharedPreferences.Editor editDetails = userDetails.edit();
+                editDetails.clear();
+                editDetails.apply();
+
+                loading.dismiss();
+                // at this point all of user documents have been deleted (or not), so we finally close all activities and bring user back to SignUp activity
+                Intent intent = new Intent(requireContext(), SignUp.class);
+                startActivity(intent);
+                requireActivity().finish();
+            }
+        });
     }
 
     private void setDetails()

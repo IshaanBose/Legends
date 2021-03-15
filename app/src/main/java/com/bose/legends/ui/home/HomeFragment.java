@@ -94,7 +94,8 @@ public class HomeFragment extends Fragment
         // RecyclerViews
         createdGamesList = root.findViewById(R.id.created_games_list); joinedGamesList = root.findViewById(R.id.joined_games_list);
         // ImageViews
-        ImageView createGame = root.findViewById(R.id.createGame), syncJoinedGames = root.findViewById(R.id.sync_joined_games);
+        ImageView createGame = root.findViewById(R.id.createGame), syncJoinedGames = root.findViewById(R.id.sync_joined_games),
+                syncCreatedGames = root.findViewById(R.id.sync_created_games);
         // TextViews
         noGames = root.findViewById(R.id.no_games); noJoinedGames = root.findViewById(R.id.no_joined_games);
 
@@ -104,6 +105,32 @@ public class HomeFragment extends Fragment
             public void onClick(View v)
             {
                 createGame();
+            }
+        });
+
+        syncCreatedGames.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                BuildAlertMessage.buildAlertMessagePositiveNegative(getContext(), "Sync created games?", true,
+                        new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                dialog.dismiss();
+                                getCreatedGames(true, false);
+                            }
+                        },
+                        new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                dialog.dismiss();
+                            }
+                        });
             }
         });
 
@@ -149,7 +176,7 @@ public class HomeFragment extends Fragment
 
         Log.d("sync", "out");
 
-        getCreatedGames(false);
+        getCreatedGames(flags.getBoolean("sync created games", false), false);
         getJoinedGames(flags.getBoolean("sync joined games", false), false);
 
         SharedPreferences pref = requireActivity().getSharedPreferences(SharedPrefsValues.SETTINGS.getValue(), Context.MODE_PRIVATE);
@@ -168,6 +195,7 @@ public class HomeFragment extends Fragment
                     {
                         Log.d("syncing", "background syncing");
                         getJoinedGames(true, true);
+                        getCreatedGames(true, true);
                     }
 
                     handler.postDelayed(this, delay);
@@ -202,7 +230,7 @@ public class HomeFragment extends Fragment
     
     private void syncData()
     {
-        getCreatedGames(true);
+        getCreatedGames(true, false);
         getJoinedGames(true, false);
     }
 
@@ -212,7 +240,7 @@ public class HomeFragment extends Fragment
         startActivity(intent);
     }
     
-    private void getCreatedGames(boolean fromServer)
+    private void getCreatedGames(boolean fromServer, boolean inBackground)
     {
         if (!fromServer)
         {
@@ -230,7 +258,7 @@ public class HomeFragment extends Fragment
         }
 
         Log.d("sync", "syncing created games");
-        AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(getContext(), "Syncing created games…", true);
+        AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(getContext(), "Syncing created games…", !inBackground);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         Query query = db.collection("games")
                 .whereEqualTo("created_by_id", mAuth.getUid());
@@ -355,10 +383,13 @@ public class HomeFragment extends Fragment
                                             if (task.isSuccessful())
                                             {
                                                 DocumentSnapshot snap = task.getResult();
-                                                FoundGameDetails gameDetails = new FoundGameDetails();
-                                                gameDetails.mapDocValues(snap, userLocation);
+                                                if (snap.exists())
+                                                {
+                                                    FoundGameDetails gameDetails = new FoundGameDetails();
+                                                    gameDetails.mapDocValues(snap, userLocation);
 
-                                                joinedGamesDetails.add(gameDetails);
+                                                    joinedGamesDetails.add(gameDetails);
+                                                }
                                             }
                                             else
                                             {
@@ -425,7 +456,7 @@ public class HomeFragment extends Fragment
             for (int i = 0; i < diff; i++)
                 keepDetails.add(newDetails.get(currSize + i));
 
-            if (createdGamesDetails == null)
+            if (createdGamesDetails == null || (createdGamesDetails.size() == 0))
             {
                 createdGamesDetails = new ArrayList<>(keepDetails);
                 hideNoGame = true;
@@ -578,6 +609,14 @@ public class HomeFragment extends Fragment
             getJoinedGames(true, false);
         }
 
+        if (flags.getBoolean("update joined games", false))
+        {
+            flagsEditor = flags.edit();
+            flagsEditor.putBoolean("update joined games", false);
+
+            getJoinedGames(true, false);
+        }
+
         flagsEditor.apply();
     }
 
@@ -614,14 +653,51 @@ public class HomeFragment extends Fragment
                     @Override
                     public void onItemClicked(RecyclerView recyclerView, int position, View v)
                     {
-                        Intent intent = new Intent(getContext(), GamePage.class);
-                        Log.d("joined", joinedGamesDetails.get(position).getGameName());
-                        Log.d("joined", joinedGamesDetails.get(position).getFirebaseReferenceID());
-                        intent.putExtra("game_name", joinedGamesDetails.get(position).getGameName());
-                        intent.putExtra("page_code", CustomFileOperations.JOINED_GAMES);
-                        intent.putExtra("doc_ref", joinedGamesDetails.get(position).getFirebaseReferenceID());
+                        final AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(requireActivity(), true);
 
-                        startActivity(intent);
+                        FirebaseFirestore.getInstance().collection("games")
+                                .document(joinedGamesDetails.get(position).getFirebaseReferenceID())
+                                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
+                        {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task)
+                            {
+                                if (task.isSuccessful())
+                                {
+                                    if (task.getResult().exists()) // checking if game still exists
+                                    {
+                                        loading.dismiss();
+
+                                        Intent intent = new Intent(getContext(), GamePage.class);
+                                        intent.putExtra("game_name", joinedGamesDetails.get(position).getGameName());
+                                        intent.putExtra("page_code", CustomFileOperations.JOINED_GAMES);
+                                        intent.putExtra("doc_ref", joinedGamesDetails.get(position).getFirebaseReferenceID());
+
+                                        startActivity(intent);
+                                    }
+                                    else
+                                    {
+                                        loading.dismiss();
+
+                                        BuildAlertMessage.buildAlertMessageNeutral(requireActivity(), "Looks like this game no longer exists.");
+
+                                        // removing deleted joined game from our list.
+                                        joinedGamesDetails.remove(position);
+                                        // deleting it from our offline file
+                                        CustomFileOperations.overwriteFileUsingFoundGamesList(joinedGamesDetails, requireActivity(), mAuth.getUid(),
+                                                CustomFileOperations.JOINED_GAMES);
+                                        // updating RecyclerView
+                                        updateJoinedGamesList(joinedGamesDetails, true);
+                                    }
+                                }
+                                else
+                                {
+                                    loading.dismiss();
+
+                                    BuildAlertMessage.buildAlertMessageNeutral(requireActivity(), "Sorry, we couldn't confirm whether this still exists in our database, try again later.");
+                                }
+                            }
+                        });
                     }
                 }
         );

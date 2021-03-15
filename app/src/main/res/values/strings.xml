@@ -116,6 +116,8 @@
     <string name="send_message">Send Message</string>
     <string name="no_messages">There aren&#8217;t any messages in this group chat. Be the first one to send one!</string>
     <string name="apply_changes">Apply Changes</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="leave_game">Leave Game</string>
     <string-array name="game_types">
         <item>D&amp;D 5E</item>
         <item>Call of Cthulhu</item>
