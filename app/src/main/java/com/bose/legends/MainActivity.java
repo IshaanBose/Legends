@@ -164,6 +164,8 @@ public class MainActivity extends AppCompatActivity
 
             CustomFileOperations.deleteFile(getApplicationContext(), uid, CustomFileOperations.CREATED_GAMES);
             CustomFileOperations.deleteFile(getApplicationContext(), uid, CustomFileOperations.FOUND_GAMES);
+            CustomFileOperations.deleteFile(getApplicationContext(), uid, CustomFileOperations.CREATED_LAST_SYNCED);
+            CustomFileOperations.deleteFile(getApplicationContext(), uid, CustomFileOperations.JOINED_LAST_SYNCED);
 
             FirebaseAuth.getInstance().signOut();
         }
