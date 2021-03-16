@@ -20,10 +20,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -97,7 +94,7 @@ public class MainActivity extends AppCompatActivity
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_profile, R.id.nav_my_games_v2, R.id.nav_find_game, R.id.nav_slideshow)
+                R.id.nav_profile, R.id.nav_my_games_v2, R.id.nav_find_game, R.id.nav_dice_roller)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -109,8 +106,6 @@ public class MainActivity extends AppCompatActivity
         TextView navEmail = headerView.findViewById(R.id.nav_header_email);
         navUsername.setText(username);
         navEmail.setText(email);
-
-//        CustomFileOperations.deleteFile(this, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
     }
 
     @Override

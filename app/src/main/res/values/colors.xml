@@ -21,4 +21,19 @@
     <color name="red">#FF0000</color>
     <color name="clickable_text">#E8A600</color>
     <color name="message_background">#2DC8C8C8</color>
+
+    <!--  Dice Roller Backgrounds  -->
+    <color name="d100_background">#41C4FF</color>
+    <color name="d20_background">#FFBB86FC</color>
+    <color name="d12_background">#FFFF7600</color>
+    <color name="d10_background">#FF99CC00</color>
+    <color name="d8_background">#F6DD00</color>
+    <color name="d6_background">#00D1CA</color>
+    <color name="d4_background">#F244FF</color>
+    <color name="d2_background">#7024FF</color>
+    <color name="keep_highest_bg">#00CD03</color>
+    <color name="keep_lowest_bg">#C10000</color>
+    <color name="default_button_bg">#787878</color>
+    <color name="bottom_bar_bg">#FF9900</color>
+    <color name="disabled_button_bg">#636363</color>
 </resources>

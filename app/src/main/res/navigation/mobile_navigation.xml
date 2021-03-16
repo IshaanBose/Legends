@@ -24,8 +24,8 @@
         tools:layout="@layout/fragment_find_game" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.bose.legends.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        android:id="@+id/nav_dice_roller"
+        android:name="com.bose.legends.ui.slideshow.DiceRollerFragment"
+        android:label="@string/menu_dice_roller"
+        tools:layout="@layout/fragment_dice_roller" />
 </navigation>
