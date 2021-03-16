@@ -93,7 +93,7 @@ public class FindGameFragment extends Fragment
         });
 
         List<FoundGameDetails> foundGames = LegendsJSONParser.convertJSONToFoundGamesDetailsList(
-                CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES)
+                CustomFileOperations.getStringFromFile(getActivity(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES)
         );
 
         showGames(foundGames == null ? new ArrayList<>() : foundGames, true);

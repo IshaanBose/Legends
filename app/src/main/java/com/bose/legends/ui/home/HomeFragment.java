@@ -31,7 +31,6 @@ import com.bose.legends.GameDetails;
 import com.bose.legends.GamePage;
 import com.bose.legends.ItemClickSupport;
 import com.bose.legends.LegendsJSONParser;
-import com.bose.legends.MainActivity;
 import com.bose.legends.R;
 import com.bose.legends.SharedPrefsValues;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -44,11 +43,9 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Objects;
 
 public class HomeFragment extends Fragment
 {
@@ -191,12 +188,10 @@ public class HomeFragment extends Fragment
                 if (HomeFragment.ON)
                 {
                     Log.d("syncing", "HomeFragment ON");
-                    if (triggerSync(Calendar.getInstance()))
-                    {
-                        Log.d("syncing", "background syncing");
+                    if (triggerSync(Calendar.getInstance(), CustomFileOperations.JOINED_LAST_SYNCED))
                         getJoinedGames(true, true);
+                    if (triggerSync(Calendar.getInstance(), CustomFileOperations.CREATED_LAST_SYNCED))
                         getCreatedGames(true, true);
-                    }
 
                     handler.postDelayed(this, delay);
                 }
@@ -206,11 +201,12 @@ public class HomeFragment extends Fragment
         return root;
     }
 
-    private boolean triggerSync(Calendar currentTime)
+    private boolean triggerSync(Calendar currentTime, byte pageCode)
     {
         if (isAdded() && getActivity() != null)
         {
-            String lastSynced = CustomFileOperations.getLastSynced(getActivity(), mAuth.getUid());
+            String lastSynced = CustomFileOperations.getLastSynced(getActivity(), mAuth.getUid(), pageCode);
+            Log.d("syncing", pageCode + " : " +lastSynced);
 
             if (lastSynced == null)
                 return true;
@@ -242,10 +238,11 @@ public class HomeFragment extends Fragment
     
     private void getCreatedGames(boolean fromServer, boolean inBackground)
     {
+        Log.d("deleting", fromServer + "");
         if (!fromServer)
         {
             List<GameDetails> storedGames = LegendsJSONParser.convertJSONToGameDetailsList(
-                    CustomFileOperations.getJSONStringFromFile(requireActivity(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES)
+                    CustomFileOperations.getStringFromFile(requireActivity(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES)
             );
 
             Log.d("new sync", "stored games: " + (storedGames == null ? "Null" : storedGames.toString()));
@@ -294,6 +291,12 @@ public class HomeFragment extends Fragment
                     {
                         Toast.makeText(getContext(), "No games found", Toast.LENGTH_SHORT).show();
                     }
+
+                    SharedPreferences.Editor flagsEditor = flags.edit();
+                    flagsEditor.putBoolean("sync created games", false);
+                    flagsEditor.apply();
+
+                    CustomFileOperations.writeLastSynced(requireActivity(), mAuth.getUid(), Calendar.getInstance(), CustomFileOperations.CREATED_LAST_SYNCED);
                 }
                 else
                 {
@@ -309,7 +312,7 @@ public class HomeFragment extends Fragment
         if (!fromServer)
         {
             List<FoundGameDetails> storedJoinedGames = LegendsJSONParser.convertJSONToFoundGamesDetailsList(
-                    CustomFileOperations.getJSONStringFromFile(getActivity(), mAuth.getUid(), CustomFileOperations.JOINED_GAMES)
+                    CustomFileOperations.getStringFromFile(getActivity(), mAuth.getUid(), CustomFileOperations.JOINED_GAMES)
             );
 
             if (storedJoinedGames != null)
@@ -352,7 +355,7 @@ public class HomeFragment extends Fragment
 
                         updateJoinedGamesList(joinedGamesDetails, true);
 
-                        CustomFileOperations.writeLastSynced(requireActivity(), mAuth.getUid(), Calendar.getInstance());
+                        CustomFileOperations.writeLastSynced(requireActivity(), mAuth.getUid(), Calendar.getInstance(), CustomFileOperations.JOINED_LAST_SYNCED);
 
                         SharedPreferences.Editor flagsEditor = flags.edit();
                         flagsEditor.putBoolean("sync joined games", false);
@@ -411,7 +414,7 @@ public class HomeFragment extends Fragment
                                                     Toast.makeText(getContext(), "Joined games list updated.", Toast.LENGTH_SHORT).show();
                                                 }
 
-                                                CustomFileOperations.writeLastSynced(requireActivity(), mAuth.getUid(), Calendar.getInstance());
+                                                CustomFileOperations.writeLastSynced(requireActivity(), mAuth.getUid(), Calendar.getInstance(), CustomFileOperations.JOINED_LAST_SYNCED);
 
                                                 SharedPreferences.Editor flagsEditor = flags.edit();
                                                 flagsEditor.putBoolean("sync joined games", false);
@@ -569,7 +572,7 @@ public class HomeFragment extends Fragment
         if (flags.getBoolean("game added", false))
         {
             List<GameDetails> newGamesList = LegendsJSONParser.convertJSONToGameDetailsList(
-                    CustomFileOperations.getJSONStringFromFile(
+                    CustomFileOperations.getStringFromFile(
                             requireActivity(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES
                     )
             );
@@ -587,7 +590,7 @@ public class HomeFragment extends Fragment
             {
                 // updating our created game list
                 createdGamesDetails = LegendsJSONParser.convertJSONToGameDetailsList(
-                        CustomFileOperations.getJSONStringFromFile(
+                        CustomFileOperations.getStringFromFile(
                                 requireActivity(), mAuth.getUid(), CustomFileOperations.CREATED_GAMES
                         )
                 );
@@ -606,7 +609,13 @@ public class HomeFragment extends Fragment
             flagsEditor = flags.edit();
             flagsEditor.putBoolean("finish game page", false);
 
-            getJoinedGames(true, false);
+            if (flags.getBoolean("delete game", false))
+            {
+                flagsEditor.putBoolean("delete game", false);
+                getCreatedGames(true, false);
+            }
+            else
+                getJoinedGames(true, false);
         }
 
         if (flags.getBoolean("update joined games", false))
@@ -728,22 +737,22 @@ public class HomeFragment extends Fragment
                 }
         );
 
-        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT)
-        {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target)
-            {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction)
-            {
-                Toast.makeText(getContext(), "Swiped", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
-        itemTouchHelper.attachToRecyclerView(createdGamesList);
+//        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT)
+//        {
+//            @Override
+//            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target)
+//            {
+//                return false;
+//            }
+//
+//            @Override
+//            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction)
+//            {
+//                Toast.makeText(getContext(), "Swiped", Toast.LENGTH_SHORT).show();
+//            }
+//        };
+//
+//        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+//        itemTouchHelper.attachToRecyclerView(createdGamesList);
     }
 }

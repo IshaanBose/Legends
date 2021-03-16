@@ -20,7 +20,8 @@ public class CustomFileOperations
     public static final byte CREATED_GAMES = 0;
     public static final byte FOUND_GAMES = 1;
     public static final byte JOINED_GAMES = 3;
-    public static final byte LAST_SYNCED = 4;
+    public static final byte JOINED_LAST_SYNCED = 4;
+    public static final byte CREATED_LAST_SYNCED = 5;
 
     private static String getFileSuffixFromCode(byte code)
     {
@@ -32,7 +33,9 @@ public class CustomFileOperations
 
             case 3: return "_joined_games.json";
 
-            case 4: return "_last_synced.txt";
+            case 4: return "_joined_last_synced.txt";
+
+            case 5: return "_created_last_synced.txt";
 
             default: return "_dump_file.txt";
         }
@@ -50,7 +53,7 @@ public class CustomFileOperations
 
             if (file.exists())
             {
-                String jsonData = getJSONStringFromFile(activity, UID, fileCode);
+                String jsonData = getStringFromFile(activity, UID, fileCode);
                 Log.d("jfs", "File data before write" + jsonData);
                 games = LegendsJSONParser.convertJSONToGameDetailsList(jsonData);
 
@@ -65,7 +68,7 @@ public class CustomFileOperations
                 outputStreamWriter = new OutputStreamWriter(activity.openFileOutput(filename, Context.MODE_PRIVATE));
                 Log.d("jfs", "Games list with prev and new data:\n" + games);
                 outputStreamWriter.write(LegendsJSONParser.convertToJSONJacksonAPI(games));
-                Log.d("jfs", "file content immediately after writing\n" + getJSONStringFromFile(activity, UID, fileCode));
+                Log.d("jfs", "file content immediately after writing\n" + getStringFromFile(activity, UID, fileCode));
             }
             else
             {
@@ -97,7 +100,7 @@ public class CustomFileOperations
             outputStreamWriter.write(json);
             outputStreamWriter.close();
 
-            Log.d("jfs", "file content immediately after writing\n" + getJSONStringFromFile(activity, UID, fileCode));
+            Log.d("jfs", "file content immediately after writing\n" + getStringFromFile(activity, UID, fileCode));
 
             Log.d("jfs", "File created.");
         }
@@ -119,7 +122,7 @@ public class CustomFileOperations
             outputStreamWriter.write(json);
             outputStreamWriter.close();
 
-            Log.d("jfs", "file content immediately after writing\n" + getJSONStringFromFile(activity, UID, fileCode));
+            Log.d("jfs", "file content immediately after writing\n" + getStringFromFile(activity, UID, fileCode));
 
             Log.d("jfs", "File created.");
         }
@@ -129,9 +132,9 @@ public class CustomFileOperations
         }
     }
 
-    public static void writeLastSynced(Activity activity, String UID, Calendar syncTime)
+    public static void writeLastSynced(Activity activity, String UID, Calendar syncTime, byte pageCode)
     {
-        String filename = UID + getFileSuffixFromCode(CustomFileOperations.LAST_SYNCED);
+        String filename = UID + getFileSuffixFromCode(pageCode);
         String time = syncTime.get(Calendar.MINUTE) + " " + syncTime.get(Calendar.HOUR_OF_DAY) + " "
                 + syncTime.get(Calendar.DAY_OF_MONTH) + " " + syncTime.get(Calendar.MONTH) + " "
                 + syncTime.get(Calendar.YEAR);
@@ -148,12 +151,12 @@ public class CustomFileOperations
         }
     }
 
-    public static String getLastSynced(Activity activity, String UID)
+    public static String getLastSynced(Activity activity, String UID, byte pageCode)
     {
-        return getJSONStringFromFile(activity, UID, LAST_SYNCED);
+        return getStringFromFile(activity, UID, pageCode);
     }
 
-    public static String getJSONStringFromFile(Activity activity, String UID, byte fileCode)
+    public static String getStringFromFile(Activity activity, String UID, byte fileCode)
     {
         String filename = UID + getFileSuffixFromCode(fileCode);
         File file = activity.getBaseContext().getFileStreamPath(filename);

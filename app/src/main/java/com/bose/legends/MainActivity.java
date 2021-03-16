@@ -52,17 +52,17 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences.Editor flagsEditor = flags.edit();
         flagsEditor.clear();
 
-        String lastSynced = CustomFileOperations.getLastSynced(this, mAuth.getUid());
+        String joinedLastSynced = CustomFileOperations.getLastSynced(this, mAuth.getUid(), CustomFileOperations.JOINED_LAST_SYNCED);
+        String createdLastSynced = CustomFileOperations.getLastSynced(this, mAuth.getUid(), CustomFileOperations.CREATED_LAST_SYNCED);
+        Calendar currentTime = Calendar.getInstance();
 
-        if (lastSynced == null)
+        if (joinedLastSynced == null)
         {
             flagsEditor.putBoolean("sync joined games", true);
-            flagsEditor.putBoolean("sync created games", true);
         }
         else
         {
-            Calendar currentTime = Calendar.getInstance();
-            String [] lastSyncedVals = lastSynced.split(" ");
+            String [] lastSyncedVals = joinedLastSynced.split(" ");
 
             boolean flagValue = currentTime.get(Calendar.MINUTE) - (Integer.parseInt(lastSyncedVals[0])) >= 5 // last sync more than or equal to 5 minutes ago
                     || currentTime.get(Calendar.HOUR_OF_DAY) != (Integer.parseInt(lastSyncedVals[1])) // same minute, different hour
@@ -71,6 +71,20 @@ public class MainActivity extends AppCompatActivity
                     || currentTime.get(Calendar.YEAR) != (Integer.parseInt(lastSyncedVals[4].split("\n")[0])); // same time, day and month, different year
 
             flagsEditor.putBoolean("sync joined games", flagValue);
+        }
+
+        if (createdLastSynced == null)
+            flagsEditor.putBoolean("sync created games", true);
+        else
+        {
+            String [] lastSyncedVals = createdLastSynced.split(" ");
+
+            boolean flagValue = currentTime.get(Calendar.MINUTE) - (Integer.parseInt(lastSyncedVals[0])) >= 5 // last sync more than or equal to 5 minutes ago
+                    || currentTime.get(Calendar.HOUR_OF_DAY) != (Integer.parseInt(lastSyncedVals[1])) // same minute, different hour
+                    || currentTime.get(Calendar.DAY_OF_MONTH) != (Integer.parseInt(lastSyncedVals[2])) // same time, different day
+                    || currentTime.get(Calendar.MONTH) != (Integer.parseInt(lastSyncedVals[3])) // same time and day, different month
+                    || currentTime.get(Calendar.YEAR) != (Integer.parseInt(lastSyncedVals[4].split("\n")[0])); // same time, day and month, different year
+
             flagsEditor.putBoolean("sync created games", flagValue);
         }
 

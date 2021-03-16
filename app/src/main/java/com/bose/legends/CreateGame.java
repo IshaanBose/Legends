@@ -50,7 +50,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.WriteBatch;
 
-import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -728,7 +727,7 @@ public class CreateGame extends AppCompatActivity
                 else
                 {
                     List<GameDetails> existingGames = LegendsJSONParser.convertJSONToGameDetailsList(
-                            CustomFileOperations.getJSONStringFromFile(context, mAuth.getUid(),
+                            CustomFileOperations.getStringFromFile(context, mAuth.getUid(),
                                     CustomFileOperations.CREATED_GAMES)
                     );
 

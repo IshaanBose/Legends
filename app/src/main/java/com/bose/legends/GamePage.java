@@ -163,7 +163,7 @@ public class GamePage extends AppCompatActivity
         if (pageCode == CustomFileOperations.CREATED_GAMES)
         {
             List<GameDetails> games = LegendsJSONParser.convertJSONToGameDetailsList(
-                    CustomFileOperations.getJSONStringFromFile(this, mAuth.getUid(), pageCode)
+                    CustomFileOperations.getStringFromFile(this, mAuth.getUid(), pageCode)
             );
 
             if (games != null)
@@ -204,7 +204,7 @@ public class GamePage extends AppCompatActivity
         else
         {
             List<FoundGameDetails> games = LegendsJSONParser.convertJSONToFoundGamesDetailsList(
-                    CustomFileOperations.getJSONStringFromFile(this, mAuth.getUid(), pageCode)
+                    CustomFileOperations.getStringFromFile(this, mAuth.getUid(), pageCode)
             );
 
             if (games != null)
@@ -458,6 +458,10 @@ public class GamePage extends AppCompatActivity
 
             startActivity(intent);
         }
+        else if (item.getTitle().toString().equals("Delete"))
+        {
+            deleteGame();
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -609,7 +613,7 @@ public class GamePage extends AppCompatActivity
 
         // retrieving the current details of the created game files
         final List<GameDetails> gameDetails = LegendsJSONParser.convertJSONToGameDetailsList(
-                CustomFileOperations.getJSONStringFromFile(activity, mAuth.getUid(), CustomFileOperations.CREATED_GAMES)
+                CustomFileOperations.getStringFromFile(activity, mAuth.getUid(), CustomFileOperations.CREATED_GAMES)
         );
 
         int index;
@@ -716,7 +720,7 @@ public class GamePage extends AppCompatActivity
 
         // update offline game file
         List<GameDetails> existingGames = LegendsJSONParser.convertJSONToGameDetailsList(
-                CustomFileOperations.getJSONStringFromFile(
+                CustomFileOperations.getStringFromFile(
                         activity, mAuth.getUid(), CustomFileOperations.CREATED_GAMES
                 )
         );
@@ -736,7 +740,7 @@ public class GamePage extends AppCompatActivity
 
                 CustomFileOperations.overwriteCreatedGamesFile(existingGames, activity, mAuth.getUid()); // update game file
 
-                String json = CustomFileOperations.getJSONStringFromFile(activity, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
+                String json = CustomFileOperations.getStringFromFile(activity, mAuth.getUid(), CustomFileOperations.CREATED_GAMES);
                 Log.d("new sync", "after change: " + json);
 
                 break;
@@ -822,6 +826,72 @@ public class GamePage extends AppCompatActivity
             requestsListHolder.setVisibility(View.VISIBLE);
             defaultRequestText.setVisibility(View.GONE);
         }
+    }
+
+    private void deleteGame()
+    {
+        final AlertDialog deleting = BuildAlertMessage.buildAlertIndeterminateProgress(activity, "Deleting game...", true);
+
+        WriteBatch batch = db.batch();
+
+        batch.delete(db.collection("games").document(docID));
+        batch.update(db.collection("users").document(mAuth.getUid()),
+                "created_games_count", FieldValue.increment(-1));
+
+        for (Users user : players)
+        {
+            batch.update(db.collection("users").document(user.getUID())
+                    .collection("joined_games").document("games"),
+                    "game_count", FieldValue.increment(-1),
+                    "games", FieldValue.arrayRemove(docID));
+        }
+
+        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<Void> task)
+            {
+                if (task.isSuccessful()) // all information of game deleted, now to attempt to delete chat
+                {
+                    // update personal info
+                    SharedPreferences flags = getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
+                    SharedPreferences.Editor flagsEditor = flags.edit();
+                    flagsEditor.putBoolean("finish game page", true);
+                    flagsEditor.putBoolean("delete game", true);
+                    flagsEditor.apply();
+
+                    FirebaseDatabase rtdb = FirebaseDatabase.getInstance();
+
+                    rtdb.getReference("group_chats")
+                            .child(docID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>()
+                    {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task)
+                        {
+                            // don't care if task was successful, just that it was completed.
+                            rtdb.getReference("join_requests").child(docID)
+                                    .removeValue().addOnCompleteListener(new OnCompleteListener<Void>()
+                            {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task)
+                                {
+                                    // again, don't care if successful
+                                    // at this point, all data of game has been deleted, so we end this activity
+                                    deleting.dismiss();
+                                    activity.finish();
+                                }
+                            });
+                        }
+                    });
+                }
+                else // if data couldn't be deleted from Firestore
+                {
+                    deleting.dismiss();
+                    BuildAlertMessage.buildAlertMessageNeutral(activity, "Couldn't delete game, try again.");
+                    Log.d("delete game", task.getException() != null ? task.getException().getMessage() : "don't know why");
+                }
+            }
+        });
     }
 
     /* ----------------------------------------------------------------- 3. Code for found games -------------------------------------------------------- */
