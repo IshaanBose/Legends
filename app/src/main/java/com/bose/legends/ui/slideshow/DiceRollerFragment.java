@@ -1,29 +1,38 @@
 package com.bose.legends.ui.slideshow;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.bose.legends.R;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
+import java.util.Stack;
 
 public class DiceRollerFragment extends Fragment implements View.OnClickListener
 {
     private List<Button> functButtons, dice, operators;
     private Button zero, dc;
     private TextView diceEquation;
-    private List<StringBuilder> equation;
+    private List<String> equation;
     private int enabledTextColor, disabledTextColor;
     private boolean diceExists, dcEnabled;
 
@@ -74,7 +83,8 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
             @Override
             public void onClick(View v)
             {
-
+                if (equation.size() != 0)
+                    equate();
             }
         });
 
@@ -113,9 +123,182 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
         return root;
     }
 
+    private void equate()
+    {
+        // don't equate if last input is an operator or the DC function
+        if (!(equation.get(equation.size() - 1).equals("+") || equation.get(equation.size() - 1).equals("-") || equation.get(equation.size() - 1).equals("DC")))
+        {
+            List<String> queryString = convertToQueryString();
+            Log.d("dice", queryString.toString());
+            String finalResult = "", rolls = "";
+
+            if (queryString.size() == 1)
+            {
+                List<String> result = calculateOperand(queryString.get(0));
+                finalResult = result.get(0);
+
+                if (result.size() == 2)
+                    rolls = result.get(1);
+
+                Log.d("dice", "final result: " + finalResult);
+                Log.d("dice", "rolls: " + rolls);
+            }
+            else
+            {
+                Stack<String> stack = new Stack<>();
+            }
+
+            buildAlertDiceResult(finalResult, rolls);
+        }
+    }
+
+    private List<String> calculateOperand(String operand)
+    {
+        List<String> results = new ArrayList<>();
+
+        if (!operand.contains("d"))
+            results.add(operand);
+        else
+        {
+            String [] split1 = operand.split("d");
+            int noOfDice = 1;
+            int diceN = 1;
+            String funct = "";
+
+            if (!split1[0].equals("")) // if dice has a number modifier
+                noOfDice = Integer.parseInt(split1[0]);
+
+            try
+            {
+                diceN = Integer.parseInt(split1[1]);
+            }
+            catch (NumberFormatException e) // dice has a function
+            {
+                diceN = Integer.parseInt(split1[1].substring(0, split1[1].length() - 1)); // getting the dice
+                funct = String.valueOf(split1[1].charAt(split1[1].length() - 1));
+            }
+
+            results = rollDice(noOfDice, diceN, funct);
+        }
+
+        return results;
+    }
+
+    private List<String> rollDice(int noOfDice, int diceN, String funct)
+    {
+        Random rand = new Random();
+        List<String> result = new ArrayList<>();
+        List<String> rolls = new ArrayList<>();
+
+        int sum = 0, highest = 0, lowest = diceN;
+
+        for (int i = 0; i < noOfDice; i++)
+        {
+            boolean mark = false;
+            int roll = rand.nextInt(diceN) + 1;
+
+            if (funct.equals("R"))
+                if (roll == 1)
+                {
+                    roll = rand.nextInt(diceN) + 1;
+                    mark = true;
+                }
+
+            if (mark)
+            {
+                if (i == 0)
+                    rolls.add("*" + roll + "*");
+                else
+                    rolls.add(" *" + roll + "*");
+            }
+            else
+            {
+                if (i == 0)
+                    rolls.add(String.valueOf(roll));
+                else
+                    rolls.add(" " + roll);
+            }
+
+            sum += roll;
+
+            if (highest < roll)
+                highest = roll;
+            if (lowest > roll)
+                lowest = roll;
+        }
+
+        switch (funct)
+        {
+            case "":
+            case "R":
+                result.add(String.valueOf(sum));
+                break;
+            case "K":
+                result.add(String.valueOf(highest));
+                break;
+            case "k":
+                result.add(String.valueOf(lowest));
+                break;
+            case "X":
+                result.add(String.valueOf(sum - highest));
+                break;
+            case "x":
+                result.add(String.valueOf(sum - lowest));
+                break;
+        }
+
+        String dice = (noOfDice == 1 ? "" : noOfDice) + "d" + diceN + funct;
+
+        result.add(dice + " : " + rolls.toString());
+
+        return result;
+    }
+
+    private List<String> convertToQueryString()
+    {
+        String temp = "";
+        boolean operator = false;
+        List<String> queryString = new ArrayList<>();
+
+        for (String inp : equation)
+        {
+            if (inp.equals("+") || inp.equals("-") || inp.equals("DC"))
+            {
+                if (!temp.equals(""))
+                    queryString.add(temp);
+
+                temp = inp;
+                operator = true;
+            }
+            else
+            {
+                if (queryString.size() == 0)
+                    queryString.add(inp);
+                else
+                {
+                    if (!operator)
+                    {
+                        String newOperand = queryString.get(queryString.size() - 1) + inp;
+                        queryString.set(queryString.size() - 1, newOperand);
+                    }
+                    else
+                    {
+                        queryString.add(inp);
+                        operator = false;
+                    }
+                }
+            }
+        }
+
+        if (!temp.equals(""))
+            queryString.add(temp);
+
+        return queryString;
+    }
+
     private void deleteChar()
     {
-        String lastInp = equation.remove(equation.size() - 1).toString(); // get the last input
+        String lastInp = equation.remove(equation.size() - 1); // get the last input
         boolean checkForOperator = false;
 
         try // if lastInp is a number
@@ -128,7 +311,7 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
                 checkForOperator = true;
             }
             else
-                equation.add(new StringBuilder(String.valueOf(number / 10)));
+                equation.add(String.valueOf(number / 10));
         }
         catch (NumberFormatException e) // if lastInp is not a number
         {
@@ -137,19 +320,22 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
                 if (!checkIfDiceExists())
                     setButtonsEnabled(false, functButtons);
 
-                try // if dice had a number before it
+                if (equation.size() != 0)
                 {
-                    Integer.parseInt(equation.get(equation.size() - 1).toString());
-                    setButtonEnabled(true, zero);
-                }
-                catch (NumberFormatException e1) // if it didn't
-                {
-                    checkForOperator = true;
+                    try // if dice had a number before it
+                    {
+                        Integer.parseInt(equation.get(equation.size() - 1));
+                        setButtonEnabled(true, zero);
+                    }
+                    catch (NumberFormatException e1) // if it didn't
+                    {
+                        checkForOperator = true;
+                    }
                 }
             }
             else if (lastInp.equals("+") || lastInp.equals("-")) // if lastInp is an operator
             {
-                String secondLast = equation.get(equation.size() - 1).toString();
+                String secondLast = equation.get(equation.size() - 1);
 
                 if (secondLast.equals("K") || secondLast.equals("k") || secondLast.equals("X") || secondLast.equals("x")
                     || secondLast.equals("R")) // if input before op was a function
@@ -159,10 +345,7 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
                 }
                 else
                 {
-                    if (!diceExists)
-                        setButtonsEnabled(false, functButtons);
-                    else
-                        setButtonsEnabled(true, functButtons);
+                    setButtonsEnabled(diceExists, functButtons);
                 }
             }
             else // if lastInp was a function
@@ -170,7 +353,7 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
                 setButtonsEnabled(true, functButtons);
                 setButtonsEnabled(true, operators);
 
-                String secondLast = equation.get(equation.size() - 1).toString();
+                String secondLast = equation.get(equation.size() - 1);
 
                 if (lastInp.equals("DC"))
                 {
@@ -216,14 +399,14 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
     @Override
     public void onClick(View v)
     {
-        String buttonText = ((TextView) v).getText().toString();
+        String buttonText = String.valueOf(((TextView) v).getText());
         boolean checkForDice = true;
 
         if (equation.size() == 0) // when nothing has been inputted
         {
             if (!(buttonText.equals("+") || buttonText.equals("-"))) // make sure no operator can be set
             {
-                equation.add(new StringBuilder(buttonText));
+                equation.add(buttonText);
 
                 if (buttonText.charAt(0) == 'd') // if dice pressed, enable funct buttons
                 {
@@ -238,7 +421,7 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
         }
         else
         {
-            StringBuilder lastInput = equation.get(equation.size() - 1);
+            String lastInput = equation.get(equation.size() - 1);
 
             try // check if input is a number
             {
@@ -249,16 +432,17 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
                     Integer.parseInt(lastInput.toString()); // check if the last input was a number
 
                     // if here, then last input was a number, so we just add to it
-                    equation.get(equation.size() - 1).append(buttonText);
+                    String newNumber = equation.get(equation.size() - 1) + buttonText;
+                    equation.set(equation.size() - 1, newNumber);
                 }
                 catch (NumberFormatException e2)
                 {
                     // if here, then last input wasn't a number, so we add new number
                     // if last input was not DC or an operator, add number to it
-                    if (!(lastInput.toString().equals("DC") || lastInput.toString().equals("+") || lastInput.toString().equals("-")))
-                        equation.add(new StringBuilder("+"));
+                    if (!(lastInput.equals("DC") || lastInput.equals("+") || lastInput.equals("-")))
+                        equation.add("+");
                     // otherwise, just input number
-                    equation.add(new StringBuilder(buttonText));
+                    equation.add(buttonText);
                 }
 
                 setButtonEnabled(true, zero);
@@ -271,8 +455,8 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
                     setButtonsEnabled(false, functButtons);
                     setButtonEnabled(false, zero);
 
-                    if (!(lastInput.toString().equals("+") || lastInput.toString().equals("-"))) // don't input operator if operator was inputted last
-                        equation.add(new StringBuilder(buttonText));
+                    if (!(lastInput.equals("+") || lastInput.equals("-"))) // don't input operator if operator was inputted last
+                        equation.add(buttonText);
 
                     checkForDice = false;
                 }
@@ -282,35 +466,35 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
                     setButtonEnabled(false, zero);
 
                     // if input dice is the same as the last inputted dice
-                    if (lastInput.toString().equals(buttonText))
+                    if (lastInput.equals(buttonText))
                     {
                         equation.remove(equation.size() - 1); // remove last input
 
-                        if (equation.size() == 0 || equation.get(equation.size() - 1).toString().equals("+")
-                                || equation.get(equation.size() - 1).toString().equals("-")) // if there is only one dice
+                        if (equation.size() == 0 || equation.get(equation.size() - 1).equals("+")
+                                || equation.get(equation.size() - 1).equals("-")) // if there is only one dice
                         {
-                            equation.add(new StringBuilder("2"));
+                            equation.add("2");
                         }
                         else
                         {
                             int diceNo = Integer.parseInt(equation.remove(equation.size() - 1).toString()) + 1; // removing and getting the dice number
-                            equation.add(new StringBuilder(String.valueOf(diceNo)));
+                            equation.add(String.valueOf(diceNo));
                         }
                     }
                     // if last input was a dice or a function (except for DC)
-                    else if (lastInput.toString().charAt(0) == 'd' || lastInput.toString().equals("K") || lastInput.toString().equals("k")
-                            || lastInput.toString().equals("X") || lastInput.toString().equals("x") || lastInput.toString().equals("R"))
+                    else if (lastInput.charAt(0) == 'd' || lastInput.equals("K") || lastInput.equals("k")
+                            || lastInput.equals("X") || lastInput.equals("x") || lastInput.equals("R"))
                     {
-                        equation.add(new StringBuilder("+"));
+                        equation.add("+");
                     }
 
-                    equation.add(new StringBuilder(buttonText));
+                    equation.add(buttonText);
 
                     diceExists = true;
                 }
                 else // if input is a function
                 {
-                    equation.add(new StringBuilder(buttonText));
+                    equation.add(buttonText);
 
                     setButtonsEnabled(false, functButtons);
                     setButtonEnabled(false, zero);
@@ -334,7 +518,7 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
 
     private boolean checkIfDiceExists()
     {
-        for (StringBuilder inp : equation)
+        for (String inp : equation)
             if (inp.charAt(0) == 'd')
                 return true;
 
@@ -346,7 +530,7 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
     {
         StringBuilder eq = new StringBuilder();
 
-        for (StringBuilder word : equation)
+        for (String word : equation)
             eq.append(word);
 
         diceEquation.setText(eq);
@@ -384,5 +568,22 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
             button.setEnabled(enabled);
             button.setTextColor(disabledTextColor);
         }
+    }
+
+    private void buildAlertDiceResult(String finalResult, String roll)
+    {
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View alertView = inflater.inflate(R.layout.alert_dice_result, null);
+
+        TextView tFinalResult = alertView.findViewById(R.id.final_result);
+        TextView tRoll = alertView.findViewById(R.id.rolls);
+
+        tFinalResult.setText(finalResult);
+        tRoll.setText(roll);
+
+        new AlertDialog.Builder(getContext())
+                .setView(alertView)
+                .setTitle("Results")
+                .show();
     }
 }

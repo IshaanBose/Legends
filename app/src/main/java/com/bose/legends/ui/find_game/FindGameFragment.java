@@ -253,7 +253,6 @@ public class FindGameFragment extends Fragment
 
     private void buildAlertFindGameFilter(Context context)
     {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LayoutInflater inflater = LayoutInflater.from(context);
         View alertView = inflater.inflate(R.layout.alert_find_game_filters, null);
 
