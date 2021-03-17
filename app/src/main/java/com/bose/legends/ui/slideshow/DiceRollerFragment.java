@@ -25,6 +25,7 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
     private TextView diceEquation;
     private List<StringBuilder> equation;
     private int enabledTextColor, disabledTextColor;
+    private boolean diceExists, dcEnabled;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState)
@@ -32,6 +33,7 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
         View root = inflater.inflate(R.layout.fragment_dice_roller, container, false);
 
         equation = new ArrayList<>();
+        diceExists = false; dcEnabled = false;
 
         // TextViews
         diceEquation = root.findViewById(R.id.dice_equation);
@@ -84,12 +86,17 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
             @Override
             public void onClick(View v)
             {
-                diceEquation.setText("");
-                equation.clear();
-                setButtonsEnabled(false, functButtons);
-                setButtonsEnabled(true, dice);
-                setButtonsEnabled(false, operators);
-                setButtonEnabled(false, zero);
+                if (equation.size() != 0)
+                {
+                    diceEquation.setText("");
+                    equation.clear();
+                    setButtonsEnabled(false, functButtons);
+                    setButtonsEnabled(true, dice);
+                    setButtonsEnabled(false, operators);
+                    setButtonEnabled(false, zero);
+                    dcEnabled = false;
+                    diceExists = false;
+                }
             }
         });
 
@@ -142,7 +149,48 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
             }
             else if (lastInp.equals("+") || lastInp.equals("-")) // if lastInp is an operator
             {
+                String secondLast = equation.get(equation.size() - 1).toString();
 
+                if (secondLast.equals("K") || secondLast.equals("k") || secondLast.equals("X") || secondLast.equals("x")
+                    || secondLast.equals("R")) // if input before op was a function
+                {
+                    setButtonsEnabled(false, functButtons);
+                    setButtonEnabled(true, dc);
+                }
+                else
+                {
+                    if (!diceExists)
+                        setButtonsEnabled(false, functButtons);
+                    else
+                        setButtonsEnabled(true, functButtons);
+                }
+            }
+            else // if lastInp was a function
+            {
+                setButtonsEnabled(true, functButtons);
+                setButtonsEnabled(true, operators);
+
+                String secondLast = equation.get(equation.size() - 1).toString();
+
+                if (lastInp.equals("DC"))
+                {
+                    dcEnabled = false;
+                    setButtonsEnabled(true, dice);
+
+                    try // if second last input was a number
+                    {
+                        Integer.parseInt(secondLast);
+                        setButtonEnabled(true, zero);
+                    }
+                    catch (NumberFormatException e2) // if second last input was not a number
+                    {
+                        if (!secondLast.contains("d")) // if second last input was a function
+                        {
+                            setButtonsEnabled(false, functButtons);
+                            setButtonEnabled(true, dc);
+                        }
+                    }
+                }
             }
         }
 
@@ -158,6 +206,8 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
             setButtonsEnabled(true, dice);
             setButtonsEnabled(false, operators);
             setButtonEnabled(false, zero);
+            dcEnabled = false;
+            diceExists = false;
         }
 
         setEquation();
@@ -176,7 +226,10 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
                 equation.add(new StringBuilder(buttonText));
 
                 if (buttonText.charAt(0) == 'd') // if dice pressed, enable funct buttons
+                {
                     setButtonsEnabled(true, functButtons);
+                    diceExists = true;
+                }
                 else
                     setButtonEnabled(true, zero);
 
@@ -216,7 +269,7 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
                 if (buttonText.equals("+") || buttonText.equals("-"))
                 {
                     setButtonsEnabled(false, functButtons);
-                    setButtonEnabled(false, zero);;
+                    setButtonEnabled(false, zero);
 
                     if (!(lastInput.toString().equals("+") || lastInput.toString().equals("-"))) // don't input operator if operator was inputted last
                         equation.add(new StringBuilder(buttonText));
@@ -252,6 +305,8 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
                     }
 
                     equation.add(new StringBuilder(buttonText));
+
+                    diceExists = true;
                 }
                 else // if input is a function
                 {
@@ -264,14 +319,14 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
                     {
                         setButtonsEnabled(false, operators);
                         setButtonsEnabled(false, dice);
-
                         checkForDice = false;
+                        dcEnabled = true;
                     }
                 }
             }
         }
 
-        if (checkIfDiceExists() && checkForDice)
+        if (checkForDice && diceExists && !dcEnabled)
             setButtonEnabled(true, dc);
 
         setEquation();
@@ -282,6 +337,8 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
         for (StringBuilder inp : equation)
             if (inp.charAt(0) == 'd')
                 return true;
+
+        diceExists = false;
         return false;
     }
 
