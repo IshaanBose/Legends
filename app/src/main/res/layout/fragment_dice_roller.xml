@@ -26,25 +26,21 @@
             android:layout_marginLeft="10dp"
             android:layout_weight="0.85">
 
-            <androidx.core.widget.NestedScrollView
-                android:scrollbars="vertical"
+            <TextView
+                android:id="@+id/dice_equation"
                 android:layout_width="match_parent"
-                android:layout_height="45dp">
-
-                <TextView
-                    android:id="@+id/dice_equation"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="30sp"
-                    android:textColor="?attr/colorOnPrimary"
-                    android:textAlignment="viewEnd"
-                    android:paddingRight="5dp"
-                    android:paddingEnd="5dp"
-                    android:paddingLeft="5dp"
-                    android:paddingStart="5dp"
-                    android:gravity="end" />
-
-            </androidx.core.widget.NestedScrollView>
+                android:layout_height="match_parent"
+                android:textSize="30sp"
+                android:textColor="?attr/colorOnPrimary"
+                android:scrollbars="vertical"
+                android:scrollbarStyle="outsideInset"
+                android:textAlignment="viewEnd"
+                android:maxLines="1"
+                android:paddingRight="5dp"
+                android:paddingEnd="5dp"
+                android:paddingLeft="5dp"
+                android:paddingStart="5dp"
+                android:gravity="bottom|end" />
 
             <androidx.core.widget.NestedScrollView
                 android:layout_width="match_parent"
@@ -96,7 +92,7 @@
             android:textAllCaps="false"
             android:text="@string/d100"
             android:textSize="30sp"
-            android:background="@drawable/d100_background"
+            android:background="@drawable/d100_bg"
             android:layout_weight="0.25"/>
 
         <androidx.appcompat.widget.AppCompatButton
@@ -107,7 +103,7 @@
             android:textAllCaps="false"
             android:text="@string/d20"
             android:textSize="30sp"
-            android:background="@drawable/d20_background"
+            android:background="@drawable/d20_bg"
             android:layout_weight="0.25"/>
 
         <androidx.appcompat.widget.AppCompatButton
@@ -118,7 +114,7 @@
             android:textAllCaps="false"
             android:text="@string/d12"
             android:textSize="30sp"
-            android:background="@drawable/d12_background"
+            android:background="@drawable/d12_bg"
             android:layout_weight="0.25"/>
 
         <androidx.appcompat.widget.AppCompatButton
@@ -129,7 +125,7 @@
             android:textAllCaps="false"
             android:text="@string/d10"
             android:textSize="30sp"
-            android:background="@drawable/d10_background"
+            android:background="@drawable/d10_bg"
             android:layout_weight="0.25"/>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
@@ -148,7 +144,7 @@
             android:textAllCaps="false"
             android:text="@string/d8"
             android:textSize="30sp"
-            android:background="@drawable/d8_background"
+            android:background="@drawable/d8_bg"
             android:layout_weight="0.25"/>
 
         <androidx.appcompat.widget.AppCompatButton
@@ -159,7 +155,7 @@
             android:textAllCaps="false"
             android:text="@string/d6"
             android:textSize="30sp"
-            android:background="@drawable/d6_background"
+            android:background="@drawable/d6_bg"
             android:layout_weight="0.25"/>
 
         <androidx.appcompat.widget.AppCompatButton
@@ -170,7 +166,7 @@
             android:textAllCaps="false"
             android:text="@string/d4"
             android:textSize="30sp"
-            android:background="@drawable/d4_background"
+            android:background="@drawable/d4_bg"
             android:layout_weight="0.25"/>
 
         <androidx.appcompat.widget.AppCompatButton
@@ -181,7 +177,7 @@
             android:textAllCaps="false"
             android:text="@string/d2"
             android:textSize="30sp"
-            android:background="@drawable/d2_background"
+            android:background="@drawable/d2_bg"
             android:layout_weight="0.25"/>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
@@ -255,7 +251,7 @@
                     android:textAllCaps="false"
                     android:text="@string/_1"
                     android:textSize="40sp"
-                    android:background="@drawable/default_button_bg"
+                    android:background="@drawable/special_buttons"
                     android:layout_weight="0.3333"/>
 
                 <androidx.appcompat.widget.AppCompatButton
@@ -266,7 +262,7 @@
                     android:textAllCaps="false"
                     android:text="@string/_2"
                     android:textSize="40sp"
-                    android:background="@drawable/default_button_bg"
+                    android:background="@drawable/special_buttons"
                     android:layout_weight="0.3333"/>
 
                 <androidx.appcompat.widget.AppCompatButton
@@ -277,7 +273,7 @@
                     android:textAllCaps="false"
                     android:text="@string/_3"
                     android:textSize="40sp"
-                    android:background="@drawable/default_button_bg"
+                    android:background="@drawable/special_buttons"
                     android:layout_weight="0.3333"/>
 
             </androidx.appcompat.widget.LinearLayoutCompat>
@@ -296,7 +292,7 @@
                     android:textAllCaps="false"
                     android:text="@string/_4"
                     android:textSize="40sp"
-                    android:background="@drawable/default_button_bg"
+                    android:background="@drawable/special_buttons"
                     android:layout_weight="0.3333"/>
 
                 <androidx.appcompat.widget.AppCompatButton
@@ -307,7 +303,7 @@
                     android:textAllCaps="false"
                     android:text="@string/_5"
                     android:textSize="40sp"
-                    android:background="@drawable/default_button_bg"
+                    android:background="@drawable/special_buttons"
                     android:layout_weight="0.3333"/>
 
                 <androidx.appcompat.widget.AppCompatButton
@@ -318,7 +314,7 @@
                     android:textAllCaps="false"
                     android:text="@string/_6"
                     android:textSize="40sp"
-                    android:background="@drawable/default_button_bg"
+                    android:background="@drawable/special_buttons"
                     android:layout_weight="0.3333"/>
 
             </androidx.appcompat.widget.LinearLayoutCompat>
@@ -337,7 +333,7 @@
                     android:textAllCaps="false"
                     android:text="@string/_7"
                     android:textSize="40sp"
-                    android:background="@drawable/default_button_bg"
+                    android:background="@drawable/special_buttons"
                     android:layout_weight="0.3333"/>
 
                 <androidx.appcompat.widget.AppCompatButton
@@ -348,7 +344,7 @@
                     android:textAllCaps="false"
                     android:text="@string/_8"
                     android:textSize="40sp"
-                    android:background="@drawable/default_button_bg"
+                    android:background="@drawable/special_buttons"
                     android:layout_weight="0.3333"/>
 
                 <androidx.appcompat.widget.AppCompatButton
@@ -359,7 +355,7 @@
                     android:textAllCaps="false"
                     android:text="@string/_9"
                     android:textSize="40sp"
-                    android:background="@drawable/default_button_bg"
+                    android:background="@drawable/special_buttons"
                     android:layout_weight="0.3333"/>
 
             </androidx.appcompat.widget.LinearLayoutCompat>
@@ -371,36 +367,39 @@
                 android:weightSum="1.0">
 
                 <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/subtract"
-                    android:textColor="@color/white"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:textAllCaps="false"
-                    android:text="@string/minus"
-                    android:textSize="40sp"
-                    android:background="@drawable/default_button_bg"
-                    android:layout_weight="0.3333"/>
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/_0"
-                    android:textColor="@color/white"
-                    android:layout_width="0dp"
-                    android:layout_height="match_parent"
-                    android:textAllCaps="false"
-                    android:text="@string/_0"
-                    android:textSize="40sp"
-                    android:background="@drawable/default_button_bg"
-                    android:layout_weight="0.3333"/>
-
-                <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/add"
-                    android:textColor="@color/white"
+                    android:textColor="@color/default_button_bg"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:textAllCaps="false"
                     android:text="@string/plus"
                     android:textSize="40sp"
-                    android:background="@drawable/default_button_bg"
+                    android:enabled="false"
+                    android:background="@drawable/special_buttons"
+                    android:layout_weight="0.3333"/>
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/_0"
+                    android:textColor="@color/default_button_bg"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:textAllCaps="false"
+                    android:text="@string/_0"
+                    android:textSize="40sp"
+                    android:enabled="false"
+                    android:background="@drawable/special_buttons"
+                    android:layout_weight="0.3333"/>
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/subtract"
+                    android:textColor="@color/default_button_bg"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:textAllCaps="false"
+                    android:text="@string/minus"
+                    android:textSize="40sp"
+                    android:background="@drawable/special_buttons"
+                    android:enabled="false"
                     android:layout_weight="0.3333"/>
 
             </androidx.appcompat.widget.LinearLayoutCompat>
