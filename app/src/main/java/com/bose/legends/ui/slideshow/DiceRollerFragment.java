@@ -1,7 +1,6 @@
 package com.bose.legends.ui.slideshow;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -12,17 +11,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.bose.legends.R;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.Stack;
@@ -128,24 +123,54 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
         // don't equate if last input is an operator or the DC function
         if (!(equation.get(equation.size() - 1).equals("+") || equation.get(equation.size() - 1).equals("-") || equation.get(equation.size() - 1).equals("DC")))
         {
-            List<String> queryString = convertToQueryString();
-            Log.d("dice", queryString.toString());
+            List<String> postfix = convertToPostfix();
+            Log.d("dice", postfix.toString());
             String finalResult = "", rolls = "";
 
-            if (queryString.size() == 1)
+            if (postfix.size() == 1)
             {
-                List<String> result = calculateOperand(queryString.get(0));
+                List<String> result = calculateOperand(postfix.get(0));
                 finalResult = result.get(0);
 
                 if (result.size() == 2)
                     rolls = result.get(1);
-
-                Log.d("dice", "final result: " + finalResult);
-                Log.d("dice", "rolls: " + rolls);
             }
             else
             {
                 Stack<String> stack = new Stack<>();
+                List<String> roll = new ArrayList<>();
+
+                for (String inp : postfix)
+                {
+                    if (inp.equals("+") || inp.equals("-") || inp.equals("DC"))
+                    {
+                        int result = 0;
+                        List<String> opresult2 = calculateOperand(stack.pop());
+                        List<String> opresult1 = calculateOperand(stack.pop());
+
+                        int op1 = Integer.parseInt(opresult1.get(0));
+                        int op2 = Integer.parseInt(opresult2.get(0));
+
+                        if (opresult1.size() == 2)
+                            roll.add(opresult1.get(1));
+                        if (opresult2.size() == 2)
+                            roll.add(opresult2.get(1));
+
+                        if (inp.equals("+"))
+                            result = op1 + op2;
+                        else if (inp.equals("-"))
+                            result = op1 - op2;
+                        else // if DC
+                            finalResult = (op1 >= op2 ? "Success: " + op1 : "Failure: " + op1);
+
+                        stack.push(String.valueOf(result));
+                    }
+                    else // if it is an operand
+                        stack.push(inp);
+                }
+
+                finalResult = (finalResult.equals("") ? stack.pop() : finalResult);
+                rolls = roll.toString();
             }
 
             buildAlertDiceResult(finalResult, rolls);
@@ -254,36 +279,36 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
         return result;
     }
 
-    private List<String> convertToQueryString()
+    private List<String> convertToPostfix()
     {
         String temp = "";
         boolean operator = false;
-        List<String> queryString = new ArrayList<>();
+        List<String> postfix = new ArrayList<>();
 
         for (String inp : equation)
         {
             if (inp.equals("+") || inp.equals("-") || inp.equals("DC"))
             {
                 if (!temp.equals(""))
-                    queryString.add(temp);
+                    postfix.add(temp);
 
                 temp = inp;
                 operator = true;
             }
             else
             {
-                if (queryString.size() == 0)
-                    queryString.add(inp);
+                if (postfix.size() == 0)
+                    postfix.add(inp);
                 else
                 {
                     if (!operator)
                     {
-                        String newOperand = queryString.get(queryString.size() - 1) + inp;
-                        queryString.set(queryString.size() - 1, newOperand);
+                        String newOperand = postfix.get(postfix.size() - 1) + inp;
+                        postfix.set(postfix.size() - 1, newOperand);
                     }
                     else
                     {
-                        queryString.add(inp);
+                        postfix.add(inp);
                         operator = false;
                     }
                 }
@@ -291,9 +316,9 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
         }
 
         if (!temp.equals(""))
-            queryString.add(temp);
+            postfix.add(temp);
 
-        return queryString;
+        return postfix;
     }
 
     private void deleteChar()
@@ -429,7 +454,7 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
 
                 try
                 {
-                    Integer.parseInt(lastInput.toString()); // check if the last input was a number
+                    Integer.parseInt(lastInput); // check if the last input was a number
 
                     // if here, then last input was a number, so we just add to it
                     String newNumber = equation.get(equation.size() - 1) + buttonText;
@@ -477,7 +502,7 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
                         }
                         else
                         {
-                            int diceNo = Integer.parseInt(equation.remove(equation.size() - 1).toString()) + 1; // removing and getting the dice number
+                            int diceNo = Integer.parseInt(equation.remove(equation.size() - 1)) + 1; // removing and getting the dice number
                             equation.add(String.valueOf(diceNo));
                         }
                     }
