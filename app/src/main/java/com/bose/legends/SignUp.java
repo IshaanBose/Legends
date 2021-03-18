@@ -401,7 +401,14 @@ public class SignUp extends AppCompatActivity
     public void goSignIn(View view)
     {
         clearFields();
-        Intent intent = new Intent(SignUp.context, SignIn.class);
+        Intent intent = new Intent(this, SignIn.class);
+        startActivity(intent);
+    }
+
+    public void goToDiceRoller(View view)
+    {
+        clearFields();
+        Intent intent = new Intent(this, DiceRoller.class);
         startActivity(intent);
     }
 

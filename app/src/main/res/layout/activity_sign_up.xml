@@ -119,14 +119,42 @@
         android:id="@+id/have_account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="goSignIn"
         android:text="@string/have_an_account"
         android:textColor="@color/black"
-        android:onClick="goSignIn"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/register"
         app:layout_constraintVertical_bias="0.161" />
+
+    <TextView
+        android:id="@+id/use_dice_roller"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="11dp"
+        android:onClick="goToDiceRoller"
+        android:text="@string/use_dice_roller"
+        android:textColor="@color/black"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.518"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/have_account"
+        app:layout_constraintVertical_bias="0.114" />
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:onClick="goToDiceRoller"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/use_dice_roller"
+        app:layout_constraintHorizontal_bias="0.975"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/have_account"
+        app:layout_constraintVertical_bias="0.225"
+        app:srcCompat="@drawable/ic_dice_small" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

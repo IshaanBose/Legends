@@ -146,6 +146,7 @@
     <string name="dc">DC</string>
     <string name="roll">Roll</string>
     <string name="dice_roller_legend">K = keep highest, k = keep lowest, X = drop highest, x = drop lowest, R = re-roll ones (once per die), DC = succeed if dice roll is ≥ DC</string>
+    <string name="use_dice_roller"><u>Use Dice Roller</u></string>
     <string-array name="game_types">
         <item>D&amp;D 5E</item>
         <item>Call of Cthulhu</item>

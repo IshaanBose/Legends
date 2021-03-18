@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:weightSum="1.0"
-    tools:context=".ui.slideshow.DiceRollerFragment">
+    tools:context=".ui.dice_roller.DiceRollerFragment">
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"

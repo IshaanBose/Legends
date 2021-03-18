@@ -25,7 +25,7 @@
 
     <fragment
         android:id="@+id/nav_dice_roller"
-        android:name="com.bose.legends.ui.slideshow.DiceRollerFragment"
+        android:name="com.bose.legends.ui.dice_roller.DiceRollerFragment"
         android:label="@string/menu_dice_roller"
         tools:layout="@layout/fragment_dice_roller" />
 </navigation>

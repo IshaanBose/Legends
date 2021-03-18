@@ -1,4 +1,4 @@
-package com.bose.legends.ui.slideshow;
+package com.bose.legends.ui.dice_roller;
 
 import android.app.AlertDialog;
 import android.content.res.Resources;
@@ -30,6 +30,11 @@ public class DiceRollerFragment extends Fragment implements View.OnClickListener
     private List<String> equation;
     private int enabledTextColor, disabledTextColor;
     private boolean diceExists, dcEnabled;
+
+    public static DiceRollerFragment newInstance()
+    {
+        return new DiceRollerFragment();
+    }
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState)
