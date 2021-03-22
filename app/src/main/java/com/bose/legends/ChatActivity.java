@@ -312,16 +312,31 @@ public class ChatActivity extends AppCompatActivity
 
     private void configMessagesList()
     {
-        mAdapter = new MessagesAdapter(messages);
+        mAdapter = new MessagesAdapter(messages, this);
         messagesList.setAdapter(mAdapter);
 
         LinearLayoutManager manager = new LinearLayoutManager(this);
         manager.setOrientation(LinearLayoutManager.VERTICAL);
         manager.setStackFromEnd(true);
-//        manager.setReverseLayout(true);
 
         messagesList.setLayoutManager(manager);
         messagesList.addItemDecoration(new VerticalSpaceItemDecoration(3));
+    }
+
+    static class VerticalSpaceItemDecoration extends RecyclerView.ItemDecoration
+    {
+        private final int verticalSpaceHeight;
+
+        public VerticalSpaceItemDecoration(int verticalSpaceHeight)
+        {
+            this.verticalSpaceHeight = verticalSpaceHeight;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state)
+        {
+            outRect.bottom = verticalSpaceHeight;
+        }
     }
 
     @Override
@@ -467,22 +482,6 @@ public class ChatActivity extends AppCompatActivity
             case Calendar.DECEMBER: return "December";
 
             default: return "Uhhh...";
-        }
-    }
-
-    class VerticalSpaceItemDecoration extends RecyclerView.ItemDecoration
-    {
-        private final int verticalSpaceHeight;
-
-        public VerticalSpaceItemDecoration(int verticalSpaceHeight)
-        {
-            this.verticalSpaceHeight = verticalSpaceHeight;
-        }
-
-        @Override
-        public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state)
-        {
-            outRect.bottom = verticalSpaceHeight;
         }
     }
 }

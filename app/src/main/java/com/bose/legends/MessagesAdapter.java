@@ -13,6 +13,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
 {
 
     private List<Message> localDataSet;
+    private final ChatActivity chatActivity;
 
     /**
      * Provide a reference to the type of views that you are using
@@ -58,9 +59,10 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
      * @param dataSet String[] containing the data to populate views to be used
      *                by RecyclerView.
      */
-    public MessagesAdapter(List<Message> dataSet)
+    public MessagesAdapter(List<Message> dataSet, ChatActivity chatActivity)
     {
         localDataSet = dataSet;
+        this.chatActivity = chatActivity;
     }
 
     // Create new views (invoked by the layout manager)

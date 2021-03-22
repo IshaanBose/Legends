@@ -9,7 +9,7 @@
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:weightSum="8">
+        android:weightSum="1.0">
 
         <ImageView
             android:id="@+id/profile_pic"
@@ -17,11 +17,11 @@
             android:layout_height="40dp"
             android:layout_gravity="center"
             android:src="@mipmap/ic_default_user1"
-            android:layout_weight="1"/>
+            android:layout_weight="0.05"/>
 
         <TextView
             android:id="@+id/username"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="Sample User"
             android:textColor="?attr/colorOnPrimary"
@@ -30,8 +30,10 @@
             android:paddingLeft="5dp"
             android:paddingEnd="5dp"
             android:paddingRight="5dp"
+            android:maxLines="1"
+            android:ellipsize="end"
             android:layout_gravity="center"
-            android:layout_weight="5"/>
+            android:layout_weight="0.75"/>
 
         <ImageView
             android:id="@+id/add_user"
@@ -42,7 +44,7 @@
             android:clickable="true"
             android:focusable="true"
             android:layout_gravity="center"
-            android:layout_weight="1"/>
+            android:layout_weight="0.1"/>
 
         <ImageView
             android:id="@+id/remove"
@@ -53,7 +55,7 @@
             android:clickable="true"
             android:focusable="true"
             android:layout_gravity="center"
-            android:layout_weight="1"/>
+            android:layout_weight="0.1"/>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
