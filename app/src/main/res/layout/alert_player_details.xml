@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:paddingLeft="10dp"
+    android:paddingStart="10dp"
+    android:paddingRight="10dp"
+    android:paddingEnd="10dp"
+    android:orientation="vertical">
+
+    <ImageView
+        android:id="@+id/profile_pic"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center"
+        android:src="@mipmap/ic_default_user1"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="5dp"/>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:weightSum="1.0">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.05"/>
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="Sample User       fdfsfd    fdfsfsdffsdf"
+            android:textSize="17sp"
+            android:textColor="?attr/colorOnPrimary"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:paddingStart="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:paddingEnd="5dp"
+            android:layout_weight="0.9"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.05"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <View
+        style="@style/Theme.Legends.Divider"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"/>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            style="@style/Theme.Legends.DataDescribers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/created_games_colon"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:id="@+id/created_games_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnPrimary"
+            android:text="999"
+            android:textSize="15sp"
+            android:layout_marginStart="5dp"
+            android:layout_marginLeft="5dp"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            style="@style/Theme.Legends.DataDescribers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/joined_games_colon"
+            android:textSize="15sp"/>
+
+        <TextView
+            android:id="@+id/joined_games_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnPrimary"
+            android:text="999"
+            android:textSize="15sp"
+            android:layout_marginStart="5dp"
+            android:layout_marginLeft="5dp"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <TextView
+        style="@style/Theme.Legends.DataDescribers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/bio"
+        android:textSize="15sp"
+        android:layout_marginTop="5dp"/>
+
+    <com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:maxHeight="100dp"
+        android:scrollbars="vertical"
+        android:scrollbarStyle="insideInset"
+        android:fadeScrollbars="true"
+        android:visibility="visible"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:id="@+id/bio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/in_parenthesis_not_provided"
+            android:textSize="15sp"
+            android:textColor="?attr/colorOnPrimary"/>
+
+    </com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

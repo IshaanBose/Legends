@@ -147,6 +147,40 @@
     <string name="roll">Roll</string>
     <string name="dice_roller_legend">K = keep highest, k = keep lowest, X = drop highest, x = drop lowest, R = re-roll ones (once per die), DC = succeed if dice roll is ≥ DC</string>
     <string name="use_dice_roller"><u>Use Dice Roller</u></string>
+    <string name="storage">Storage</string>
+    <string name="delete_user_data_on_exit">Delete cache on exit</string>
+    <string name="no">No</string>
+    <string name="sync_options">Sync Options</string>
+    <string name="sync_created_games_after_delay">Sync created games after delay</string>
+    <string name="sync_joined_games_after_delay">Sync joined games after delay</string>
+    <string name="_5_minutes">5 minutes</string>
+    <string name="_2_km">2 km</string>
+    <string name="default_filter_distance">Default filter distance</string>
+    <string name="general">General</string>
+    <string name="check_for_sync_after_delay">Check for sync after delay</string>
+    <string name="_60_seconds">60 seconds</string>
+    <string name="delete_all_cache_text">This will not delete any actual data, simply the files stored on this device.</string>
+    <string name="delete_all_user_files">Delete all cache</string>
+    <string name="yes">Yes</string>
+    <string name="reset_settings">Reset settings</string>
+    <string name="in_km">(in km)</string>
+    <string name="_10_minutes">10 minutes</string>
+    <string name="_15_minutes">15 minutes</string>
+    <string name="_30_minutes">30 minutes</string>
+    <string name="_1_hour">1 hour</string>
+    <string name="_60">60</string>
+    <string name="_30">30</string>
+    <string name="_15">15</string>
+    <string name="_10">10</string>
+    <string name="_1_minute">1 minute</string>
+    <string name="_2_minutes">2 minutes</string>
+    <string name="_3_minutes">3 minutes</string>
+    <string name="_4_minutes">4 minutes</string>
+    <string name="_30_seconds">30 seconds</string>
+    <string name="_90_seconds">90 seconds</string>
+    <string name="_90">90</string>
+    <string name="_120_seconds">120 seconds</string>
+    <string name="_120">120</string>
     <string-array name="game_types">
         <item>D&amp;D 5E</item>
         <item>Call of Cthulhu</item>

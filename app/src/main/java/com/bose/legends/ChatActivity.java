@@ -7,10 +7,13 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.text.Layout;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -26,8 +29,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.auth.User;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -321,6 +326,74 @@ public class ChatActivity extends AppCompatActivity
 
         messagesList.setLayoutManager(manager);
         messagesList.addItemDecoration(new VerticalSpaceItemDecoration(3));
+    }
+
+    public void getPlayerDetails(String UID)
+    {
+        final AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(this, true);
+        final Users user = new Users();
+
+        DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(UID);
+
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task)
+            {
+                if (task.isSuccessful())
+                {
+                    DocumentSnapshot snap = task.getResult();
+
+                    user.setUID(UID);
+                    user.setUsername(snap.getString("username"));
+                    user.setCreatedGamesCount(snap.getLong("created_games_count").intValue());
+                    user.setBio(snap.getString("bio") == null ? "(Not provided)" : snap.getString("bio"));
+
+                    docRef.collection("joined_games").document("games")
+                            .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
+                    {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task)
+                        {
+                            if (task.isSuccessful())
+                            {
+                                user.setJoinedGamesCount(task.getResult().getLong("game_count").intValue());
+
+                                buildAlertPlayerDetails(loading, user);
+                            }
+                            else
+                            {
+                                loading.dismiss();
+
+                                Toast.makeText(getApplicationContext(), "Couldn't retrieve user info.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
+                else
+                {
+                    loading.dismiss();
+
+                    Toast.makeText(getApplicationContext(), "Couldn't retrieve user info.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void buildAlertPlayerDetails(AlertDialog loading, Users user)
+    {
+        loading.dismiss();
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View alertView = inflater.inflate(R.layout.alert_player_details, null);
+
+        TextView username = alertView.findViewById(R.id.username), createdGames = alertView.findViewById(R.id.created_games_count),
+                joinedGames = alertView.findViewById(R.id.joined_games_count), bio = alertView.findViewById(R.id.bio);
+
+        username.setText(user.getUsername()); createdGames.setText(String.valueOf(user.getCreatedGamesCount()));
+        joinedGames.setText(String.valueOf(user.getJoinedGamesCount())); bio.setText(user.getBio());
+
+        new AlertDialog.Builder(this).setView(alertView).show();
     }
 
     static class VerticalSpaceItemDecoration extends RecyclerView.ItemDecoration

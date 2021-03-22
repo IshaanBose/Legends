@@ -1,6 +1,7 @@
 package com.bose.legends;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,11 +25,13 @@ public class ConfigFindGameFilterAlert
     private HashMap<String, Object> filterData;
     private final EditText distance, toTime, fromTime, customGameType;
     private CheckBox [] days;
+    private SharedPreferences settings;
 
     public ConfigFindGameFilterAlert(Context context, View root)
     {
         // variable instantiation
         this.context = context;
+        settings = context.getSharedPreferences(SharedPrefsValues.SETTINGS.getValue(), Context.MODE_PRIVATE);
 
         filters = new ArrayList<>();
         filters.add("Game Type");
@@ -46,8 +49,7 @@ public class ConfigFindGameFilterAlert
         // Spinners
         gameTypeSpinner = root.findViewById(R.id.game_type); filtersSpinner = root.findViewById(R.id.filters);
         // TextViews
-        TextView addFilter = root.findViewById(R.id.add_filter), tvFrom = root.findViewById(R.id.tv_from),
-                tvTo = root.findViewById(R.id.tv_to);
+        TextView addFilter = root.findViewById(R.id.add_filter);
         // EditTexts
         toTime = root.findViewById(R.id.to_time); fromTime = root.findViewById(R.id.from_time);
         distance = root.findViewById(R.id.distance); customGameType = root.findViewById(R.id.custom_game_type);
@@ -114,6 +116,8 @@ public class ConfigFindGameFilterAlert
                 }
             }
         });
+
+        distance.setHint(String.valueOf(settings.getInt("filter distance", 2)));
 
         // ImageView events
         removeGameType.setOnClickListener(new View.OnClickListener()
@@ -266,7 +270,7 @@ public class ConfigFindGameFilterAlert
         }
 
         if (distance.getText().toString().length() == 0)
-            filterData.put("distance", 2.0);
+            filterData.put("distance", (double) settings.getInt("filter distance", 2));
         else
             filterData.put("distance", Double.parseDouble(distance.getText().toString()));
 

@@ -24,7 +24,11 @@ public enum SharedPrefsValues
     USER_DETAILS("user_details"),
     /**
      * <b>Settings:</b><br/><br/>
-     * <b>sync delay (int) :</b> contains the amount of time (in milliseconds) the app waits to check if joined games should be synced.<br/>
+     * <b>filter distance (int) :</b> the default amount of distance (in km) to filter games by when finding them.<br/>
+     * <b>check sync (int) :</b> contains the amount of time (in milliseconds) the app waits to check if games should be synced.<br/>
+     * <b>created games delay (int) :</b> amount of time (in minutes) between syncing created games.<br/>
+     * <b>joined games delay (int) :</b> amount of time (in minutes) between syncing joined games.<br/>
+     * <b>delete on exit (boolean) :</b> used to check if cache should deleted upon exiting the app.<br/>
      * **/
     SETTINGS("settings");
 

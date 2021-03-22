@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:padding="10dp">
+
+    <RadioGroup
+        android:id="@+id/radio_group"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp">
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/_5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_5_minutes"
+            android:hint="@string/_5"
+            android:checked="true"
+            android:padding="5dp"
+            app:buttonTint="@color/appbar2"/>
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/_10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_10_minutes"
+            android:hint="@string/_10"
+            android:padding="5dp"
+            app:buttonTint="@color/appbar2"/>
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/_15"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_15_minutes"
+            android:hint="@string/_15"
+            android:padding="5dp"
+            app:buttonTint="@color/appbar2"/>
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/_30"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_30_minutes"
+            android:hint="@string/_30"
+            android:padding="5dp"
+            app:buttonTint="@color/appbar2"/>
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/_1h"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/_1_hour"
+            android:hint="@string/_60"
+            android:padding="5dp"
+            app:buttonTint="@color/appbar2"/>
+
+    </RadioGroup>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

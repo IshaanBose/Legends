@@ -1,5 +1,6 @@
 package com.bose.legends;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,7 +8,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -49,6 +49,8 @@ public class MainActivity extends AppCompatActivity
         SharedPreferences.Editor flagsEditor = flags.edit();
         flagsEditor.clear();
 
+        SharedPreferences settings = getSharedPreferences(SharedPrefsValues.SETTINGS.getValue(), MODE_PRIVATE);
+
         String joinedLastSynced = CustomFileOperations.getLastSynced(this, mAuth.getUid(), CustomFileOperations.JOINED_LAST_SYNCED);
         String createdLastSynced = CustomFileOperations.getLastSynced(this, mAuth.getUid(), CustomFileOperations.CREATED_LAST_SYNCED);
         Calendar currentTime = Calendar.getInstance();
@@ -61,7 +63,9 @@ public class MainActivity extends AppCompatActivity
         {
             String [] lastSyncedVals = joinedLastSynced.split(" ");
 
-            boolean flagValue = currentTime.get(Calendar.MINUTE) - (Integer.parseInt(lastSyncedVals[0])) >= 5 // last sync more than or equal to 5 minutes ago
+            int delay = settings.getInt("joined games delay", 5);
+
+            boolean flagValue = currentTime.get(Calendar.MINUTE) - (Integer.parseInt(lastSyncedVals[0])) >= delay // last sync more than or equal to 5 minutes ago
                     || currentTime.get(Calendar.HOUR_OF_DAY) != (Integer.parseInt(lastSyncedVals[1])) // same minute, different hour
                     || currentTime.get(Calendar.DAY_OF_MONTH) != (Integer.parseInt(lastSyncedVals[2])) // same time, different day
                     || currentTime.get(Calendar.MONTH) != (Integer.parseInt(lastSyncedVals[3])) // same time and day, different month
@@ -76,7 +80,9 @@ public class MainActivity extends AppCompatActivity
         {
             String [] lastSyncedVals = createdLastSynced.split(" ");
 
-            boolean flagValue = currentTime.get(Calendar.MINUTE) - (Integer.parseInt(lastSyncedVals[0])) >= 5 // last sync more than or equal to 5 minutes ago
+            int delay = settings.getInt("created games delay", 5);
+
+            boolean flagValue = currentTime.get(Calendar.MINUTE) - (Integer.parseInt(lastSyncedVals[0])) >= delay // last sync more than or equal to 5 minutes ago
                     || currentTime.get(Calendar.HOUR_OF_DAY) != (Integer.parseInt(lastSyncedVals[1])) // same minute, different hour
                     || currentTime.get(Calendar.DAY_OF_MONTH) != (Integer.parseInt(lastSyncedVals[2])) // same time, different day
                     || currentTime.get(Calendar.MONTH) != (Integer.parseInt(lastSyncedVals[3])) // same time and day, different month
@@ -86,6 +92,27 @@ public class MainActivity extends AppCompatActivity
         }
 
         flagsEditor.apply();
+
+        SharedPreferences.Editor settingsEditor = settings.edit();
+        SettingValues settingValues;
+
+        if (CustomFileOperations.settingsExist(this, mAuth.getUid()))
+            settingValues = LegendsJSONParser.convertJSONToSettingValues(
+                    CustomFileOperations.getStringFromFile(this, mAuth.getUid(), CustomFileOperations.SETTINGS)
+            );
+        else
+        {
+            CustomFileOperations.writeDefaultSettings(this, mAuth.getUid());
+            settingValues = new SettingValues();
+        }
+
+        settingsEditor.putInt("filter distance", settingValues.getDefaultFilterDistance());
+        settingsEditor.putInt("check sync", settingValues.getCheckSync());
+        settingsEditor.putInt("created games delay", settingValues.getCreatedGamesDelay());
+        settingsEditor.putInt("joined games delay", settingValues.getJoinedGamesDelay());
+        settingsEditor.putBoolean("delete on exit", settingValues.getDeleteCacheOnExit());
+
+        settingsEditor.apply();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -129,7 +156,8 @@ public class MainActivity extends AppCompatActivity
     {
         if (R.id.action_settings == item.getItemId())
         {
-            Toast.makeText(getApplicationContext(), "Uh oh no settings", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
@@ -141,28 +169,29 @@ public class MainActivity extends AppCompatActivity
         super.onDestroy();
 
         String uid = mAuth.getUid();
+        SharedPreferences settings = getSharedPreferences(SharedPrefsValues.SETTINGS.getValue(), MODE_PRIVATE);
 
-        if (!remember)
+        if (!remember || settings.getBoolean("delete on exit", false))
         {
-            Log.d("xyz", "signing out");
-            SharedPreferences pref;
-            SharedPreferences.Editor editor;
-
-            pref = getSharedPreferences(SharedPrefsValues.USER_DETAILS.getValue(), MODE_PRIVATE);
-
-            if (pref != null)
+            if (!remember)
             {
-                editor = pref.edit();
-                editor.clear();
-                editor.apply();
+                SharedPreferences pref = getSharedPreferences(SharedPrefsValues.USER_DETAILS.getValue(), MODE_PRIVATE);
+                SharedPreferences.Editor editor;
+
+                if (pref != null)
+                {
+                    editor = pref.edit();
+                    editor.clear();
+                    editor.apply();
+                }
+
+                FirebaseAuth.getInstance().signOut();
             }
 
             CustomFileOperations.deleteFile(getApplicationContext(), uid, CustomFileOperations.CREATED_GAMES);
             CustomFileOperations.deleteFile(getApplicationContext(), uid, CustomFileOperations.FOUND_GAMES);
             CustomFileOperations.deleteFile(getApplicationContext(), uid, CustomFileOperations.CREATED_LAST_SYNCED);
             CustomFileOperations.deleteFile(getApplicationContext(), uid, CustomFileOperations.JOINED_LAST_SYNCED);
-
-            FirebaseAuth.getInstance().signOut();
         }
 
         CustomFileOperations.deleteFile(getApplicationContext(), uid, CustomFileOperations.FOUND_GAMES);

@@ -3,6 +3,7 @@ package com.bose.legends;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,12 +22,15 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
      */
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
+        private ImageView profilePic;
         private TextView UID, username, message, timestamp;
 
         public ViewHolder(View view)
         {
             super(view);
 
+            // ImageView
+            profilePic = view.findViewById(R.id.profile_pic);
             // TextViews
             UID = view.findViewById(R.id.uid); username = view.findViewById(R.id.username);
             message = view.findViewById(R.id.message); timestamp = view.findViewById(R.id.timestamp);
@@ -50,6 +54,11 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         public TextView getTimestamp()
         {
             return timestamp;
+        }
+
+        public ImageView getProfilePic()
+        {
+            return profilePic;
         }
     }
 
@@ -89,6 +98,24 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         viewHolder.getUID().setText(message.getUID());
         viewHolder.getMessage().setText(message.getMessage());
         viewHolder.getTimestamp().setText(message.getTimestamp());
+
+        viewHolder.getUsername().setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                chatActivity.getPlayerDetails(message.getUID());
+            }
+        });
+
+        viewHolder.getProfilePic().setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                chatActivity.getPlayerDetails(message.getUID());
+            }
+        });
     }
 
     // Return the size of your dataset (invoked by the layout manager)

@@ -19,12 +19,15 @@
         android:theme="@style/Theme.Legends"
         android:windowSoftInputMode="adjustUnspecified">
 
-        <activity android:name=".DiceRoller"
-            android:theme="@style/Theme.Legends"/>
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/api_key" />
+
+        <activity android:name=".DiceRoller"
+            android:theme="@style/Theme.Legends"/>
+
+        <activity android:name=".SettingsActivity"
+            android:theme="@style/Theme.Legends"/>
 
         <activity android:name=".ChatActivity" />
         <activity

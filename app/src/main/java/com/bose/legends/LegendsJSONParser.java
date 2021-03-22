@@ -29,6 +29,36 @@ public class LegendsJSONParser
         }
     }
 
+    public static SettingValues convertJSONToSettingValues(String json)
+    {
+        ObjectMapper mapper = new ObjectMapper();
+
+        if (json == null)
+            return null;
+
+        try
+        {
+            return mapper.readValue(json, SettingValues.class);
+        }
+        catch (JsonParseException e)
+        {
+            Log.d("xyz", "1");
+            e.printStackTrace();
+        }
+        catch (JsonMappingException e)
+        {
+            Log.d("xyz", "2");
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            Log.d("xyz", "3");
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public static List<Users> convertJSONToUsersList(String json)
     {
         ObjectMapper mapper = new ObjectMapper();

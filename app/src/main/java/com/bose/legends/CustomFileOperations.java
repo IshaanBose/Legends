@@ -7,6 +7,7 @@ import android.widget.Toast;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -22,6 +23,7 @@ public class CustomFileOperations
     public static final byte JOINED_GAMES = 3;
     public static final byte JOINED_LAST_SYNCED = 4;
     public static final byte CREATED_LAST_SYNCED = 5;
+    public static final byte SETTINGS = 6;
 
     private static String getFileSuffixFromCode(byte code)
     {
@@ -37,7 +39,54 @@ public class CustomFileOperations
 
             case 5: return "_created_last_synced.txt";
 
+            case 6: return "_settings.json";
+
             default: return "_dump_file.txt";
+        }
+    }
+
+    public static boolean settingsExist(Activity activity, String UID)
+    {
+        String filename = UID + getFileSuffixFromCode(CustomFileOperations.SETTINGS);
+        File file = activity.getBaseContext().getFileStreamPath(filename);
+
+        return file.exists();
+    }
+
+    public static void writeDefaultSettings(Activity activity, String UID)
+    {
+        String filename = UID + getFileSuffixFromCode(CustomFileOperations.SETTINGS);
+
+        try
+        {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(activity.openFileOutput(filename, Context.MODE_PRIVATE));
+            SettingValues settingValues = new SettingValues();
+            String json = LegendsJSONParser.convertToJSONJacksonAPI(settingValues);
+
+            outputStreamWriter.write(json);
+            outputStreamWriter.close();
+        }
+        catch (IOException e)
+        {
+            Log.d("xyz", "File write failed: " + e.toString());
+        }
+    }
+
+    public static void overwriteSettings(Activity activity, SettingValues settingValues, String UID)
+    {
+        String filename = UID + getFileSuffixFromCode(CustomFileOperations.SETTINGS);
+
+        try
+        {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(activity.openFileOutput(filename, Context.MODE_PRIVATE));
+            String json = LegendsJSONParser.convertToJSONJacksonAPI(settingValues);
+
+            outputStreamWriter.write(json);
+            outputStreamWriter.close();
+        }
+        catch (IOException e)
+        {
+            Log.d("xyz", "File write failed: " + e.toString());
         }
     }
 

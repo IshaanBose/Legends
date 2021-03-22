@@ -59,7 +59,7 @@ public class HomeFragment extends Fragment
     private List<FoundGameDetails> joinedGamesDetails;
     private CreatedGamesAdapter createdGamesAdapter;
     private FoundGamesAdapter joinedGamesAdapter;
-    private SharedPreferences flags, userDetails;
+    private SharedPreferences flags, userDetails, settings;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -176,8 +176,8 @@ public class HomeFragment extends Fragment
         getCreatedGames(flags.getBoolean("sync created games", false), false);
         getJoinedGames(flags.getBoolean("sync joined games", false), false);
 
-        SharedPreferences pref = requireActivity().getSharedPreferences(SharedPrefsValues.SETTINGS.getValue(), Context.MODE_PRIVATE);
-        int delay = pref.getInt("sync delay", 60000);
+        settings = requireActivity().getSharedPreferences(SharedPrefsValues.SETTINGS.getValue(), Context.MODE_PRIVATE);
+        int delay = settings.getInt("check sync", 60);
 
         Handler handler = new Handler();
         handler.postDelayed(new Runnable()
@@ -193,10 +193,10 @@ public class HomeFragment extends Fragment
                     if (triggerSync(Calendar.getInstance(), CustomFileOperations.CREATED_LAST_SYNCED))
                         getCreatedGames(true, true);
 
-                    handler.postDelayed(this, delay);
+                    handler.postDelayed(this, delay * 1000);
                 }
             }
-        }, delay);
+        }, delay * 1000);
 
         return root;
     }
@@ -213,7 +213,14 @@ public class HomeFragment extends Fragment
 
             String[] lastSyncedVals = lastSynced.split(" ");
 
-            return (currentTime.get(Calendar.MINUTE) - (Integer.parseInt(lastSyncedVals[0])) >= 5 // last sync more than or equal to 5 minutes ago
+            int delay;
+
+            if (pageCode == CustomFileOperations.CREATED_LAST_SYNCED)
+                delay = settings.getInt("created games delay", 5);
+            else
+                delay = settings.getInt("joined games delay", 5);
+
+            return (currentTime.get(Calendar.MINUTE) - (Integer.parseInt(lastSyncedVals[0])) >= delay // last sync more than or equal to 5 minutes ago
                     || currentTime.get(Calendar.HOUR_OF_DAY) != (Integer.parseInt(lastSyncedVals[1])) // same minute, different hour
                     || currentTime.get(Calendar.DAY_OF_MONTH) != (Integer.parseInt(lastSyncedVals[2])) // same time, different day
                     || currentTime.get(Calendar.MONTH) != (Integer.parseInt(lastSyncedVals[3])) // same time and day, different month
@@ -624,6 +631,14 @@ public class HomeFragment extends Fragment
             flagsEditor.putBoolean("update joined games", false);
 
             getJoinedGames(true, false);
+        }
+
+        if (flags.getBoolean("sync created games", false))
+        {
+            flagsEditor = flags.edit();
+            flagsEditor.putBoolean("sync created games", false);
+
+            getCreatedGames(true, false);
         }
 
         flagsEditor.apply();

@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -27,6 +28,7 @@ import com.bose.legends.GamePage;
 import com.bose.legends.ItemClickSupport;
 import com.bose.legends.LegendsJSONParser;
 import com.bose.legends.R;
+import com.bose.legends.SharedPrefsValues;
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQueryBounds;
@@ -59,6 +61,7 @@ public class FindGameFragment extends Fragment
     private FoundGamesAdapter adapter;
     private FloatingActionButton fab;
     private FirebaseAuth mAuth;
+    private SharedPreferences settings;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -73,6 +76,7 @@ public class FindGameFragment extends Fragment
         defaultText = root.findViewById(R.id.default_text);
         foundGamesList = root.findViewById(R.id.found_games_list);
         fab = root.findViewById(R.id.fab);
+        settings = requireActivity().getSharedPreferences(SharedPrefsValues.SETTINGS.getValue(), Context.MODE_PRIVATE);
 
         findGames.setOnClickListener(new View.OnClickListener()
         {
@@ -93,7 +97,7 @@ public class FindGameFragment extends Fragment
         });
 
         List<FoundGameDetails> foundGames = LegendsJSONParser.convertJSONToFoundGamesDetailsList(
-                CustomFileOperations.getStringFromFile(getActivity(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES)
+                CustomFileOperations.getStringFromFile(requireActivity(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES)
         );
 
         showGames(foundGames == null ? new ArrayList<>() : foundGames, true);
@@ -138,7 +142,7 @@ public class FindGameFragment extends Fragment
         private void passDocuments(GeoPoint userLocation)
         {
             final GeoLocation center = new GeoLocation(userLocation.getLatitude(), userLocation.getLongitude());
-            final double radiusInMeters = (double) (filterData.get("distance") != null ? filterData.get("distance") : 2.0) * 1000.0;
+            final double radiusInMeters = (double) (filterData.get("distance") != null ? filterData.get("distance") : (double) settings.getInt("filter distance", 2)) * 1000.0;
             Log.d("find", radiusInMeters + "m");
 
             List<GeoQueryBounds> bounds = GeoFireUtils.getGeoHashQueryBounds(center, radiusInMeters);
