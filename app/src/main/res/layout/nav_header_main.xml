@@ -36,4 +36,11 @@
         android:layout_height="wrap_content"
         android:textColor="@color/black"
         android:text="@string/nav_header_subtitle" />
+
+    <TextView
+        android:id="@+id/theme_color"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        android:textColor="?attr/colorOnPrimary"/>
 </LinearLayout>

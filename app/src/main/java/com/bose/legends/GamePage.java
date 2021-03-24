@@ -116,7 +116,7 @@ public class GamePage extends AppCompatActivity
             }
         });
 
-        // for joined games
+        // for joined and created games
         goToChat.setOnClickListener(new View.OnClickListener()
         {
             @Override

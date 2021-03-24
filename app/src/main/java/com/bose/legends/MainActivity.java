@@ -1,5 +1,6 @@
 package com.bose.legends;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -29,6 +31,8 @@ public class MainActivity extends AppCompatActivity
     private boolean remember;
     public static String username;
     public static String email;
+    private int color;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -131,15 +135,23 @@ public class MainActivity extends AppCompatActivity
         View headerView = navigationView.getHeaderView(0);
         TextView navUsername = headerView.findViewById(R.id.nav_header_username);
         TextView navEmail = headerView.findViewById(R.id.nav_header_email);
+        TextView themeColor = headerView.findViewById(R.id.theme_color);
         navUsername.setText(username);
         navEmail.setText(email);
+
+        color = themeColor.getCurrentTextColor();
+        context = themeColor.getContext();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        if (color == ContextCompat.getColor(context, R.color.black))
+            getMenuInflater().inflate(R.menu.main_day, menu);
+        else
+            getMenuInflater().inflate(R.menu.main_night, menu);
+
         return true;
     }
 

@@ -24,9 +24,9 @@
         <item name="colorPrimary">@color/black</item>
     </style>
 
-    <style name="Theme.Legends.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.Legends.AppBarOverlay" parent="ThemeOverlay.AppCompat.DayNight.ActionBar" />
 
-    <style name="Theme.Legends.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+    <style name="Theme.Legends.PopupOverlay" parent="ThemeOverlay.AppCompat.DayNight" />
 
     <style name="Theme.Legends.EditText" parent="Theme.Legends">
         <item name="colorControlNormal">@color/edittext_underline</item>

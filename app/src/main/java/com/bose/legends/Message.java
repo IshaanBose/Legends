@@ -2,7 +2,7 @@ package com.bose.legends;
 
 public class Message
 {
-    private String UID, username, message, timestamp;
+    private String UID, username, message, timestamp, usernameColor;
 
     public Message(){}
 
@@ -44,6 +44,16 @@ public class Message
     public void setTimestamp(String timestamp)
     {
         this.timestamp = timestamp;
+    }
+
+    public String getUsernameColor()
+    {
+        return usernameColor;
+    }
+
+    public void setUsernameColor(String usernameColor)
+    {
+        this.usernameColor = usernameColor;
     }
 
     @Override

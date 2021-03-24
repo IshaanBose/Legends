@@ -1,5 +1,6 @@
 package com.bose.legends;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,12 +9,14 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 import org.jetbrains.annotations.NotNull;
+import org.w3c.dom.Text;
+
 import java.util.List;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder>
 {
 
-    private List<Message> localDataSet;
+    private final List<Message> localDataSet;
     private final ChatActivity chatActivity;
 
     /**
@@ -22,8 +25,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
      */
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
-        private ImageView profilePic;
-        private TextView UID, username, message, timestamp;
+        private final ImageView profilePic;
+        private final TextView UID, username, message, timestamp;
 
         public ViewHolder(View view)
         {
@@ -94,12 +97,16 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         // contents of the view with that element
         Message message = localDataSet.get(position);
 
-        viewHolder.getUsername().setText(message.getUsername());
+        TextView username = viewHolder.getUsername();
+
+        username.setText(message.getUsername());
         viewHolder.getUID().setText(message.getUID());
         viewHolder.getMessage().setText(message.getMessage());
         viewHolder.getTimestamp().setText(message.getTimestamp());
 
-        viewHolder.getUsername().setOnClickListener(new View.OnClickListener()
+        username.setTextColor(Color.parseColor(message.getUsernameColor()));
+
+        username.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
