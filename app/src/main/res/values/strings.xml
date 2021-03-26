@@ -181,6 +181,7 @@
     <string name="_90">90</string>
     <string name="_120_seconds">120 seconds</string>
     <string name="_120">120</string>
+    <string name="gm">GM</string>
     <string-array name="game_types">
         <item>D&amp;D 5E</item>
         <item>Call of Cthulhu</item>

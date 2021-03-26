@@ -34,19 +34,36 @@
 
             <TextView
                 android:id="@+id/username"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
                 android:textStyle="bold"
-                android:text="Username"
+                android:text="Username ds         dsddsddsdsds"
+                android:maxWidth="125dp"
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:textColor="?attr/colorOnPrimary"
-                android:layout_weight="0.52"
                 android:layout_marginStart="5dp"
                 android:layout_marginLeft="5dp"
-                android:layout_marginEnd="5dp"
-                android:layout_marginRight="5dp"/>
+                android:layout_marginEnd="3dp"
+                android:layout_marginRight="3dp"/>
+
+            <TextView
+                android:id="@+id/flair"
+                android:layout_width="25dp"
+                android:layout_height="wrap_content"
+                android:text="@string/gm"
+                android:textColor="@color/green"
+                android:textStyle="bold"
+                android:visibility="gone"/>
+
+            <TextView
+                android:layout_width="34dp"
+                android:layout_height="wrap_content"
+                android:text="MOD"
+                android:textStyle="bold"
+                android:textColor="@color/red"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/timestamp"
@@ -56,7 +73,7 @@
                 android:layout_gravity="center"
                 android:gravity="end"
                 android:textAlignment="viewEnd"
-                android:layout_weight="0.48"/>
+                android:layout_weight="1"/>
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 

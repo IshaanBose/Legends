@@ -36,6 +36,7 @@ import com.google.firebase.firestore.auth.User;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 
 public class ChatActivity extends AppCompatActivity
@@ -43,15 +44,16 @@ public class ChatActivity extends AppCompatActivity
     private MessagesAdapter mAdapter;
     private List<Message> messages;
     private RecyclerView messagesList;
-    private DatabaseReference messagesRoot;
+    private DatabaseReference messagesRoot, userColorRoot;
     private View loadingIcon;
     private EditText message;
     private TextView noMessages;
-    private String docID, username, lastMessage;
-    private ChildEventListener messageListener;
+    private String docID, username, lastMessage, creatorID;
+    private ChildEventListener messageListener, userColorListener;
     private List<Users> players;
     private FloatingActionButton sendMessage;
     private FirebaseAuth mAuth;
+    private HashMap<String, String> userColors;
     private byte pageCode;
 
     @Override
@@ -71,6 +73,7 @@ public class ChatActivity extends AppCompatActivity
 
         docID = extras.getString("docID");
         messagesRoot = FirebaseDatabase.getInstance().getReference("group_chats").child(docID).child("messages");
+        userColorRoot = FirebaseDatabase.getInstance().getReference("group_chats").child(docID).child("colors");
         String playersJson = extras.getString("players json");
         players = LegendsJSONParser.convertJSONToUsersList(playersJson);
         messages = new ArrayList<>();
@@ -79,6 +82,7 @@ public class ChatActivity extends AppCompatActivity
         username = pref.getString("username", "<NIL>");
         pageCode = extras.getByte("page code");
         lastMessage = "NONE";
+        userColors = new HashMap<>();
 
         // EditText
         message = findViewById(R.id.message);
@@ -117,13 +121,18 @@ public class ChatActivity extends AppCompatActivity
         addCreatorToPlayers(extras);
     }
 
+    public String getCreatorID()
+    {
+        return creatorID;
+    }
+
     private void addCreatorToPlayers(Bundle extras)
     {
         Users creator = new Users();
 
         if (pageCode == CustomFileOperations.JOINED_GAMES)
         {
-            String creatorID = extras.getString("created by id");
+            creatorID = extras.getString("created by id");
             creator.setUID(creatorID);
 
             FirebaseFirestore.getInstance().collection("users")
@@ -145,7 +154,7 @@ public class ChatActivity extends AppCompatActivity
                     Log.d("chatting", creator.toString());
                     players.add(creator);
 
-                    getMessages();
+                    getUserColors();
                 }
             });
         }
@@ -153,10 +162,34 @@ public class ChatActivity extends AppCompatActivity
         {
             creator.setUsername(username);
             creator.setUID(mAuth.getUid());
+            creatorID = creator.getUID();
             players.add(creator);
 
-            getMessages();
+            getUserColors();
         }
+    }
+
+    private void getUserColors()
+    {
+        userColorRoot.addListenerForSingleValueEvent(new ValueEventListener()
+            {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot)
+                {
+                    if (snapshot.exists())
+                        if (snapshot.getChildrenCount() != 0)
+                            for (DataSnapshot snap : snapshot.getChildren())
+                                userColors.put(snap.getKey(), snap.getValue().toString());
+
+                    getMessages();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error)
+                {
+                    getMessages();
+                }
+            });
     }
 
     private void sendMessage(String sMessage)
@@ -195,6 +228,37 @@ public class ChatActivity extends AppCompatActivity
 
     private void getMessages()
     {
+        // to keep updating userColors
+        userColorListener = new ChildEventListener()
+        {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName)
+            {
+                if (!userColors.containsKey(snapshot.getKey()))
+                    userColors.put(snapshot.getKey(), snapshot.getValue().toString());
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName)
+            {}
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot)
+            {
+                userColors.remove(snapshot.getKey());
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName)
+            {}
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error)
+            {}
+        };
+
+        userColorRoot.addChildEventListener(userColorListener);
+
         messagesRoot.orderByKey().limitToLast(50)
                 .addListenerForSingleValueEvent(new ValueEventListener()
                 {
@@ -221,6 +285,7 @@ public class ChatActivity extends AppCompatActivity
                                     message.setUsername("(Removed)");
 
                                 message.setTimestamp(parseTimestamp(message.getTimestamp()));
+                                message.setUsernameColor(userColors.get(message.getUID()));
 
                                 messages.add(message);
 
@@ -280,6 +345,7 @@ public class ChatActivity extends AppCompatActivity
                             message.setUsername(user.getUsername());
 
                     message.setTimestamp(parseTimestamp(message.getTimestamp()));
+                    message.setUsernameColor(userColors.get(message.getUID()));
 
                     if (noMessages.getVisibility() == View.VISIBLE)
                         noMessages.setVisibility(View.GONE);
@@ -419,6 +485,8 @@ public class ChatActivity extends AppCompatActivity
 
         if (messageListener != null)
             messagesRoot.removeEventListener(messageListener);
+        if (userColorListener != null)
+            userColorRoot.removeEventListener(userColorListener);
     }
 
     /* -------------------------------------------------------------- Timestamp related methods --------------------------------------------------------------- */

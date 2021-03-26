@@ -64,6 +64,7 @@ public class Message
                 ", username='" + username + '\'' +
                 ", message='" + message + '\'' +
                 ", timestamp='" + timestamp + '\'' +
+                ", usernameColor='" + usernameColor + '\'' +
                 '}';
     }
 }

@@ -12,6 +12,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -51,7 +52,7 @@ public class GamePage extends AppCompatActivity
     private GamePage activity;
     private List<Users> userRequests, players;
     private List<String> requestIDs;
-    private List<Integer> deletedPlayersIndexes;
+    private List<Integer> deletedPlayersIndexes, excludedColors;
     private RequestsAdapter requestedPlayersAdapter;
     private PlayersAdapter playersAdapter;
     private DatabaseReference joinRequestNode, usersRequestNode;
@@ -102,7 +103,7 @@ public class GamePage extends AppCompatActivity
         pageCode = pageDetails.getByte("page_code");
         docID = pageDetails.getString("doc_ref");
         players = new ArrayList<>();
-        deletedPlayersIndexes = new ArrayList<>();
+        deletedPlayersIndexes = new ArrayList<>(); excludedColors = new ArrayList<>();
         joinRequestNode = FirebaseDatabase.getInstance().getReference("join_requests").child(docID);
         usersRequestNode = FirebaseDatabase.getInstance().getReference("users_requests").child(mAuth.getUid()).child(docID);
 
@@ -681,6 +682,7 @@ public class GamePage extends AppCompatActivity
                                                             {
                                                                 if (task.isSuccessful())
                                                                 {
+                                                                    assignRandomColor(user.getUID());
                                                                     // all changes are done so we update our two lists and game page
                                                                     updatePlayers();
                                                                     updateRequestsList(position, true);
@@ -711,6 +713,77 @@ public class GamePage extends AppCompatActivity
                         }
                     }
                 });
+    }
+
+    private void assignRandomColor(String UID)
+    {
+        DatabaseReference groupRef = FirebaseDatabase.getInstance().getReference("group_chats")
+                .child(docID).child("colors");
+
+        // first we need to get all the colors that have been already assigned
+        if (excludedColors.size() == 0)
+        {
+            Log.d("colours", "getting colours");
+            groupRef.addListenerForSingleValueEvent(new ValueEventListener()
+            {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot)
+                {
+                    if (snapshot.exists())
+                    {
+                        int childCount = (int) snapshot.getChildrenCount();
+                        Log.d("colours", "got count");
+
+                        if (childCount != excludedColors.size())
+                        {
+                            Log.d("colours", "getting colours again");
+                            for (DataSnapshot snap : snapshot.getChildren())
+                            {
+                                excludedColors.add(Color.parseColor(snap.getValue().toString()));
+                            }
+                        }
+
+                        Log.d("colours", "time to assign");
+                        assignRandomColorToUser(groupRef, UID);
+                    }
+                    else
+                    {
+                        Log.d("colours", "time to assign");
+                        assignRandomColorToUser(groupRef, UID);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error)
+                {}
+            });
+        }
+        else // if list contains items, then user has already added user before and hence has the list of excluded colors already
+        {
+            Log.d("colours", "else we're here");
+            assignRandomColorToUser(groupRef, UID);
+        }
+    }
+
+    private void assignRandomColorToUser(DatabaseReference groupRef, String UID)
+    {
+        // first we get a random color
+        String randomColor = new RandomColor(excludedColors).getRandomColor();
+        Log.d("colours", "random colour" + randomColor);
+
+        // now we actually have to assign the color to user
+        // no need to check for completion
+        groupRef.child(UID).setValue(randomColor).addOnCompleteListener(new OnCompleteListener<Void>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<Void> task)
+            {
+                if (task.isSuccessful())
+                    Log.d("colours", "success");
+                else
+                    Log.d("colours", "uh oh" + task.getException().getMessage());
+            }
+        });
     }
 
     private void updatePlayers()

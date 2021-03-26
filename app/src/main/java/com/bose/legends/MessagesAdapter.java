@@ -1,6 +1,7 @@
 package com.bose.legends;
 
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +27,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
         private final ImageView profilePic;
-        private final TextView UID, username, message, timestamp;
+        private final TextView UID, username, message, timestamp, flair;
 
         public ViewHolder(View view)
         {
@@ -37,6 +38,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
             // TextViews
             UID = view.findViewById(R.id.uid); username = view.findViewById(R.id.username);
             message = view.findViewById(R.id.message); timestamp = view.findViewById(R.id.timestamp);
+            flair = view.findViewById(R.id.flair);
         }
 
         public TextView getUID()
@@ -62,6 +64,11 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         public ImageView getProfilePic()
         {
             return profilePic;
+        }
+
+        public TextView getFlair()
+        {
+            return flair;
         }
     }
 
@@ -97,16 +104,23 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         // contents of the view with that element
         Message message = localDataSet.get(position);
 
-        TextView username = viewHolder.getUsername();
+        TextView tvUsername = viewHolder.getUsername();
 
-        username.setText(message.getUsername());
+        tvUsername.setText(message.getUsername());
         viewHolder.getUID().setText(message.getUID());
         viewHolder.getMessage().setText(message.getMessage());
         viewHolder.getTimestamp().setText(message.getTimestamp());
 
-        username.setTextColor(Color.parseColor(message.getUsernameColor()));
+        if (message.getUsernameColor() != null)
+            tvUsername.setTextColor(Color.parseColor(message.getUsernameColor()));
 
-        username.setOnClickListener(new View.OnClickListener()
+        if (chatActivity.getCreatorID().equals(message.getUID()))
+        {
+            tvUsername.setTypeface(null, Typeface.BOLD_ITALIC);
+            viewHolder.getFlair().setVisibility(View.VISIBLE);
+        }
+
+        tvUsername.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
