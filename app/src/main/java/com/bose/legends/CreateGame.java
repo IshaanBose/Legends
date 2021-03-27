@@ -43,6 +43,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -721,6 +722,13 @@ public class CreateGame extends AppCompatActivity
                     SharedPreferences.Editor editor = pref.edit();
                     editor.putBoolean("game added", true);
                     editor.apply();
+
+                    // assigning creator random color
+                    FirebaseDatabase.getInstance().getReference("group_chats")
+                            .child(gameDetails.getFirebaseReferenceID())
+                            .child("colors")
+                            .child(mAuth.getUid())
+                            .setValue(new RandomColor(null).getRandomColor());
 
                     Toast.makeText(context, "Game created and uploaded!", Toast.LENGTH_SHORT).show();
                 }

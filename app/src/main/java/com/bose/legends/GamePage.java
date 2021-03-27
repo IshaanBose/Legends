@@ -360,13 +360,19 @@ public class GamePage extends AppCompatActivity
                         {
                             if (task.isSuccessful())
                             {
-                                user.setUsername(task.getResult().getString("username"));
-                                players.add(user);
-                                Log.d("dberror", players.toString());
-                                updatePlayersList(players.size(), false);
+                                DocumentSnapshot result = task.getResult();
 
-                                if (!task.getResult().exists()) // if player no longer exists
+                                if (!result.exists()) // if player no longer exists
                                     deletedPlayersIndexes.add(players.size() - 1);
+                                else
+                                {
+                                    user.setUsername(result.getString("username"));
+                                    user.setIsMod(result.getBoolean("isMod"));
+
+                                    players.add(user);
+                                    Log.d("dberror", players.toString());
+                                    updatePlayersList(players.size(), false);
+                                }
 
                                 if (gotAllPlayers(details.getPlayers().size()))
                                 {

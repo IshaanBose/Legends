@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="10dp"
@@ -39,7 +40,7 @@
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:text="Username ds         dsddsddsdsds"
-                android:maxWidth="125dp"
+                android:maxWidth="145dp"
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:textColor="?attr/colorOnPrimary"
@@ -49,20 +50,40 @@
                 android:layout_marginRight="3dp"/>
 
             <TextView
-                android:id="@+id/flair"
-                android:layout_width="25dp"
+                android:id="@+id/gm_flair"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/gm"
                 android:textColor="@color/green"
                 android:textStyle="bold"
+                android:textSize="12sp"
+                android:visibility="gone"
+                android:layout_gravity="center"
+                android:layout_marginEnd="2dp"
+                android:layout_marginRight="2dp"/>
+
+            <TextView
+                android:id="@+id/mod_flair"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/mod"
+                android:textSize="12sp"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                android:textColor="@color/red"
+                android:layout_gravity="center"
                 android:visibility="gone"/>
 
             <TextView
-                android:layout_width="34dp"
+                android:id="@+id/server_flair"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="MOD"
+                android:text="@string/server"
+                android:textAllCaps="true"
                 android:textStyle="bold"
-                android:textColor="@color/red"
+                android:textSize="12sp"
+                android:textColor="@color/appbar2"
+                android:layout_gravity="center"
                 android:visibility="gone"/>
 
             <TextView

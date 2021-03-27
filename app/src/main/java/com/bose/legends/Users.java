@@ -4,6 +4,7 @@ public class Users
 {
     private String username, UID, bio;
     private int createdGamesCount, joinedGamesCount;
+    private boolean isMod;
 
     public String getUsername()
     {
@@ -53,6 +54,16 @@ public class Users
     public void setJoinedGamesCount(int joinedGamesCount)
     {
         this.joinedGamesCount = joinedGamesCount;
+    }
+
+    public boolean getIsMod()
+    {
+        return isMod;
+    }
+
+    public void setIsMod(boolean isMod)
+    {
+        this.isMod = isMod;
     }
 
     @Override

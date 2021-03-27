@@ -48,8 +48,9 @@ public class ChatActivity extends AppCompatActivity
     private View loadingIcon;
     private EditText message;
     private TextView noMessages;
-    private String docID, username, lastMessage, creatorID;
+    private String docID, lastMessage, creatorID;
     private ChildEventListener messageListener, userColorListener;
+    private SharedPreferences userDetails;
     private List<Users> players;
     private FloatingActionButton sendMessage;
     private FirebaseAuth mAuth;
@@ -78,8 +79,7 @@ public class ChatActivity extends AppCompatActivity
         players = LegendsJSONParser.convertJSONToUsersList(playersJson);
         messages = new ArrayList<>();
         mAuth = FirebaseAuth.getInstance();
-        SharedPreferences pref = getSharedPreferences("com.bose.legends.user_details", MODE_PRIVATE);
-        username = pref.getString("username", "<NIL>");
+        userDetails = getSharedPreferences(SharedPrefsValues.USER_DETAILS.getValue(), MODE_PRIVATE);
         pageCode = extras.getByte("page code");
         lastMessage = "NONE";
         userColors = new HashMap<>();
@@ -145,10 +145,12 @@ public class ChatActivity extends AppCompatActivity
                     if (task.isSuccessful())
                     {
                         creator.setUsername(task.getResult().getString("username"));
+                        creator.setIsMod(task.getResult().getBoolean("isMod"));
                     }
                     else
                     {
                         creator.setUsername(extras.getString("created by"));
+                        creator.setIsMod(false);
                     }
 
                     Log.d("chatting", creator.toString());
@@ -160,8 +162,9 @@ public class ChatActivity extends AppCompatActivity
         }
         else
         {
-            creator.setUsername(username);
+            creator.setUsername(userDetails.getString("username", "<NIL>"));
             creator.setUID(mAuth.getUid());
+            creator.setIsMod(userDetails.getBoolean("is mod", false));
             creatorID = creator.getUID();
             players.add(creator);
 
@@ -196,9 +199,18 @@ public class ChatActivity extends AppCompatActivity
     {
         Message newMessage = new Message();
         newMessage.setMessage(sMessage);
-        newMessage.setUsername(username);
+        newMessage.setUsername(userDetails.getString("username", "<NIL>"));
         newMessage.setUID(mAuth.getUid());
         newMessage.setTimestamp(getTimestamp(Calendar.getInstance()));
+
+        List<String> flairs = new ArrayList<>();
+
+        if (mAuth.getUid().equals(creatorID))
+            flairs.add("GM");
+        if (userDetails.getBoolean("isMod", false))
+            flairs.add("MOD");
+
+        newMessage.setFlairs(flairs);
 
         messagesRoot.push().setValue(newMessage)
                 .addOnCompleteListener(new OnCompleteListener<Void>()
@@ -272,18 +284,26 @@ public class ChatActivity extends AppCompatActivity
                             for (DataSnapshot snap : snapshot.getChildren())
                             {
                                 Message message = snap.getValue(Message.class);
+                                List<String> flairs = new ArrayList<>();
                                 boolean changed = false;
 
                                 for (Users user : players)
                                     if (user.getUID().equals(message.getUID()))
                                     {
                                         message.setUsername(user.getUsername());
+                                        if (user.getIsMod())
+                                            flairs.add("MOD");
+
                                         changed = true;
                                     }
 
                                 if (!changed)
                                     message.setUsername("(Removed)");
 
+                                if (message.getUID().equals(creatorID))
+                                    flairs.add("GM");
+
+                                message.setFlairs(flairs);
                                 message.setTimestamp(parseTimestamp(message.getTimestamp()));
                                 message.setUsernameColor(userColors.get(message.getUID()));
 
@@ -339,11 +359,20 @@ public class ChatActivity extends AppCompatActivity
                 if (snapshot.exists() && (!lastMessage.equals(snapshot.getKey()) || lastMessage.equals("NONE")))
                 {
                     Message message = snapshot.getValue(Message.class);
+                    List<String> flairs = new ArrayList<>();
 
                     for (Users user : players)
                         if (user.getUID().equals(message.getUID()))
+                        {
                             message.setUsername(user.getUsername());
+                            if (user.getIsMod())
+                                flairs.add("MOD");
+                        }
 
+                    if (message.getUID().equals(creatorID))
+                        flairs.add("GM");
+
+                    message.setFlairs(flairs);
                     message.setTimestamp(parseTimestamp(message.getTimestamp()));
                     message.setUsernameColor(userColors.get(message.getUID()));
 

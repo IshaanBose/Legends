@@ -1,16 +1,15 @@
 package com.bose.legends;
 
 import android.graphics.Color;
-import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import org.jetbrains.annotations.NotNull;
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -27,7 +26,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
         private final ImageView profilePic;
-        private final TextView UID, username, message, timestamp, flair;
+        private final TextView UID, username, message, timestamp, gmFlair, modFlair;
+        private final View container;
 
         public ViewHolder(View view)
         {
@@ -38,7 +38,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
             // TextViews
             UID = view.findViewById(R.id.uid); username = view.findViewById(R.id.username);
             message = view.findViewById(R.id.message); timestamp = view.findViewById(R.id.timestamp);
-            flair = view.findViewById(R.id.flair);
+            gmFlair = view.findViewById(R.id.gm_flair); modFlair = view.findViewById(R.id.mod_flair);
+            // LinearLayout
+            container = view.findViewById(R.id.container);
         }
 
         public TextView getUID()
@@ -66,9 +68,19 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
             return profilePic;
         }
 
-        public TextView getFlair()
+        public TextView getGmFlair()
         {
-            return flair;
+            return gmFlair;
+        }
+
+        public TextView getModFlair()
+        {
+            return modFlair;
+        }
+
+        public View getContainer()
+        {
+            return container;
         }
     }
 
@@ -103,6 +115,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         // Get element from your dataset at this position and replace the
         // contents of the view with that element
         Message message = localDataSet.get(position);
+        List<String> flairs = message.getFlairs();
 
         TextView tvUsername = viewHolder.getUsername();
 
@@ -114,11 +127,15 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         if (message.getUsernameColor() != null)
             tvUsername.setTextColor(Color.parseColor(message.getUsernameColor()));
 
-        if (chatActivity.getCreatorID().equals(message.getUID()))
+        if (flairs.contains("GM"))
         {
-            tvUsername.setTypeface(null, Typeface.BOLD_ITALIC);
-            viewHolder.getFlair().setVisibility(View.VISIBLE);
+            viewHolder.getGmFlair().setVisibility(View.VISIBLE);
+            View container = viewHolder.getContainer();
+            container.setBackgroundColor(ContextCompat.getColor(container.getContext(), R.color.creator_message_background));
         }
+
+        if (flairs.contains("MOD"))
+            viewHolder.getModFlair().setVisibility(View.VISIBLE);
 
         tvUsername.setOnClickListener(new View.OnClickListener()
         {

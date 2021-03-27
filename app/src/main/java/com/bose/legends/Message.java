@@ -1,8 +1,11 @@
 package com.bose.legends;
 
+import java.util.List;
+
 public class Message
 {
     private String UID, username, message, timestamp, usernameColor;
+    private List<String> flairs;
 
     public Message(){}
 
@@ -54,6 +57,16 @@ public class Message
     public void setUsernameColor(String usernameColor)
     {
         this.usernameColor = usernameColor;
+    }
+
+    public List<String> getFlairs()
+    {
+        return flairs;
+    }
+
+    public void setFlairs(List<String> flairs)
+    {
+        this.flairs = flairs;
     }
 
     @Override
