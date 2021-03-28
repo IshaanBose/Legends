@@ -100,6 +100,15 @@
             android:paddingEnd="5dp"
             android:layout_marginTop="5dp"/>
 
+        <TextView
+            android:id="@+id/mod_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Moderator"
+            android:visibility="gone"
+            android:layout_gravity="center"
+            android:layout_marginTop="5dp"/>
+
         <View
             style="@style/Theme.Legends.Divider"
             android:layout_marginTop="10dp"
@@ -154,6 +163,30 @@
                 android:textSize="15sp"
                 android:layout_marginStart="5dp"
                 android:layout_marginLeft="5dp"/>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp">
+
+            <TextView
+                style="@style/Theme.Legends.DataDescribers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/joined_colon"/>
+
+            <TextView
+                android:id="@+id/joined"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="31/12/2021"
+                android:textColor="?attr/colorOnPrimary"
+                android:layout_marginLeft="5dp"
+                android:layout_marginStart="5dp"/>
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 

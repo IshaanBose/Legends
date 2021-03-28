@@ -1,6 +1,7 @@
 package com.bose.legends;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -290,6 +291,20 @@ public class SignUp extends AppCompatActivity
                     Map<String, Object> userDetails = new HashMap<>();
                     userDetails.put("username", username.getText().toString());
                     userDetails.put("isMod", false);
+
+                    Calendar calendar = Calendar.getInstance();
+                    int day = calendar.get(Calendar.DAY_OF_MONTH);
+                    int month = calendar.get(Calendar.MONTH) + 1;
+                    int year = calendar.get(Calendar.YEAR);
+
+                    String time =
+                            (day / 10 == 0 ? "0" + day : day)
+                            + "/"
+                            + (month / 10 == 0 ? "0" + month : month)
+                            + "/"
+                            + year;
+
+                    userDetails.put("joined", time);
 
                     Map<String, Object> privateDetails = new HashMap<>();
                     privateDetails.put("location", new GeoPoint(currentLocation.getLatitude(), currentLocation.getLongitude()));

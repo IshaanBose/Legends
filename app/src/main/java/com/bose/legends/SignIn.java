@@ -118,6 +118,10 @@ public class SignIn extends AppCompatActivity
                                     editor.putString("email", sEmail);
                                     editor.putBoolean("remember", remember);
                                     editor.putBoolean("is mod", doc.getBoolean("isMod"));
+                                    editor.putString("joined", doc.getString("joined"));
+
+                                    if (doc.getBoolean("isMod"))
+                                        editor.putString("mod type", doc.getString("mod_type"));
 
                                     SharedPreferences flagsPref = getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
                                     SharedPreferences.Editor editFlags = flagsPref.edit();

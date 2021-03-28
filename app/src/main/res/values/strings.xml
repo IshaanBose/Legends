@@ -184,6 +184,7 @@
     <string name="gm">GM</string>
     <string name="server">Server</string>
     <string name="mod">Mod</string>
+    <string name="joined_colon">Joined:</string>
     <string-array name="game_types">
         <item>D&amp;D 5E</item>
         <item>Call of Cthulhu</item>

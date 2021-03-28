@@ -68,12 +68,12 @@ import static android.content.Context.MODE_PRIVATE;
 public class ProfileFragment extends Fragment
 {
     private FirebaseAuth mAuth;
-    private TextView username, email, bio, createdGamesCount, joinedGamesCount, homeLocation;
+    private TextView username, email, bio, createdGamesCount, joinedGamesCount, homeLocation, joined, modType;
     private EditText newBio, newUsername;
     private ImageView profilePic, editUsername, editBio, cancelUsername, cancelBio;
     private GeoPoint currentHomeLocation;
     private View loadingIcon;
-    private SharedPreferences pref;
+    private SharedPreferences userDetails;
     private InputMethodManager imm;
     private DocumentReference userDB;
     private FirebaseFirestore db;
@@ -89,7 +89,7 @@ public class ProfileFragment extends Fragment
         View root = inflater.inflate(R.layout.fragment_profile, container, false);
 
         mAuth = FirebaseAuth.getInstance();
-        pref = requireActivity().getSharedPreferences(SharedPrefsValues.USER_DETAILS.getValue(), MODE_PRIVATE);
+        userDetails = requireActivity().getSharedPreferences(SharedPrefsValues.USER_DETAILS.getValue(), MODE_PRIVATE);
         imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -100,7 +100,8 @@ public class ProfileFragment extends Fragment
         // TextViews
         username = root.findViewById(R.id.username); email = root.findViewById(R.id.email); bio = root.findViewById(R.id.bio);
         createdGamesCount = root.findViewById(R.id.created_games_count); joinedGamesCount = root.findViewById(R.id.joined_games_count);
-        homeLocation = root.findViewById(R.id.home_location);
+        homeLocation = root.findViewById(R.id.home_location); joined = root.findViewById(R.id.joined);
+        modType = root.findViewById(R.id.mod_type);
         TextView changeLocation = root.findViewById(R.id.change_location);
         // EditTexts
         newBio = root.findViewById(R.id.new_bio); newUsername = root.findViewById(R.id.new_username);
@@ -341,12 +342,19 @@ public class ProfileFragment extends Fragment
 
     private void setDetails()
     {
-        username.setText(pref.getString("username", "<NIL>"));
-        email.setText(pref.getString("email", "<NIL>>"));
-        Log.d("asdfggh", pref.getInt("joined games count", 0) + "");
-        createdGamesCount.setText(String.valueOf(pref.getInt("created games count", 0)));
-        joinedGamesCount.setText(String.valueOf(pref.getInt("joined games count", 0)));
-        bio.setText(pref.getString("bio", "(Not provided)"));
+        username.setText(userDetails.getString("username", "<NIL>"));
+        email.setText(userDetails.getString("email", "<NIL>>"));
+        Log.d("asdfggh", userDetails.getInt("joined games count", 0) + "");
+        createdGamesCount.setText(String.valueOf(userDetails.getInt("created games count", 0)));
+        joinedGamesCount.setText(String.valueOf(userDetails.getInt("joined games count", 0)));
+        bio.setText(userDetails.getString("bio", "(Not provided)"));
+        joined.setText(userDetails.getString("joined", "(Sign in to get updated information)"));
+
+        if (userDetails.getBoolean("is mod", false))
+        {
+            modType.setText(userDetails.getString("mod type", "N/A"));
+            modType.setVisibility(View.VISIBLE);
+        }
 
         userDB.collection("private")
                 .document("private_info")
@@ -551,7 +559,7 @@ public class ProfileFragment extends Fragment
                             {
                                 username.setText(sUsername);
 
-                                SharedPreferences.Editor editor = pref.edit();
+                                SharedPreferences.Editor editor = userDetails.edit();
                                 editor.putString("username", sUsername);
                                 editor.apply();
 
@@ -603,7 +611,7 @@ public class ProfileFragment extends Fragment
                 {
                     bio.setText(sBio);
 
-                    SharedPreferences.Editor editor = pref.edit();
+                    SharedPreferences.Editor editor = userDetails.edit();
                     editor.putString("bio", sBio);
                     editor.apply();
 
@@ -636,14 +644,14 @@ public class ProfileFragment extends Fragment
     private void signOut()
     {
         FirebaseAuth.getInstance().signOut();
-        SharedPreferences pref;
+        SharedPreferences userDetails;
         SharedPreferences.Editor editor;
 
-        pref = requireActivity().getSharedPreferences(SharedPrefsValues.USER_DETAILS.getValue(), MODE_PRIVATE);
+        userDetails = requireActivity().getSharedPreferences(SharedPrefsValues.USER_DETAILS.getValue(), MODE_PRIVATE);
 
-        if (pref != null)
+        if (userDetails != null)
         {
-            editor = pref.edit();
+            editor = userDetails.edit();
             editor.clear();
             editor.apply();
         }
