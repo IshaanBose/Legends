@@ -14,11 +14,14 @@
         android:layout_weight="0.11"
         android:orientation="vertical">
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/profile_pic"
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:src="@mipmap/ic_default_user1"/>
+            android:src="@drawable/default_user_pic"
+            app:civ_border_width="0dp"
+            app:civ_circle_background_color="@color/white"/>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 

@@ -11,13 +11,15 @@
         android:orientation="vertical"
         android:layout_marginTop="20dp">
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile_pic"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center"
-            android:src="@mipmap/ic_default_user1"
-            android:layout_marginTop="30dp"/>
+            android:src="@drawable/default_user_pic"
+            android:layout_marginTop="30dp"
+            app:civ_border_width="0dp"
+            app:civ_circle_background_color="@color/white"/>
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
@@ -49,7 +51,6 @@
                 android:id="@+id/new_username"
                 android:layout_width="230dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="80dp"
                 android:layout_marginStart="80dp"
                 android:hint="@string/enter_username"
                 android:theme="@style/Theme.Legends.EditText"
@@ -64,7 +65,6 @@
                 android:layout_gravity="center"
                 app:tint="?attr/colorOnPrimary"
                 android:layout_marginStart="5dp"
-                android:layout_marginLeft="5dp"
                 android:padding="3dp"/>
 
             <ImageView
@@ -76,7 +76,6 @@
                 android:layout_gravity="center"
                 app:tint="?attr/colorOnPrimary"
                 android:layout_marginStart="5dp"
-                android:layout_marginLeft="5dp"
                 android:padding="3dp"
                 android:visibility="gone"/>
 
@@ -347,7 +346,8 @@
             android:text="@string/delete_account"
             app:backgroundTint="@color/red"
             android:layout_gravity="center"
-            android:layout_marginTop="25dp"/>
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="25dp"/>
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 

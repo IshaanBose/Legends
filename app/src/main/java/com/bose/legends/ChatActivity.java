@@ -121,11 +121,6 @@ public class ChatActivity extends AppCompatActivity
         addCreatorToPlayers(extras);
     }
 
-    public String getCreatorID()
-    {
-        return creatorID;
-    }
-
     private void addCreatorToPlayers(Bundle extras)
     {
         Users creator = new Users();
@@ -443,6 +438,11 @@ public class ChatActivity extends AppCompatActivity
                     user.setUsername(snap.getString("username"));
                     user.setCreatedGamesCount(snap.getLong("created_games_count").intValue());
                     user.setBio(snap.getString("bio") == null ? "(Not provided)" : snap.getString("bio"));
+                    user.setJoinDate(snap.getString("joined"));
+                    user.setIsMod(snap.getBoolean("isMod"));
+
+                    if (user.getIsMod())
+                        user.setModType(snap.getString("mod_type"));
 
                     docRef.collection("joined_games").document("games")
                             .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
@@ -483,10 +483,18 @@ public class ChatActivity extends AppCompatActivity
         View alertView = inflater.inflate(R.layout.alert_player_details, null);
 
         TextView username = alertView.findViewById(R.id.username), createdGames = alertView.findViewById(R.id.created_games_count),
-                joinedGames = alertView.findViewById(R.id.joined_games_count), bio = alertView.findViewById(R.id.bio);
+                joinedGames = alertView.findViewById(R.id.joined_games_count), bio = alertView.findViewById(R.id.bio),
+                joined = alertView.findViewById(R.id.joined), mod = alertView.findViewById(R.id.mod_flair);
 
         username.setText(user.getUsername()); createdGames.setText(String.valueOf(user.getCreatedGamesCount()));
         joinedGames.setText(String.valueOf(user.getJoinedGamesCount())); bio.setText(user.getBio());
+        joined.setText(user.getJoinDate());
+
+        if (user.getIsMod())
+        {
+            mod.setText(user.getModType());
+            mod.setVisibility(View.VISIBLE);
+        }
 
         new AlertDialog.Builder(this).setView(alertView).show();
     }

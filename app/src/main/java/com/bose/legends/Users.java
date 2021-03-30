@@ -2,7 +2,7 @@ package com.bose.legends;
 
 public class Users
 {
-    private String username, UID, bio;
+    private String username, UID, bio, joinDate, modType;
     private int createdGamesCount, joinedGamesCount;
     private boolean isMod;
 
@@ -64,6 +64,26 @@ public class Users
     public void setIsMod(boolean isMod)
     {
         this.isMod = isMod;
+    }
+
+    public String getJoinDate()
+    {
+        return joinDate;
+    }
+
+    public void setJoinDate(String joinDate)
+    {
+        this.joinDate = joinDate;
+    }
+
+    public String getModType()
+    {
+        return modType;
+    }
+
+    public void setModType(String modType)
+    {
+        this.modType = modType;
     }
 
     @Override

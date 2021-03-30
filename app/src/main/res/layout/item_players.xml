@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.LinearLayoutCompat
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="10dp"
@@ -11,13 +12,15 @@
         android:layout_height="wrap_content"
         android:weightSum="1.0">
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profile_pic"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center"
-            android:src="@mipmap/ic_default_user1"
-            android:layout_weight="0.05"/>
+            android:src="@drawable/default_user_pic"
+            android:layout_weight="0.05"
+            app:civ_border_width="0dp"
+            app:civ_circle_background_color="@color/white"/>
 
         <TextView
             android:id="@+id/username"

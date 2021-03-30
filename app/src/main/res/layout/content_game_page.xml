@@ -2,7 +2,6 @@
 <androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -304,16 +303,24 @@
             android:weightSum="15"
             android:visibility="gone">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <View
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/players"
+            <com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="13"/>
+                android:layout_weight="13"
+                android:scrollbars="vertical"
+                app:maxHeight="180dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/players"
+                    android:layout_width="match_parent"
+                    android:layout_height="180dp" />
+
+            </com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView>
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -376,11 +383,19 @@
                     android:layout_height="0dp"
                     android:layout_weight="1"/>
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/requests_list"
+                <com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="13"/>
+                    android:layout_weight="13"
+                    android:scrollbars="vertical"
+                    app:maxHeight="180dp">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/requests_list"
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"/>
+
+                </com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView>
 
             </androidx.appcompat.widget.LinearLayoutCompat>
 

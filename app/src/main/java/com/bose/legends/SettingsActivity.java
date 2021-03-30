@@ -191,34 +191,50 @@ public class SettingsActivity extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                File file = activity.getBaseContext().getFileStreamPath("f");
-                String absolutePath = file.getAbsolutePath();
-                String filesDir = absolutePath.substring(0, absolutePath.length() - 2);
-
-                file = new File(filesDir);
-
-                for (File child : file.listFiles())
-                {
-                    if (child.getName().split("\\.").length == 2)
-                    {
-                        if (child.getName().split("\\.")[1].equals("txt") || child.getName().split("\\.")[1].equals("json"))
+                BuildAlertMessage.buildAlertMessagePositiveNegative(activity, "Are you sure you want to delete all cache files?", true,
+                        new DialogInterface.OnClickListener()
                         {
-                            child.delete();
-                        }
-                    }
-                }
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                File file = activity.getBaseContext().getFileStreamPath("f");
+                                String absolutePath = file.getAbsolutePath();
+                                String filesDir = absolutePath.substring(0, absolutePath.length() - 2);
 
-                CustomFileOperations.overwriteSettings(activity, settingValues, mAuth.getUid());
+                                file = new File(filesDir);
 
-                SharedPreferences flags = activity.getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
-                SharedPreferences.Editor editor = flags.edit();
+                                for (File child : file.listFiles())
+                                {
+                                    if (child.getName().split("\\.").length == 2)
+                                    {
+                                        if (child.getName().split("\\.")[1].equals("txt") || child.getName().split("\\.")[1].equals("json"))
+                                        {
+                                            child.delete();
+                                        }
+                                    }
+                                }
 
-                editor.putBoolean("update joined games", true);
-                editor.putBoolean("sync created games", true);
+                                CustomFileOperations.overwriteSettings(activity, settingValues, mAuth.getUid());
 
-                editor.apply();
+                                SharedPreferences flags = activity.getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
+                                SharedPreferences.Editor editor = flags.edit();
 
-                Toast.makeText(activity, "Files deleted!", Toast.LENGTH_SHORT).show();
+                                editor.putBoolean("update joined games", true);
+                                editor.putBoolean("sync created games", true);
+
+                                editor.apply();
+
+                                Toast.makeText(activity, "Files deleted!", Toast.LENGTH_SHORT).show();
+                            }
+                        },
+                        new DialogInterface.OnClickListener()
+                        {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which)
+                            {
+                                dialog.dismiss();
+                            }
+                        });
             }
         });
     }
