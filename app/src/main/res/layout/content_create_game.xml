@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -14,92 +13,86 @@
             android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="75dp"
             android:text="@string/enter_game_name"
             android:textColor="@color/appbar2"
-            android:textSize="15sp"
-            android:layout_marginTop="75dp"
-            android:layout_marginLeft="25dp"
-            android:layout_marginStart="25dp"/>
+            android:textSize="15sp" />
 
         <EditText
             android:id="@+id/game_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
             android:ems="15"
             android:hint="@string/enter_game_name"
             android:inputType="textPersonName"
-            android:layout_marginLeft="20dp"
-            android:layout_marginStart="20dp"
-            android:theme="@style/Theme.Legends.EditText"/>
+            android:theme="@style/Theme.Legends.EditText" />
 
         <TextView
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="25dp"
             android:text="@string/game_type"
             android:textColor="@color/appbar2"
-            android:textSize="15sp"
-            android:layout_marginTop="25dp"
-            android:layout_marginLeft="25dp"
-            android:layout_marginStart="25dp"/>
+            android:textSize="15sp" />
 
         <Spinner
             android:id="@+id/game_type_spinner"
             android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginStart="20dp" />
+            android:layout_marginStart="20dp"
+             />
 
         <EditText
             android:id="@+id/game_type"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
             android:ems="15"
             android:hint="@string/enter_game_type"
             android:inputType="textPersonName"
-            android:layout_marginLeft="20dp"
-            android:layout_marginStart="20dp"
-            android:theme="@style/Theme.Legends.EditText"/>
+            android:theme="@style/Theme.Legends.EditText" />
 
         <TextView
             android:id="@+id/textView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="25dp"
             android:text="@string/choose_location"
             android:textColor="@color/appbar2"
-            android:textSize="15sp"
-            android:layout_marginTop="25dp"
-            android:layout_marginLeft="25dp"
-            android:layout_marginStart="25dp"/>
+
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/set_home"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/set_home"
-            android:textColor="@color/clickable_text"
-            android:textSize="18sp"
+            android:layout_marginStart="35dp"
+            android:layout_marginTop="8dp"
+            android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
-            android:background="?attr/selectableItemBackground"
             android:padding="3dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="35dp"
-            android:layout_marginStart="35dp"/>
+            android:text="@string/set_home"
+            android:textColor="@color/clickable_text"
+            android:textSize="18sp" />
 
         <TextView
             android:id="@+id/set_current_location"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/set_current_location"
-            android:textColor="@color/clickable_text"
-            android:textSize="18sp"
+            android:layout_marginStart="35dp"
+            android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:focusable="true"
-            android:background="?attr/selectableItemBackground"
             android:padding="3dp"
-            android:layout_marginLeft="35dp"
-            android:layout_marginStart="35dp" />
+            android:text="@string/set_current_location"
+            android:textColor="@color/clickable_text"
+            android:textSize="18sp" />
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="wrap_content"
@@ -110,22 +103,20 @@
                 android:id="@+id/location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="35dp"
+                android:layout_marginTop="8dp"
                 android:text="@string/location_hiphen"
                 android:textColor="?attr/colorOnPrimary"
-                android:textSize="18sp"
-                android:layout_marginTop="8dp"
-                android:layout_marginLeft="35dp"
-                android:layout_marginStart="35dp" />
+                android:textSize="18sp" />
 
             <TextView
                 android:id="@+id/game_location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/light_blue_600"
-                android:textSize="18sp"
+                android:layout_marginStart="10dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginStart="10dp"/>
+                android:textColor="@color/light_blue_600"
+                android:textSize="18sp" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -133,17 +124,17 @@
             android:id="@+id/textView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="25dp"
             android:text="@string/description_optional"
             android:textColor="@color/appbar2"
-            android:textSize="15sp"
-            android:layout_marginTop="25dp"
-            android:layout_marginLeft="25dp"
-            android:layout_marginStart="25dp"/>
+            android:textSize="15sp" />
 
         <EditText
             android:id="@+id/game_description"
             android:layout_width="343dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="35dp"
             android:gravity="top|start"
             android:hint="@string/enter_details_about_your_game"
             android:inputType="textMultiLine"
@@ -153,9 +144,7 @@
             android:scrollbars="vertical"
             android:scrollHorizontally="false"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:theme="@style/Theme.Legends.EditText"
-            android:layout_marginLeft="35dp"
-            android:layout_marginStart="35dp"/>
+            android:theme="@style/Theme.Legends.EditText" />
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="wrap_content"
@@ -166,23 +155,21 @@
                 android:id="@+id/textview9"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="25dp"
                 android:text="@string/max_player_count"
                 android:textColor="@color/appbar2"
-                android:textSize="15sp"
-                android:layout_marginTop="25dp"
-                android:layout_marginLeft="25dp"
-                android:layout_marginStart="40dp"/>
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/textview10"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="105dp"
+                android:layout_marginTop="25dp"
                 android:text="@string/min_player_count"
                 android:textColor="@color/appbar2"
-                android:textSize="15sp"
-                android:layout_marginTop="25dp"
-                android:layout_marginLeft="25dp"
-                android:layout_marginStart="105dp"/>
+                android:textSize="15sp" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -195,29 +182,27 @@
                 android:id="@+id/max_player_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:gravity="center"
+                android:layout_marginStart="47dp"
                 android:ems="5"
-                android:inputType="number"
+                android:gravity="center"
                 android:hint="@string/default_infinite"
+                android:inputType="number"
                 android:maxLength="3"
-                android:theme="@style/Theme.Legends.EditText"
-                android:layout_marginLeft="25dp"
-                android:layout_marginStart="47dp"/>
+                android:textAlignment="center"
+                android:theme="@style/Theme.Legends.EditText" />
 
             <EditText
                 android:id="@+id/min_player_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:gravity="center"
+                android:layout_marginStart="114dp"
                 android:ems="5"
-                android:inputType="number"
+                android:gravity="center"
                 android:hint="@string/default_2"
+                android:inputType="number"
                 android:maxLength="3"
-                android:theme="@style/Theme.Legends.EditText"
-                android:layout_marginLeft="114dp"
-                android:layout_marginStart="114dp"/>
+                android:textAlignment="center"
+                android:theme="@style/Theme.Legends.EditText" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -225,13 +210,12 @@
             android:id="@+id/timing_enabled"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="8dp"
             android:text="@string/set_timing"
             android:textColor="@color/appbar2"
             android:textSize="15sp"
-            android:theme="@style/Theme.Legends.Switch"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="25dp"
-            android:layout_marginStart="25dp"/>
+            android:theme="@style/Theme.Legends.Switch" />
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="wrap_content"
@@ -242,23 +226,21 @@
                 android:id="@+id/from_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/from"
+                android:layout_gravity="center"
+                android:layout_marginStart="40dp"
                 android:enabled="false"
                 android:onClick="createTimePicker"
-                android:layout_gravity="center"
-                android:layout_marginLeft="40dp"
-                android:layout_marginStart="40dp" />
+                android:text="@string/from" />
 
             <TextView
                 android:id="@+id/from_time_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
                 android:layout_gravity="center"
+                android:layout_marginStart="40dp"
                 android:enabled="false"
                 android:textColor="?attr/colorOnPrimary"
-                android:layout_marginLeft="40dp"
-                android:layout_marginStart="40dp"/>
+                android:textSize="18sp" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -271,23 +253,21 @@
                 android:id="@+id/to_time"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/to"
+                android:layout_gravity="center"
+                android:layout_marginStart="40dp"
                 android:enabled="false"
                 android:onClick="createTimePicker"
-                android:layout_gravity="center"
-                android:layout_marginLeft="40dp"
-                android:layout_marginStart="40dp" />
+                android:text="@string/to" />
 
             <TextView
                 android:id="@+id/to_time_value"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
                 android:layout_gravity="center"
+                android:layout_marginStart="40dp"
                 android:enabled="false"
                 android:textColor="?attr/colorOnPrimary"
-                android:layout_marginLeft="40dp"
-                android:layout_marginStart="40dp"/>
+                android:textSize="18sp" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -295,92 +275,91 @@
             android:id="@+id/schedule_enabled"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="8dp"
             android:text="@string/set_schedule"
             android:textColor="@color/appbar2"
             android:textSize="15sp"
-            android:theme="@style/Theme.Legends.Switch"
-            android:layout_marginTop="8dp"
-            android:layout_marginLeft="25dp"
-            android:layout_marginStart="25dp"/>
+            android:theme="@style/Theme.Legends.Switch" />
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingTop="10dp"
-            android:paddingLeft="35dp"
             android:paddingStart="35dp"
-            android:paddingRight="35dp"
-            android:paddingEnd="35dp">
+            android:paddingLeft="35dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="35dp"
+            android:paddingRight="35dp">
 
             <androidx.appcompat.widget.AppCompatToggleButton
                 android:id="@+id/monday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textOn="@string/mon"
+                android:enabled="false"
                 android:textOff="@string/mon"
-                android:enabled="false"/>
+                android:textOn="@string/mon" />
 
             <androidx.appcompat.widget.AppCompatToggleButton
                 android:id="@+id/tuesday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textOn="@string/tue"
+                android:enabled="false"
                 android:textOff="@string/tue"
-                android:enabled="false"/>
+                android:textOn="@string/tue" />
 
             <androidx.appcompat.widget.AppCompatToggleButton
                 android:id="@+id/wednesday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textOn="@string/wed"
+                android:enabled="false"
                 android:textOff="@string/wed"
-                android:enabled="false"/>
+                android:textOn="@string/wed" />
 
             <androidx.appcompat.widget.AppCompatToggleButton
                 android:id="@+id/thursday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textOn="@string/thu"
+                android:enabled="false"
                 android:textOff="@string/thu"
-                android:enabled="false"/>
+                android:textOn="@string/thu" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
         <androidx.appcompat.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="horizontal"
-            android:paddingTop="10dp"
-            android:paddingLeft="35dp"
             android:paddingStart="35dp"
-            android:paddingRight="35dp"
+            android:paddingLeft="35dp"
+            android:paddingTop="10dp"
             android:paddingEnd="35dp"
-            android:gravity="center">
+            android:paddingRight="35dp">
 
             <androidx.appcompat.widget.AppCompatToggleButton
                 android:id="@+id/friday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textOn="@string/fri"
+                android:enabled="false"
                 android:textOff="@string/fri"
-                android:enabled="false"/>
+                android:textOn="@string/fri" />
 
             <androidx.appcompat.widget.AppCompatToggleButton
                 android:id="@+id/saturday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textOn="@string/sat"
+                android:enabled="false"
                 android:textOff="@string/sat"
-                android:enabled="false"/>
+                android:textOn="@string/sat" />
 
             <androidx.appcompat.widget.AppCompatToggleButton
                 android:id="@+id/sunday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textOn="@string/sun"
+                android:enabled="false"
                 android:textOff="@string/sun"
-                android:enabled="false"/>
+                android:textOn="@string/sun" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -393,34 +372,31 @@
                 android:id="@+id/textView_every"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingStart="20dp"
+                android:paddingEnd="10dp"
                 android:text="@string/every"
                 android:textColor="@color/disabled_text"
-                android:textSize="18sp"
-                android:paddingLeft="20dp"
-                android:paddingStart="20dp"
-                android:paddingRight="10dp"
-                android:paddingEnd="10dp"/>
+                android:textSize="18sp" />
 
             <EditText
                 android:id="@+id/repeat_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="@string/parenthesis_1"
-                android:textAlignment="center"
                 android:enabled="false"
                 android:gravity="center"
+                android:hint="@string/parenthesis_1"
                 android:inputType="number"
                 android:maxLength="1"
+                android:textAlignment="center"
                 android:theme="@style/Theme.Legends.EditText" />
 
             <Spinner
                 android:id="@+id/repeat_spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
+                android:layout_marginStart="5dp"
                 android:layout_marginTop="2dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginStart="5dp"/>
+                android:textSize="18sp" />
 
         </androidx.appcompat.widget.LinearLayoutCompat>
 
@@ -428,11 +404,11 @@
             android:id="@+id/create_game_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/create_game"
-            android:onClick="createGame"
             android:layout_gravity="center"
             android:layout_marginTop="40dp"
-            android:layout_marginBottom="40dp"/>
+            android:layout_marginBottom="40dp"
+            android:onClick="createGame"
+            android:text="@string/create_game" />
 
     </androidx.appcompat.widget.LinearLayoutCompat>
 
