@@ -38,6 +38,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class GamePage extends AppCompatActivity
@@ -510,10 +511,14 @@ public class GamePage extends AppCompatActivity
             {
                 loadingIcon.setVisibility(View.VISIBLE);
 
+                RequestsFormat request = snapshot.getValue(RequestsFormat.class);
+                request.setRequestID(snapshot.getKey());
+
                 Users user = new Users();
-                user.setUID(snapshot.getValue().toString());
-                Log.d("halp", snapshot.getValue().toString());
-                requestIDs.add(snapshot.getKey());
+                user.setUID(request.getUID());
+                user.setDistance(request.getDistance());
+
+                requestIDs.add(request.getRequestID());
 
                 db.collection("users")
                         .document(user.getUID())
@@ -590,6 +595,13 @@ public class GamePage extends AppCompatActivity
             {
                 if (task.isSuccessful())
                 {
+                    // attempt to remove user's color from chat
+                    FirebaseDatabase.getInstance().getReference("group_chats")
+                            .child(docID)
+                            .child("colors")
+                            .child(playerID)
+                            .removeValue();
+
                     // updating players list
                     players.remove(position);
                     updatePlayersList(position, true);
@@ -671,6 +683,12 @@ public class GamePage extends AppCompatActivity
                                             {
                                                 // now that request has been deleted from the database, we can remove it from our adapter's data set
                                                 userRequests.remove(position);
+
+                                                // attempt to remove user's request
+                                                FirebaseDatabase.getInstance().getReference("users_requests")
+                                                        .child(user.getUID())
+                                                        .child(docID)
+                                                        .removeValue();
 
                                                 // now we need to notify the user that they've been invited to our game, so we need update their joined games collection
                                                 db.collection("users")
@@ -980,8 +998,12 @@ public class GamePage extends AppCompatActivity
         final AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(this, "Sending request…", true);
         final String pushKey = joinRequestNode.push().getKey();
 
+        HashMap<String, String> request = new HashMap<>();
+        request.put("distance", distance.getText().toString());
+        request.put("UID", mAuth.getUid());
+
         joinRequestNode.child(pushKey)
-                .setValue(mAuth.getUid())
+                .setValue(request)
                 .addOnCompleteListener(new OnCompleteListener<Void>()
                 {
                     @Override
@@ -989,14 +1011,7 @@ public class GamePage extends AppCompatActivity
                     {
                         if (task.isSuccessful()) // request was made in game's document
                         {
-                            RequestsFormat rf = new RequestsFormat();
-                            rf.setDocID(docID);
-                            rf.setRequestID(pushKey);
-
-                            FirebaseDatabase.getInstance().getReference("users_requests")
-                                    .child(mAuth.getUid())
-                                    .child(rf.getDocID())
-                                    .setValue(rf.getRequestID())
+                            usersRequestNode.setValue(pushKey)
                                     .addOnCompleteListener(new OnCompleteListener<Void>()
                                     {
                                         @Override

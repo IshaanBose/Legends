@@ -21,8 +21,8 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
      */
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
-        private final TextView username, UID;
-        private ImageView addUser, removeRequest;
+        private final TextView username, UID, distance;
+        private final ImageView addUser, removeRequest;
 
         public ViewHolder(View view)
         {
@@ -30,6 +30,7 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
 
             // TextViews
             username = view.findViewById(R.id.username); UID = view.findViewById(R.id.uid);
+            distance = view.findViewById(R.id.distance);
 
             // ImageViews
             addUser = view.findViewById(R.id.add_user); removeRequest = view.findViewById(R.id.remove);
@@ -53,6 +54,11 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
         public ImageView getRemoveRequest()
         {
             return removeRequest;
+        }
+
+        public TextView getDistance()
+        {
+            return distance;
         }
     }
 
@@ -91,6 +97,9 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
 
         viewHolder.getUsername().setText(user.getUsername());
         viewHolder.getUID().setText(user.getUID());
+        viewHolder.getDistance().setText(user.getDistance());
+        viewHolder.getDistance().setVisibility(View.VISIBLE);
+
         viewHolder.getAddUser().setOnClickListener(new View.OnClickListener()
         {
             @Override

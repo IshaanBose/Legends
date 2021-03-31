@@ -2,17 +2,7 @@ package com.bose.legends;
 
 public class RequestsFormat
 {
-    private String docID, requestID;
-
-    public String getDocID()
-    {
-        return docID;
-    }
-
-    public void setDocID(String docID)
-    {
-        this.docID = docID;
-    }
+    private String requestID, distance, UID;
 
     public String getRequestID()
     {
@@ -24,12 +14,32 @@ public class RequestsFormat
         this.requestID = requestID;
     }
 
+    public String getDistance()
+    {
+        return distance;
+    }
+
+    public void setDistance(String distance)
+    {
+        this.distance = distance;
+    }
+
+    public String getUID()
+    {
+        return UID;
+    }
+
+    public void setUID(String UID)
+    {
+        this.UID = UID;
+    }
+
     @Override
     public String toString()
     {
         return "RequestsFormat{" +
-                "docID='" + docID + '\'' +
                 ", requestID='" + requestID + '\'' +
+                ", distance='" + distance + '\'' +
                 '}';
     }
 }

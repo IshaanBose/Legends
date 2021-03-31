@@ -23,7 +23,7 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
         private final TextView username, UID;
-        private ImageView removePlayer;
+        private final ImageView removePlayer;
 
         public ViewHolder(View view)
         {
