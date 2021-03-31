@@ -3,11 +3,14 @@ package com.bose.legends;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
@@ -22,6 +25,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import java.io.File;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity
@@ -132,10 +136,30 @@ public class MainActivity extends AppCompatActivity
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
+        setNavViewDetails(navigationView);
+    }
+
+    private void setNavViewDetails(NavigationView navigationView)
+    {
         View headerView = navigationView.getHeaderView(0);
+
         TextView navUsername = headerView.findViewById(R.id.nav_header_username);
         TextView navEmail = headerView.findViewById(R.id.nav_header_email);
         TextView themeColor = headerView.findViewById(R.id.theme_color);
+        ImageView profilePic = headerView.findViewById(R.id.profile_pic);
+
+        File file = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
+
+        if (file.exists())
+        {
+            String path = file.getAbsolutePath();
+            Log.d("profile", path);
+
+            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+
+            profilePic.setImageBitmap(bitmap);
+        }
+
         navUsername.setText(username);
         navEmail.setText(email);
 

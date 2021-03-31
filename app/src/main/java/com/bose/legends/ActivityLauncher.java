@@ -32,6 +32,8 @@ public class ActivityLauncher extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_activity_launcher);
 
+        CustomFileOperations.createAppFolders();
+
         Log.d("xyz", "Starting app");
         Intent intent;
         mAuth = FirebaseAuth.getInstance();

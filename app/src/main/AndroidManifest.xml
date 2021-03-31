@@ -17,6 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Legends"
+        android:requestLegacyExternalStorage="true"
         android:windowSoftInputMode="adjustUnspecified">
 
         <meta-data
@@ -30,6 +31,9 @@
             android:theme="@style/Theme.Legends"/>
 
         <activity android:name=".ChatActivity" />
+        <activity
+            android:name=".ui.profile.ProfilePicActivity"
+            android:theme="@style/Theme.Legends" />
         <activity
             android:name=".GamePage"
             android:theme="@style/Theme.Legends" />

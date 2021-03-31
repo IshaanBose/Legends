@@ -6,27 +6,24 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.res.ResourcesCompat;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import android.os.Handler;
+import android.os.Environment;
 import android.os.Looper;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,12 +33,11 @@ import android.widget.Toast;
 
 import com.bose.legends.BuildAlertMessage;
 import com.bose.legends.CustomFileOperations;
-import com.bose.legends.GameDetails;
-import com.bose.legends.LegendsJSONParser;
 import com.bose.legends.MapsActivityCurrentPlace;
 import com.bose.legends.R;
 import com.bose.legends.SharedPrefsValues;
 import com.bose.legends.SignUp;
+import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -49,6 +45,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.FirebaseDatabase;
@@ -61,8 +58,15 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
-import java.util.List;
+import org.apache.commons.io.FileUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+import static android.app.Activity.RESULT_OK;
 import static android.content.Context.MODE_PRIVATE;
 
 public class ProfileFragment extends Fragment
@@ -70,6 +74,7 @@ public class ProfileFragment extends Fragment
     private FirebaseAuth mAuth;
     private TextView username, email, bio, createdGamesCount, joinedGamesCount, homeLocation, joined, modType;
     private EditText newBio, newUsername;
+    private FloatingActionButton fab;
     private ImageView profilePic, editUsername, editBio, cancelUsername, cancelBio;
     private GeoPoint currentHomeLocation;
     private View loadingIcon;
@@ -113,6 +118,8 @@ public class ProfileFragment extends Fragment
         Button signOut = root.findViewById(R.id.sign_out), deleteAccount = root.findViewById(R.id.delete_account);
         // ProgressBar
         loadingIcon = root.findViewById(R.id.loading_icon);
+        // FloatingActionButton
+        fab = root.findViewById(R.id.pick_image);
 
         newBio.setOnTouchListener(new View.OnTouchListener()
         {
@@ -142,6 +149,24 @@ public class ProfileFragment extends Fragment
             public void onClick(View v)
             {
                 signOut();
+            }
+        });
+
+        profilePic.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                startActivity(new Intent(requireContext(), ProfilePicActivity.class));
+            }
+        });
+
+        fab.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                pickProfilePic();
             }
         });
 
@@ -217,7 +242,24 @@ public class ProfileFragment extends Fragment
             }
         });
 
+        setProfilePic();
+
         return root;
+    }
+
+    public void setProfilePic()
+    {
+        File file = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
+
+        if (file.exists())
+        {
+            String path = file.getAbsolutePath();
+            Log.d("profile", path);
+
+            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+
+            profilePic.setImageBitmap(bitmap);
+        }
     }
 
     private void beginAccountDeletion()
@@ -639,6 +681,48 @@ public class ProfileFragment extends Fragment
         editImage.setImageResource(R.drawable.ic_edit_themed);
 
         imm.hideSoftInputFromWindow(toHide.getWindowToken(), 0);
+    }
+
+    public void pickProfilePic()
+    {
+        ImagePicker.Companion.with(this)
+                .cropSquare()
+                .galleryMimeTypes(new String[]{
+                        "image/png",
+                        "image/jpg",
+                        "image/jpeg"
+                })
+                .compress(1024)
+                .maxResultSize(1080, 1080)
+                .start();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK)
+        {
+            profilePic.setImageURI(data.getData());
+
+            String filePath = ImagePicker.Companion.getFilePath(data);
+
+            File createdFile = new File(filePath);
+            File newFile = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
+
+            try
+            {
+                FileUtils.copyFile(createdFile, newFile);
+                createdFile.delete();
+            }
+            catch (IOException e)
+            {
+                Log.d("profile", e.getMessage());
+            }
+        }
+        else if (requestCode == ImagePicker.RESULT_ERROR)
+            Toast.makeText(requireContext(), ImagePicker.Companion.getError(data), Toast.LENGTH_LONG).show();
     }
 
     private void signOut()

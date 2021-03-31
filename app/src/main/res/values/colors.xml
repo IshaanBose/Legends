@@ -11,6 +11,7 @@
     <color name="appbar">#ffd01a</color>
     <color name="appbar2">#ffb600</color>
     <color name="button_bg">#ff7600</color>
+    <color name="statusBar">#957000</color>
     <color name="light_blue_600">#FF039BE5</color>
     <color name="light_blue_900">#FF01579B</color>
     <color name="light_blue_A200">#FF40C4FF</color>
@@ -37,4 +38,9 @@
     <color name="default_button_bg">#787878</color>
     <color name="bottom_bar_bg">#FF9900</color>
     <color name="disabled_button_bg">#636363</color>
+
+    <!--  ImagePicker  -->
+    <color name="ucrop_color_toolbar">@color/appbar2</color>
+    <color name="ucrop_color_statusbar">@color/statusBar</color>
+    <color name="ucrop_color_widget_active">@color/bottom_bar_bg</color>
 </resources>

@@ -2,6 +2,7 @@ package com.bose.legends;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 import java.io.BufferedReader;
@@ -43,6 +44,24 @@ public class CustomFileOperations
 
             default: return "_dump_file.txt";
         }
+    }
+
+    public static void createAppFolders()
+    {
+        String extPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        File mainFolder = new File(extPath + "/Legends");
+        File profilePics = new File(extPath + "/Profile Pics");
+
+        if (!mainFolder.exists())
+        {
+            if (mainFolder.mkdir())
+                profilePics.mkdir();
+        }
+    }
+
+    public static String getProfilePicDir()
+    {
+        return Environment.getExternalStorageDirectory().getAbsolutePath() + "/Legends/Profile Pics";
     }
 
     public static boolean settingsExist(Activity activity, String UID)

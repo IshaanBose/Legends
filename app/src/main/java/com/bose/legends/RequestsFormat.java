@@ -38,8 +38,9 @@ public class RequestsFormat
     public String toString()
     {
         return "RequestsFormat{" +
-                ", requestID='" + requestID + '\'' +
+                "requestID='" + requestID + '\'' +
                 ", distance='" + distance + '\'' +
+                ", UID='" + UID + '\'' +
                 '}';
     }
 }
