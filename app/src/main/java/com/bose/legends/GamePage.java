@@ -432,7 +432,7 @@ public class GamePage extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu)
     {
         if (pageCode == CustomFileOperations.FOUND_GAMES || pageCode == CustomFileOperations.JOINED_GAMES)
-            getMenuInflater().inflate(R.menu.menu_create_game, menu);
+            getMenuInflater().inflate(R.menu.menu_create_game_day, menu);
         else
         {
             getMenuInflater().inflate(R.menu.menu_edit_game, menu);

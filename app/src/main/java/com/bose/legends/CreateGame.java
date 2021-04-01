@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -61,7 +62,7 @@ public class CreateGame extends AppCompatActivity
     private EditText game_name, game_type, max_player, min_player, repeat_number;
     private Button from_time, to_time, create_game_button;
     private ToggleButton[] days;
-    private TextView game_location, game_description, from_time_value, to_time_value;
+    private TextView game_location, game_description, from_time_value, to_time_value, tvLocation;
     private Spinner game_type_spinner, repeat_spinner;
     private SwitchCompat enable_timing, schedule_enabled;
     private FusedLocationProviderClient client;
@@ -104,7 +105,7 @@ public class CreateGame extends AppCompatActivity
         TextView home_location = findViewById(R.id.set_home), current_location = findViewById(R.id.set_current_location), location = findViewById(R.id.location);
         TextView textView_every = findViewById(R.id.textView_every);
         game_location = findViewById(R.id.game_location); game_description = findViewById(R.id.game_description); from_time_value = findViewById(R.id.from_time_value);
-        to_time_value = findViewById(R.id.to_time_value);
+        to_time_value = findViewById(R.id.to_time_value); tvLocation = findViewById(R.id.location);
         // SwitchCompat
         enable_timing = findViewById(R.id.timing_enabled); schedule_enabled = findViewById(R.id.schedule_enabled);
         // Spinner
@@ -298,7 +299,13 @@ public class CreateGame extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        getMenuInflater().inflate(R.menu.menu_create_game, menu);
+        int themeColor = tvLocation.getCurrentTextColor();
+
+        if (themeColor == ContextCompat.getColor(tvLocation.getContext(), R.color.black))
+            getMenuInflater().inflate(R.menu.menu_create_game_day, menu);
+        else
+            getMenuInflater().inflate(R.menu.menu_create_game_night, menu);
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -356,6 +363,8 @@ public class CreateGame extends AppCompatActivity
                             dialog.dismiss();
                         }
                     });
+        else
+            super.onBackPressed();
     }
 
     @SuppressLint("MissingPermission")

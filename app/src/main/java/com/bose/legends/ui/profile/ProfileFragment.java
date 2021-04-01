@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Paint;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -57,6 +58,9 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import org.apache.commons.io.FileUtils;
 
@@ -715,6 +719,13 @@ public class ProfileFragment extends Fragment
             {
                 FileUtils.copyFile(createdFile, newFile);
                 createdFile.delete();
+
+                SharedPreferences flags = requireActivity().getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
+                SharedPreferences.Editor editor = flags.edit();
+                editor.putBoolean("update profile pic", true);
+                editor.apply();
+
+                uploadPhoto(newFile);
             }
             catch (IOException e)
             {
@@ -723,6 +734,26 @@ public class ProfileFragment extends Fragment
         }
         else if (requestCode == ImagePicker.RESULT_ERROR)
             Toast.makeText(requireContext(), ImagePicker.Companion.getError(data), Toast.LENGTH_LONG).show();
+    }
+
+    private void uploadPhoto(File profilePic)
+    {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference imageFolder = storage.getReference().child("profile pics");
+        Uri fileUri = Uri.fromFile(profilePic);
+
+        StorageReference fileRef = imageFolder.child(fileUri.getLastPathSegment());
+        fileRef.putFile(fileUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task)
+            {
+                if (task.isSuccessful())
+                    Log.d("profile", "Image uploaded.");
+                else
+                    Log.d("profile", "Couldn't upload photo.");
+            }
+        });
     }
 
     private void signOut()

@@ -13,8 +13,15 @@ import android.view.Menu;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bose.legends.ui.profile.ProfilePicActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.navigation.NavController;
@@ -25,18 +32,23 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import org.apache.commons.io.FileUtils;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 
 public class MainActivity extends AppCompatActivity
 {
     private AppBarConfiguration mAppBarConfiguration;
     private FirebaseAuth mAuth;
-    private boolean remember;
+    private boolean remember, ON;
     public static String username;
     public static String email;
     private int color;
     private Context context;
+    private ImageView profilePic;
+    private SharedPreferences flags;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -53,9 +65,12 @@ public class MainActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
 
         // clearing all flags
-        SharedPreferences flags = getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
+        flags = getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
+        boolean fromSignIn = flags.getBoolean("from sign in", false);
         SharedPreferences.Editor flagsEditor = flags.edit();
         flagsEditor.clear();
+
+        flagsEditor.putBoolean("from sign in", fromSignIn);
 
         SharedPreferences settings = getSharedPreferences(SharedPrefsValues.SETTINGS.getValue(), MODE_PRIVATE);
 
@@ -142,29 +157,142 @@ public class MainActivity extends AppCompatActivity
     private void setNavViewDetails(NavigationView navigationView)
     {
         View headerView = navigationView.getHeaderView(0);
+        MainActivity obj = this;
 
         TextView navUsername = headerView.findViewById(R.id.nav_header_username);
         TextView navEmail = headerView.findViewById(R.id.nav_header_email);
         TextView themeColor = headerView.findViewById(R.id.theme_color);
-        ImageView profilePic = headerView.findViewById(R.id.profile_pic);
+        profilePic = headerView.findViewById(R.id.profile_pic);
 
-        File file = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
-
-        if (file.exists())
+        if (!flags.getBoolean("from sign in", false))
         {
-            String path = file.getAbsolutePath();
-            Log.d("profile", path);
+            File file = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
 
-            Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+            if (file.exists())
+            {
+                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
 
-            profilePic.setImageBitmap(bitmap);
+                profilePic.setImageBitmap(bitmap);
+            }
         }
+        else // if user came from sign in, update the profile picture from the picture stored in the database
+        {
+            File file = new File(CustomFileOperations.getProfilePicDir() + "/" +  "temp_" + mAuth.getUid() + ".png");
+
+            try
+            {
+                if (file.createNewFile())
+                {
+                    Log.d("profile", "created new file");
+                    FirebaseStorage storage = FirebaseStorage.getInstance();
+                    StorageReference profileStorage = storage.getReference().child("profile pics").child(mAuth.getUid() + ".png");
+
+                    profileStorage.getFile(file).addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>()
+                    {
+                        @Override
+                        public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task)
+                        {
+                            File newFile = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
+
+                            if (task.isSuccessful())
+                            {
+                                Log.d("profile", "file retrieved");
+                                try
+                                {
+                                    FileUtils.copyFile(file, newFile);
+                                    file.delete();
+                                }
+                                catch (IOException e)
+                                {
+                                    file.delete();
+                                }
+
+                                if (newFile.exists())
+                                {
+                                    if (ON)
+                                    {
+                                        Bitmap bitmap = BitmapFactory.decodeFile(newFile.getAbsolutePath());
+
+                                        profilePic.setImageBitmap(bitmap);
+                                    }
+                                    else
+                                    {
+                                        SharedPreferences.Editor editor = flags.edit();
+                                        editor.putBoolean("update profile pic", true);
+                                        editor.apply();
+                                    }
+                                }
+                            }
+                            else // if could not retrieve file from storage
+                            {
+                                if (file.exists())
+                                    file.delete();
+
+                                if (newFile.exists())
+                                {
+                                    Bitmap bitmap = BitmapFactory.decodeFile(newFile.getAbsolutePath());
+
+                                    profilePic.setImageBitmap(bitmap);
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            catch (IOException e) // if could not create temp file
+            {
+                File storedFile = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
+
+                if (storedFile.exists())
+                {
+                    Bitmap bitmap = BitmapFactory.decodeFile(storedFile.getAbsolutePath());
+
+                    profilePic.setImageBitmap(bitmap);
+                }
+            }
+        }
+
+        profilePic.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                startActivity(new Intent(obj, ProfilePicActivity.class));
+            }
+        });
 
         navUsername.setText(username);
         navEmail.setText(email);
 
         color = themeColor.getCurrentTextColor();
         context = themeColor.getContext();
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        ON = true;
+
+        if (flags.getBoolean("update profile pic", false))
+        {
+            File file = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
+
+            if (file.exists())
+            {
+                String path = file.getAbsolutePath();
+                Log.d("profile", path);
+
+                Bitmap bitmap = BitmapFactory.decodeFile(file.getAbsolutePath());
+
+                profilePic.setImageBitmap(bitmap);
+            }
+
+            SharedPreferences.Editor editor = flags.edit();
+            editor.putBoolean("update profile pic", false);
+            editor.apply();
+        }
     }
 
     @Override
@@ -197,6 +325,14 @@ public class MainActivity extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+        ON = false;
     }
 
     @Override
