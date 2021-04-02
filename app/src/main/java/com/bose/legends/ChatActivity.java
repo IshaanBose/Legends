@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.content.SharedPreferences;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.text.Layout;
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +36,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.auth.User;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -48,7 +51,7 @@ public class ChatActivity extends AppCompatActivity
     private View loadingIcon;
     private EditText message;
     private TextView noMessages;
-    private String docID, lastMessage, creatorID;
+    private String lastMessage, creatorID;
     private ChildEventListener messageListener, userColorListener;
     private SharedPreferences userDetails;
     private List<Users> players;
@@ -56,6 +59,7 @@ public class ChatActivity extends AppCompatActivity
     private FirebaseAuth mAuth;
     private HashMap<String, String> userColors;
     private byte pageCode;
+    private boolean visible;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -72,7 +76,7 @@ public class ChatActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         setTitle(extras.getString("doc name"));
 
-        docID = extras.getString("docID");
+        String docID = extras.getString("docID");
         messagesRoot = FirebaseDatabase.getInstance().getReference("group_chats").child(docID).child("messages");
         userColorRoot = FirebaseDatabase.getInstance().getReference("group_chats").child(docID).child("colors");
         String playersJson = extras.getString("players json");
@@ -485,6 +489,7 @@ public class ChatActivity extends AppCompatActivity
         TextView username = alertView.findViewById(R.id.username), createdGames = alertView.findViewById(R.id.created_games_count),
                 joinedGames = alertView.findViewById(R.id.joined_games_count), bio = alertView.findViewById(R.id.bio),
                 joined = alertView.findViewById(R.id.joined), mod = alertView.findViewById(R.id.mod_flair);
+        ImageView profilePic = alertView.findViewById(R.id.profile_pic);
 
         username.setText(user.getUsername()); createdGames.setText(String.valueOf(user.getCreatedGamesCount()));
         joinedGames.setText(String.valueOf(user.getJoinedGamesCount())); bio.setText(user.getBio());
@@ -495,6 +500,24 @@ public class ChatActivity extends AppCompatActivity
             mod.setText(user.getModType());
             mod.setVisibility(View.VISIBLE);
         }
+
+        File picFile = new File(CustomFileOperations.getProfilePicDir(), ".temp/" + user.getUID() + ".png");
+        File altFile = new File(CustomFileOperations.getProfilePicDir(), user.getUID() + ".png");
+        boolean getFromTemp = true;
+
+        if (altFile.exists())
+        {
+            long lastModified = altFile.lastModified();
+            Calendar calendar = Calendar.getInstance();
+            long currentTime = calendar.getTimeInMillis();
+
+            getFromTemp = currentTime - lastModified >= 2.592e+8;
+        }
+
+        if (getFromTemp)
+            profilePic.setImageBitmap(BitmapFactory.decodeFile(picFile.getAbsolutePath()));
+        else
+            profilePic.setImageBitmap(BitmapFactory.decodeFile(altFile.getAbsolutePath()));
 
         new AlertDialog.Builder(this).setView(alertView).show();
     }
@@ -513,6 +536,27 @@ public class ChatActivity extends AppCompatActivity
         {
             outRect.bottom = verticalSpaceHeight;
         }
+    }
+
+    public boolean isVisible()
+    {
+        return visible;
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        visible = true;
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+        visible = false;
     }
 
     @Override

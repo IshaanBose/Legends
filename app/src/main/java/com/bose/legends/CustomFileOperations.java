@@ -49,14 +49,14 @@ public class CustomFileOperations
     public static void createAppFolders()
     {
         String extPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-        File mainFolder = new File(extPath + "/Legends");
-        File profilePics = new File(extPath + "/Profile Pics");
+        File mainFolder = new File(extPath, "Legends");
+        File profilePics = new File(mainFolder, "Profile Pics");
+        File tempFolder = new File(profilePics, ".temp");
 
         if (!mainFolder.exists())
-        {
             if (mainFolder.mkdir())
-                profilePics.mkdir();
-        }
+                if (profilePics.mkdir())
+                    tempFolder.mkdir();
     }
 
     public static String getProfilePicDir()

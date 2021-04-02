@@ -1,12 +1,29 @@
 package com.bose.legends;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 
 public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHolder>
@@ -22,7 +39,7 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
         private final TextView username, UID, distance;
-        private final ImageView addUser, removeRequest;
+        private final ImageView addUser, removeRequest, profilePic;
 
         public ViewHolder(View view)
         {
@@ -34,6 +51,7 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
 
             // ImageViews
             addUser = view.findViewById(R.id.add_user); removeRequest = view.findViewById(R.id.remove);
+            profilePic = view.findViewById(R.id.profile_pic);
         }
 
         public TextView getUsername()
@@ -59,6 +77,11 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
         public TextView getDistance()
         {
             return distance;
+        }
+
+        public ImageView getProfilePic()
+        {
+            return profilePic;
         }
     }
 
@@ -99,6 +122,8 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.ViewHo
         viewHolder.getUID().setText(user.getUID());
         viewHolder.getDistance().setText(user.getDistance());
         viewHolder.getDistance().setVisibility(View.VISIBLE);
+
+        gamePageInstance.adapterSetProfilePic(user, viewHolder.getProfilePic());
 
         viewHolder.getAddUser().setOnClickListener(new View.OnClickListener()
         {

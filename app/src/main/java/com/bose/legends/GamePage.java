@@ -12,15 +12,19 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -32,12 +36,19 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -62,6 +73,7 @@ public class GamePage extends AppCompatActivity
     private ChildEventListener requestChildEventListener;
     private int colorOnPrimary;
     private GameDetails gamePageDetails;
+    private boolean visible;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -327,6 +339,15 @@ public class GamePage extends AppCompatActivity
             createdBy.setText(strCreatedBy);
             createdBy.setVisibility(View.VISIBLE);
 
+            createdBy.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    getPlayerDetails(details.getCreatedByID());
+                }
+            });
+
             double dist = ((FoundGameDetails) details).getDistance();
             String distStr = dist + " km";
             distance.setText(distStr);
@@ -428,6 +449,186 @@ public class GamePage extends AppCompatActivity
         startActivity(intent);
     }
 
+    public void adapterSetProfilePic(Users user, ImageView profilePic)
+    {
+        File profilePicFile = new File(CustomFileOperations.getProfilePicDir(), ".temp/" + user.getUID() + ".png");
+        File altFile = new File(CustomFileOperations.getProfilePicDir(), user.getUID() + ".png");
+        boolean fromDB = false;
+
+        // first check if we already have user's profile picture in temp folder
+        if (profilePicFile.exists() || altFile.exists())
+        {
+            // then we need to check how dated the image is
+            long lastModified;
+
+            if (profilePicFile.exists())
+                lastModified = profilePicFile.lastModified(); // time is retrieved in ms
+            else
+                lastModified = altFile.lastModified();
+
+            // if picture is older than 3 days, retrieve picture from database
+            Calendar calendar = Calendar.getInstance();
+            long currentTime = calendar.getTimeInMillis();
+
+            fromDB = currentTime - lastModified >= 2.592e+8;
+        }
+
+        // if we need to retrieve pic from our database
+        if (fromDB || !profilePicFile.exists())
+        {
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            StorageReference pictureRef = storage.getReference("profile pics").child(user.getUID() + ".png");
+
+            try
+            {
+                profilePicFile.createNewFile();
+
+                pictureRef.getFile(profilePicFile).addOnCompleteListener(new OnCompleteListener<FileDownloadTask.TaskSnapshot>()
+                {
+                    @Override
+                    public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task)
+                    {
+                        // if picture was retrieved, check to see if activity is still active
+                        if (task.isSuccessful())
+                        {
+                            // if the page is still visible, we'll display the picture
+                            if (isVisible())
+                            {
+                                Bitmap bitmap = BitmapFactory.decodeFile(profilePicFile.getAbsolutePath());
+                                profilePic.setImageBitmap(bitmap);
+                            }
+                        }
+                        else // otherwise, delete the temp file
+                            if (profilePicFile.exists())
+                                profilePicFile.delete();
+                    }
+                });
+            }
+            catch (IOException e)
+            {
+                Log.d("profile", e.getMessage());
+            }
+        }
+        else // if picture already exists in storage
+        {
+            Bitmap bitmap;
+
+            if (profilePicFile.exists())
+                bitmap = BitmapFactory.decodeFile(profilePicFile.getAbsolutePath());
+            else
+                bitmap = BitmapFactory.decodeFile(altFile.getAbsolutePath());
+
+            profilePic.setImageBitmap(bitmap);
+        }
+    }
+
+    public void getPlayerDetails(String UID)
+    {
+        final AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(this, true);
+        final Users user = new Users();
+
+        DocumentReference docRef = FirebaseFirestore.getInstance().collection("users").document(UID);
+
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task)
+            {
+                if (task.isSuccessful())
+                {
+                    DocumentSnapshot snap = task.getResult();
+
+                    user.setUID(UID);
+                    user.setUsername(snap.getString("username"));
+                    user.setCreatedGamesCount(snap.getLong("created_games_count").intValue());
+                    user.setBio(snap.getString("bio") == null ? "(Not provided)" : snap.getString("bio"));
+                    user.setJoinDate(snap.getString("joined"));
+                    user.setIsMod(snap.getBoolean("isMod"));
+
+                    if (user.getIsMod())
+                        user.setModType(snap.getString("mod_type"));
+
+                    docRef.collection("joined_games").document("games")
+                            .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
+                    {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task)
+                        {
+                            if (task.isSuccessful())
+                            {
+                                user.setJoinedGamesCount(task.getResult().getLong("game_count").intValue());
+
+                                buildAlertPlayerDetails(loading, user);
+                            }
+                            else
+                            {
+                                loading.dismiss();
+
+                                Toast.makeText(getApplicationContext(), "Couldn't retrieve user info.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
+                else
+                {
+                    loading.dismiss();
+
+                    Toast.makeText(getApplicationContext(), "Couldn't retrieve user info.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void buildAlertPlayerDetails(AlertDialog loading, Users user)
+    {
+        loading.dismiss();
+
+        LayoutInflater inflater = LayoutInflater.from(this);
+        View alertView = inflater.inflate(R.layout.alert_player_details, null);
+
+        TextView username = alertView.findViewById(R.id.username), createdGames = alertView.findViewById(R.id.created_games_count),
+                joinedGames = alertView.findViewById(R.id.joined_games_count), bio = alertView.findViewById(R.id.bio),
+                joined = alertView.findViewById(R.id.joined), mod = alertView.findViewById(R.id.mod_flair);
+        ImageView profilePic = alertView.findViewById(R.id.profile_pic);
+
+        username.setText(user.getUsername()); createdGames.setText(String.valueOf(user.getCreatedGamesCount()));
+        joinedGames.setText(String.valueOf(user.getJoinedGamesCount())); bio.setText(user.getBio());
+        joined.setText(user.getJoinDate());
+
+        if (user.getIsMod())
+        {
+            mod.setText(user.getModType());
+            mod.setVisibility(View.VISIBLE);
+        }
+
+        File picFile = new File(CustomFileOperations.getProfilePicDir(), ".temp/" + user.getUID() + ".png");
+        File altFile = new File(CustomFileOperations.getProfilePicDir(), user.getUID() + ".png");
+        boolean getFromTemp = true;
+
+        if (altFile.exists())
+        {
+            long lastModified = altFile.lastModified();
+            Calendar calendar = Calendar.getInstance();
+            long currentTime = calendar.getTimeInMillis();
+
+            getFromTemp = currentTime - lastModified >= 2.592e+8;
+        }
+
+        if (user.getUID().equals(mAuth.getUid()))
+        {
+            File userPic = new File(CustomFileOperations.getProfilePicDir(), mAuth.getUid() + ".png");
+            profilePic.setImageBitmap(BitmapFactory.decodeFile(userPic.getAbsolutePath()));
+        }
+        else if (getFromTemp)
+            if (picFile.exists())
+                profilePic.setImageBitmap(BitmapFactory.decodeFile(picFile.getAbsolutePath()));
+        else
+            if (altFile.exists())
+                profilePic.setImageBitmap(BitmapFactory.decodeFile(altFile.getAbsolutePath()));
+
+        new AlertDialog.Builder(this).setView(alertView).show();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -488,6 +689,8 @@ public class GamePage extends AppCompatActivity
     {
         super.onResume();
 
+        visible = true;
+
         SharedPreferences flags = getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
 
         if (flags.getBoolean("edited created games", false))
@@ -498,6 +701,19 @@ public class GamePage extends AppCompatActivity
 
             this.finish();
         }
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+
+        visible = false;
+    }
+
+    public boolean isVisible()
+    {
+        return visible;
     }
 
     /* ----------------------------------------------------------------- 2. Code for created games -------------------------------------------------------- */

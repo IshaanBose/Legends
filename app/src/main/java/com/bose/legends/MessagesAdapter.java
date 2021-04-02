@@ -1,6 +1,8 @@
 package com.bose.legends;
 
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.util.Calendar;
 import java.util.List;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHolder>
@@ -125,6 +129,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         if (flairs.contains("MOD"))
             viewHolder.getModFlair().setVisibility(View.VISIBLE);
 
+        setProfilePic(message, viewHolder.getProfilePic());
+
         tvUsername.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -151,5 +157,50 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         if (localDataSet == null)
             return 0;
         return localDataSet.size();
+    }
+
+    private void setProfilePic(Message message, ImageView profilePic)
+    {
+        File picFile = new File(CustomFileOperations.getProfilePicDir(), ".temp/" + message.getUID() + ".png");
+        File altFile = new File(CustomFileOperations.getProfilePicDir(), message.getUID() + ".png");
+        boolean getFromTemp = true;
+
+        if (altFile.exists())
+        {
+            long lastModified = altFile.lastModified();
+            Calendar calendar = Calendar.getInstance();
+            long currentTime = calendar.getTimeInMillis();
+
+            getFromTemp = currentTime - lastModified >= 2.592e+8;
+        }
+
+        if (getFromTemp)
+        {
+            if (picFile.exists())
+            {
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        // if picture has been retrieved
+                        if (picFile.length() > 0)
+                        {
+                            if (chatActivity.isVisible())
+                                if (picFile.exists())
+                                    profilePic.setImageBitmap(BitmapFactory.decodeFile(picFile.getAbsolutePath()));
+                        }
+                        else
+                            handler.postDelayed(this, 100);
+                    }
+                }, 500);
+            }
+        }
+        else
+        {
+            if (altFile.exists())
+                profilePic.setImageBitmap(BitmapFactory.decodeFile(altFile.getAbsolutePath()));
+        }
     }
 }

@@ -1,12 +1,29 @@
 package com.bose.legends;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Calendar;
 import java.util.List;
 
 public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHolder>
@@ -23,7 +40,7 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
         private final TextView username, UID;
-        private final ImageView removePlayer;
+        private final ImageView removePlayer, profilePic;
 
         public ViewHolder(View view)
         {
@@ -33,7 +50,7 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
             username = view.findViewById(R.id.username); UID = view.findViewById(R.id.uid);
 
             // ImageViews
-            removePlayer = view.findViewById(R.id.remove);
+            removePlayer = view.findViewById(R.id.remove); profilePic = view.findViewById(R.id.profile_pic);
             ImageView addUser = view.findViewById(R.id.add_user);
 
             addUser.setImageAlpha(0);
@@ -54,6 +71,11 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
         public ImageView getRemovePlayer()
         {
             return removePlayer;
+        }
+
+        public ImageView getProfilePic()
+        {
+            return profilePic;
         }
     }
 
@@ -94,6 +116,20 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
         viewHolder.getUsername().setText(user.getUsername());
         viewHolder.getUID().setText(user.getUID());
 
+        gamePageInstance.adapterSetProfilePic(user, viewHolder.getProfilePic());
+
+        View.OnClickListener getDetails = new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                gamePageInstance.getPlayerDetails(user.getUID());
+            }
+        };
+
+        viewHolder.getUsername().setOnClickListener(getDetails);
+        viewHolder.getProfilePic().setOnClickListener(getDetails);
+
         if (this.pageCode == CustomFileOperations.FOUND_GAMES || this.pageCode == CustomFileOperations.JOINED_GAMES)
         {
             viewHolder.getRemovePlayer().setImageAlpha(0);
@@ -120,5 +156,45 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
         if (localDataSet == null)
             return 0;
         return localDataSet.size();
+    }
+
+    private void setProfilePic(Users user, ImageView profilePic)
+    {
+        File picFile = new File(CustomFileOperations.getProfilePicDir(), ".temp/" + user.getUID() + ".png");
+        File altFile = new File(CustomFileOperations.getProfilePicDir(), user.getUID() + ".png");
+        boolean getFromTemp = true;
+
+        if (altFile.exists())
+        {
+            long lastModified = altFile.lastModified();
+            Calendar calendar = Calendar.getInstance();
+            long currentTime = calendar.getTimeInMillis();
+
+            getFromTemp = currentTime - lastModified >= 2.592e+8;
+        }
+
+        if (getFromTemp)
+        {
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    // if picture has been retrieved
+                    if (picFile.length() > 0)
+                    {
+                        if (gamePageInstance.isVisible())
+                            profilePic.setImageBitmap(BitmapFactory.decodeFile(picFile.getAbsolutePath()));
+                    }
+                    else
+                        handler.postDelayed(this, 500);
+                }
+            }, 500);
+        }
+        else
+        {
+            profilePic.setImageBitmap(BitmapFactory.decodeFile(altFile.getAbsolutePath()));
+        }
     }
 }
