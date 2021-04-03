@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
@@ -19,12 +20,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -52,7 +56,7 @@ public class ChatActivity extends AppCompatActivity
     private View loadingIcon;
     private EditText message;
     private TextView noMessages;
-    private String lastMessage, creatorID;
+    private String lastMessage, creatorID, docID;
     private ChildEventListener messageListener, userColorListener;
     private SharedPreferences userDetails;
     private List<Users> players;
@@ -77,7 +81,7 @@ public class ChatActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         setTitle(extras.getString("doc name"));
 
-        String docID = extras.getString("docID");
+        docID = extras.getString("docID");
         messagesRoot = FirebaseDatabase.getInstance().getReference("group_chats").child(docID).child("messages");
         userColorRoot = FirebaseDatabase.getInstance().getReference("group_chats").child(docID).child("colors");
         String playersJson = extras.getString("players json");
@@ -520,18 +524,144 @@ public class ChatActivity extends AppCompatActivity
         else
             profilePic.setImageBitmap(BitmapFactory.decodeFile(altFile.getAbsolutePath()));
 
-        new AlertDialog.Builder(this)
+        if (!user.getUID().equals(creatorID))
+            new AlertDialog.Builder(this)
+                    .setView(alertView)
+                    .setNeutralButton("Report", new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            dialog.dismiss();
+                            generateReport(inflater, user.getUID());
+                        }
+                    })
+                    .show();
+        else
+            new AlertDialog.Builder(this)
+                    .setView(alertView)
+                    .show();
+    }
+
+    private void generateReport(LayoutInflater inflater, String UID)
+    {
+        View alertView = inflater.inflate(R.layout.alert_generate_report, null);
+        RadioGroup radioGroup = alertView.findViewById(R.id.reason);
+        EditText otherReason = alertView.findViewById(R.id.custom_reason);
+        RadioButton checked = alertView.findViewById(radioGroup.getCheckedRadioButtonId());
+
+        StringBuilder reason = new StringBuilder(checked.getText().toString());
+        int otherID = alertView.findViewById(R.id.other).getId();
+
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
+        {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId)
+            {
+                if (checkedId == otherID)
+                    otherReason.setVisibility(View.VISIBLE);
+                else
+                {
+                    otherReason.setVisibility(View.GONE);
+                    reason.setLength(0);
+                    reason.append(((RadioButton)alertView.findViewById(checkedId)).getText().toString());
+                }
+            }
+        });
+
+        ChatActivity activity = this;
+
+        AlertDialog dialog = new AlertDialog.Builder(activity)
                 .setView(alertView)
-                .setNeutralButton("Report", new DialogInterface.OnClickListener()
+                .setPositiveButton("Next", null)
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
                 {
                     @Override
                     public void onClick(DialogInterface dialog, int which)
                     {
                         dialog.dismiss();
-
                     }
                 })
                 .show();
+
+        dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                .setOnClickListener(new View.OnClickListener()
+                {
+                    @Override
+                    public void onClick(View view)
+                    {
+                        boolean goToNext = true;
+
+                        if (radioGroup.getCheckedRadioButtonId() == otherID)
+                        {
+                            if (otherReason.getText().length() == 0)
+                            {
+                                otherReason.setError("Cannot be empty.");
+                                goToNext = false;
+                            }
+                            else
+                            {
+                                reason.setLength(0);
+                                reason.append(otherReason.getText().toString());
+                            }
+                        }
+
+                        if (goToNext)
+                        {
+                            dialog.dismiss();
+
+                            View alertView = inflater.inflate(R.layout.alert_generate_report2, null);
+                            EditText additionalMessage = alertView.findViewById(R.id.custom_reason);
+
+                            new AlertDialog.Builder(activity)
+                                    .setView(alertView)
+                                    .setPositiveButton("Send Report", new DialogInterface.OnClickListener()
+                                    {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which)
+                                        {
+                                            dialog.dismiss();
+
+                                            sendReport(UID, additionalMessage.getText().toString(), reason.toString());
+                                        }
+                                    })
+                                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener()
+                                    {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which)
+                                        {
+                                            dialog.dismiss();
+                                        }
+                                    })
+                                    .show();
+                        }
+                    }
+                });
+    }
+
+    private void sendReport(String reportedUID, String additionalMessage, String reason)
+    {
+        Report report = new Report(docID, additionalMessage, reason, mAuth.getUid(), reportedUID);
+        AlertDialog dialog = BuildAlertMessage.buildAlertIndeterminateProgress(this, true);
+        ChatActivity activity = this;
+        Log.d("report", report.toString());
+
+        FirebaseFirestore.getInstance().collection("reports")
+                .document()
+                .set(report)
+                .addOnCompleteListener(new OnCompleteListener<Void>()
+                {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task)
+                    {
+                        if (task.isSuccessful())
+                            Toast.makeText(activity, "Report sent!", Toast.LENGTH_LONG).show();
+                        else
+                            Toast.makeText(activity, "Could not send report, please try again.", Toast.LENGTH_LONG).show();
+
+                        dialog.dismiss();
+                    }
+                });
     }
 
     static class VerticalSpaceItemDecoration extends RecyclerView.ItemDecoration

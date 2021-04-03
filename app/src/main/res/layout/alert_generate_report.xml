@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:padding="10dp"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/Theme.Legends.DataDescribers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/reason_for_report_colon"
+        android:layout_marginStart="20dp"/>
+
+    <RadioGroup
+        android:id="@+id/reason"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp">
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/spam"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/spam_account"
+            app:buttonTint="@color/appbar2"
+            android:checked="true"/>
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/abuse"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/harassment_or_abuse"
+            app:buttonTint="@color/appbar2"/>
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/inappropriate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/inappropriate_behavior"
+            app:buttonTint="@color/appbar2" />
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/other"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/other_issue"
+            app:buttonTint="@color/appbar2" />
+
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/custom_reason"
+        android:theme="@style/Theme.Legends.EditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/enter_your_issue"
+        android:ems="9"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginBottom="10dp"
+        android:visibility="gone"/>
+
+</androidx.appcompat.widget.LinearLayoutCompat>

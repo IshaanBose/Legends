@@ -188,4 +188,12 @@
     </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="reason_for_report_colon">Reason for report:</string>
+    <string name="spam_account">Spam Account</string>
+    <string name="harassment_or_abuse">Harassment or Abuse</string>
+    <string name="inappropriate_behavior">Inappropriate Behavior</string>
+    <string name="other_issue">Other Issue</string>
+    <string name="enter_your_issue">Enter your issue</string>
+    <string name="clarification_message_colon">Clarification Message:</string>
+    <string name="optional_enter_additional_message">(Optional) Enter additional message</string>
 </resources>
