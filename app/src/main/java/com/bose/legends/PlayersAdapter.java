@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHolder>
 {
@@ -166,11 +167,11 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
 
         if (altFile.exists())
         {
-            long lastModified = altFile.lastModified();
+            long lastModified = TimeUnit.MILLISECONDS.toDays(altFile.lastModified());
             Calendar calendar = Calendar.getInstance();
-            long currentTime = calendar.getTimeInMillis();
+            long currentTime = TimeUnit.MILLISECONDS.toDays(calendar.getTimeInMillis());
 
-            getFromTemp = currentTime - lastModified >= 2.592e+8;
+            getFromTemp = currentTime - lastModified >= 3;
         }
 
         if (getFromTemp)

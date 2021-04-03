@@ -51,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class GamePage extends AppCompatActivity
 {
@@ -462,15 +463,15 @@ public class GamePage extends AppCompatActivity
             long lastModified;
 
             if (profilePicFile.exists())
-                lastModified = profilePicFile.lastModified(); // time is retrieved in ms
+                lastModified = TimeUnit.MILLISECONDS.toDays(profilePicFile.lastModified()); // time is retrieved in ms
             else
-                lastModified = altFile.lastModified();
+                lastModified = TimeUnit.MILLISECONDS.toDays(altFile.lastModified());
 
             // if picture is older than 3 days, retrieve picture from database
             Calendar calendar = Calendar.getInstance();
-            long currentTime = calendar.getTimeInMillis();
+            long currentTime = TimeUnit.MILLISECONDS.toDays(calendar.getTimeInMillis());
 
-            fromDB = currentTime - lastModified >= 2.592e+8;
+            fromDB = currentTime - lastModified >= 3;
         }
 
         // if we need to retrieve pic from our database

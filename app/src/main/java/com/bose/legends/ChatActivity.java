@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
@@ -519,7 +520,18 @@ public class ChatActivity extends AppCompatActivity
         else
             profilePic.setImageBitmap(BitmapFactory.decodeFile(altFile.getAbsolutePath()));
 
-        new AlertDialog.Builder(this).setView(alertView).show();
+        new AlertDialog.Builder(this)
+                .setView(alertView)
+                .setNeutralButton("Report", new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.dismiss();
+
+                    }
+                })
+                .show();
     }
 
     static class VerticalSpaceItemDecoration extends RecyclerView.ItemDecoration

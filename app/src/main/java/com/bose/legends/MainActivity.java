@@ -1,11 +1,14 @@
 package com.bose.legends;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,7 +39,9 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Time;
 import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -47,8 +52,10 @@ public class MainActivity extends AppCompatActivity
     public static String email;
     private int color;
     private Context context;
+    public MainActivity activity;
     private ImageView profilePic;
     private SharedPreferences flags;
+    public static final int piRequestCode = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -63,6 +70,7 @@ public class MainActivity extends AppCompatActivity
         email = pref.getString("email", "<NIL>");
         remember = pref.getBoolean("remember", false);
         mAuth = FirebaseAuth.getInstance();
+        activity = this;
 
         // clearing all flags
         flags = getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
@@ -144,27 +152,68 @@ public class MainActivity extends AppCompatActivity
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_profile, R.id.nav_my_games_v2, R.id.nav_find_game, R.id.nav_dice_roller)
+                R.id.nav_profile, R.id.nav_my_games_v2, R.id.nav_find_game, R.id.nav_dice_roller, R.id.nav_report)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
-        setNavViewDetails(navigationView);
+        setNavViewDetails(navigationView, false);
     }
 
-    private void setNavViewDetails(NavigationView navigationView)
+    private void keepUpdatingProfilePic(NavigationView navigationView)
     {
-        View headerView = navigationView.getHeaderView(0);
-        MainActivity obj = this;
+        if (flags.getBoolean("update profile pic", false))
+        {
+            SharedPreferences.Editor editor = flags.edit();
+            editor.putBoolean("update profile pic", false);
+            editor.apply();
 
-        TextView navUsername = headerView.findViewById(R.id.nav_header_username);
-        TextView navEmail = headerView.findViewById(R.id.nav_header_email);
-        TextView themeColor = headerView.findViewById(R.id.theme_color);
-        profilePic = headerView.findViewById(R.id.profile_pic);
+            setNavViewDetails(navigationView, true);
+        }
 
-        if (!flags.getBoolean("from sign in", false))
+        Intent receiverIntent = new Intent(getApplicationContext(), PicAlarmReceiver.class);
+        PendingIntent pi = PendingIntent.getBroadcast(this, MainActivity.piRequestCode, receiverIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        receiverIntent.putExtra("mAuth", mAuth.getUid());
+
+        manager.setInexactRepeating(AlarmManager.RTC,
+                System.currentTimeMillis(),
+                TimeUnit.DAYS.toMillis(1),
+                pi);
+    }
+
+    private void setNavViewDetails(NavigationView navigationView, boolean updateOnlyProfilePic)
+    {
+        if (!updateOnlyProfilePic)
+        {
+            View headerView = navigationView.getHeaderView(0);
+            MainActivity obj = this;
+
+            TextView navUsername = headerView.findViewById(R.id.nav_header_username);
+            TextView navEmail = headerView.findViewById(R.id.nav_header_email);
+            TextView themeColor = headerView.findViewById(R.id.theme_color);
+            profilePic = headerView.findViewById(R.id.profile_pic);
+
+            profilePic.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v)
+                {
+                    startActivity(new Intent(obj, ProfilePicActivity.class));
+                }
+            });
+
+            navUsername.setText(username);
+            navEmail.setText(email);
+
+            color = themeColor.getCurrentTextColor();
+            context = themeColor.getContext();
+        }
+
+        if (!flags.getBoolean("from sign in", false) || updateOnlyProfilePic)
         {
             File file = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
 
@@ -252,20 +301,7 @@ public class MainActivity extends AppCompatActivity
             }
         }
 
-        profilePic.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                startActivity(new Intent(obj, ProfilePicActivity.class));
-            }
-        });
-
-        navUsername.setText(username);
-        navEmail.setText(email);
-
-        color = themeColor.getCurrentTextColor();
-        context = themeColor.getContext();
+        keepUpdatingProfilePic(navigationView);
     }
 
     @Override

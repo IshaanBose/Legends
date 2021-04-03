@@ -42,15 +42,13 @@
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
                 android:textStyle="bold"
-                android:text="Username ds         dsddsddsdsds"
-                android:maxWidth="145dp"
+                android:text="Username ds         dsddsddsdsds  kkopko kkop"
                 android:singleLine="true"
+                android:maxWidth="290dp"
                 android:ellipsize="end"
                 android:textColor="?attr/colorOnPrimary"
                 android:layout_marginStart="5dp"
-                android:layout_marginLeft="5dp"
-                android:layout_marginEnd="3dp"
-                android:layout_marginRight="3dp"/>
+                android:layout_marginEnd="3dp"/>
 
             <TextView
                 android:id="@+id/gm_flair"
@@ -89,16 +87,6 @@
                 android:layout_gravity="center"
                 android:visibility="gone"/>
 
-            <TextView
-                android:id="@+id/timestamp"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="31/12/2021, 12:35 AM"
-                android:layout_gravity="center"
-                android:gravity="end"
-                android:textAlignment="viewEnd"
-                android:layout_weight="1"/>
-
         </androidx.appcompat.widget.LinearLayoutCompat>
 
         <TextView
@@ -107,12 +95,23 @@
             android:layout_height="wrap_content"
             android:textSize="15sp"
             android:textColor="?attr/colorOnPrimary"
-            android:text="Message"
+            android:text="Message jo      oojojo jooo hiuh hohoh huhhuh oih j"
             android:layout_marginTop="5dp"
             android:layout_marginStart="5dp"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
             android:layout_marginEnd="5dp"/>
+
+        <TextView
+            android:id="@+id/timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="31/12/2021, 12:35 AM"
+            android:textSize="12sp"
+            android:layout_marginTop="5dp"
+            android:layout_gravity="end"
+            android:gravity="end"
+            android:textAlignment="viewEnd"/>
 
         <TextView
             android:id="@+id/uid"

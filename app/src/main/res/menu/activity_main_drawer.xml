@@ -6,15 +6,35 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_profile"
-            android:title="@string/menu_profile" />
+            android:title="@string/menu_profile"
+            android:icon="@drawable/default_user_pic"/>
         <item
             android:id="@+id/nav_my_games_v2"
-            android:title="@string/menu_my_games" />
+            android:title="@string/menu_my_games"
+            android:icon="@drawable/ic_home"/>
         <item
             android:id="@+id/nav_find_game"
-            android:title="@string/menu_find_game" />
+            android:title="@string/menu_find_game"
+            android:icon="@drawable/search_icon_small"/>
         <item
             android:id="@+id/nav_dice_roller"
-            android:title="@string/menu_dice_roller" />
+            android:title="@string/menu_dice_roller"
+            android:icon="@drawable/ic_dice_small"/>
     </group>
+
+    <item
+        android:id="@+id/moderation"
+        android:title="@string/moderation"
+        android:checkable="false">
+
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_report"
+                    android:title="@string/reports"
+                    android:icon="@drawable/ic_report"/>
+            </group>
+        </menu>
+
+    </item>
 </menu>

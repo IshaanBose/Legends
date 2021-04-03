@@ -2,6 +2,7 @@ package com.bose.legends.ui.profile;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -34,7 +35,9 @@ import android.widget.Toast;
 
 import com.bose.legends.BuildAlertMessage;
 import com.bose.legends.CustomFileOperations;
+import com.bose.legends.MainActivity;
 import com.bose.legends.MapsActivityCurrentPlace;
+import com.bose.legends.PicAlarmReceiver;
 import com.bose.legends.R;
 import com.bose.legends.SharedPrefsValues;
 import com.bose.legends.SignUp;
@@ -772,6 +775,10 @@ public class ProfileFragment extends Fragment
         }
 
         CustomFileOperations.deleteFile(getContext(), mAuth.getUid(), CustomFileOperations.FOUND_GAMES);
+
+        Intent i = new Intent(requireContext(), PicAlarmReceiver.class);
+        PendingIntent pi = PendingIntent.getBroadcast(requireContext(), MainActivity.piRequestCode, i, PendingIntent.FLAG_UPDATE_CURRENT);
+        pi.cancel();
 
         Intent intent = new Intent(getContext(), SignUp.class);
         startActivity(intent);
