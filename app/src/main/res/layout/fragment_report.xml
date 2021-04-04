@@ -1,14 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     tools:context=".ui.reports.ReportFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
 
-</FrameLayout>
+        <TextView
+            style="@style/Theme.Legends.Clickable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/my_reports"
+            android:textColor="@color/appbar2"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"/>
+
+        <View
+            style="@style/Theme.Legends.Divider"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="8dp"/>
+
+        <com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView
+            android:id="@+id/my_report_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:visibility="gone"
+            app:maxHeight="250dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/my_reports"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView>
+
+        <TextView
+            android:id="@+id/no_my_reports"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no_reports"
+            android:textSize="16sp"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:visibility="gone"/>
+
+        <TextView
+            style="@style/Theme.Legends.Clickable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/assigned_reports"
+            android:textColor="@color/appbar2"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"/>
+
+        <View
+            style="@style/Theme.Legends.Divider"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/no_assigned_reports"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no_reports"
+            android:textSize="16sp"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:visibility="gone"/>
+
+        <com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView
+            android:id="@+id/assigned_reports_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:visibility="gone"
+            app:maxHeight="250dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/assigned_reports"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView>
+
+        <TextView
+            style="@style/Theme.Legends.Clickable"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/unassigned_reports"
+            android:textColor="@color/appbar2"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"/>
+
+        <View
+            style="@style/Theme.Legends.Divider"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:id="@+id/no_unassigned_reports"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/no_reports"
+            android:textSize="16sp"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:visibility="gone"/>
+
+        <com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView
+            android:id="@+id/unassigned_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:visibility="gone"
+            app:maxHeight="250dp">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/unassigned_reports"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</androidx.core.widget.NestedScrollView>

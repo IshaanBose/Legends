@@ -176,6 +176,27 @@
     <string name="joined_colon">Joined:</string>
     <string name="moderation">Moderation</string>
     <string name="reports">Reports</string>
+    <string name="reason_for_report_colon">Reason for report:</string>
+    <string name="spam_account">Spam Account</string>
+    <string name="harassment_or_abuse">Harassment or Abuse</string>
+    <string name="inappropriate_behavior">Inappropriate Behavior</string>
+    <string name="other_issue">Other Issue</string>
+    <string name="enter_your_issue">Enter your issue</string>
+    <string name="clarification_message_colon">Clarification Message:</string>
+    <string name="optional_enter_additional_message">(Optional) Enter additional message</string>
+    <string name="assigned_reports">Assigned Reports</string>
+    <string name="my_reports">My Reports</string>
+    <string name="unassigned_reports">Unassigned Reports</string>
+    <string name="report_id_colon">Report ID:</string>
+    <string name="reason_colon">Reason:</string>
+    <string name="time_colon">Time:</string>
+    <string name="none">none</string>
+    <string name="assigned_to_colon">Assigned To:</string>
+    <string name="reported_user_colon">Reported User:</string>
+    <string name="reported_by_colon">Reported by:</string>
+    <string name="no_reports">No reports</string>
+
+    <!--  Arrays  -->
     <string-array name="game_types">
         <item>D&amp;D 5E</item>
         <item>Call of Cthulhu</item>
@@ -186,14 +207,4 @@
         <item>Week(s)</item>
         <item>Month(s)</item>
     </string-array>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="reason_for_report_colon">Reason for report:</string>
-    <string name="spam_account">Spam Account</string>
-    <string name="harassment_or_abuse">Harassment or Abuse</string>
-    <string name="inappropriate_behavior">Inappropriate Behavior</string>
-    <string name="other_issue">Other Issue</string>
-    <string name="enter_your_issue">Enter your issue</string>
-    <string name="clarification_message_colon">Clarification Message:</string>
-    <string name="optional_enter_additional_message">(Optional) Enter additional message</string>
 </resources>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="1.0">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/reported_user_colon"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_weight="0.29"/>
+
+        <TextView
+            android:id="@+id/reported_user"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="1FRTelOMARRO6PFM7322"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnPrimary"
+            android:lines="1"
+            android:ellipsize="end"
+            android:layout_weight="0.71"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.0">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/reported_by_colon"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_weight="0.22"/>
+
+        <TextView
+            android:id="@+id/reported_by"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="UID"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_weight="0.78"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.0">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/reason_colon"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_weight="0.15"/>
+
+        <TextView
+            android:id="@+id/reason"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Spam"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_weight="0.85"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.0">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/time_colon"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_weight="0.1"/>
+
+        <TextView
+            android:id="@+id/time"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="12/03/2021 12:16 AM"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_weight="0.9"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.0">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/assigned_to_colon"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_weight="0.22"/>
+
+        <TextView
+            android:id="@+id/assigned_to"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/none"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_weight="0.78"/>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</androidx.appcompat.widget.LinearLayoutCompat>
