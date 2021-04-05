@@ -35,6 +35,9 @@
         <activity
             android:name=".SettingsActivity"
             android:theme="@style/Theme.Legends" />
+        <activity
+            android:name=".ReportDetailsActivity"
+            android:theme="@style/Theme.Legends"/>
         <activity android:name=".ChatActivity" />
         <activity
             android:name=".ui.profile.ProfilePicActivity"

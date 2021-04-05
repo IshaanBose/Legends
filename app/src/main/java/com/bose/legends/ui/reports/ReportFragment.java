@@ -1,6 +1,7 @@
 package com.bose.legends.ui.reports;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -17,8 +18,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bose.legends.ItemClickSupport;
+import com.bose.legends.LegendsJSONParser;
 import com.bose.legends.R;
 import com.bose.legends.Report;
+import com.bose.legends.ReportDetailsActivity;
 import com.bose.legends.ReportsAdapter;
 import com.bose.legends.SharedPrefsValues;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,7 +35,10 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ReportFragment extends Fragment
@@ -44,6 +50,9 @@ public class ReportFragment extends Fragment
     private ListenerRegistration reportListener;
     private CollectionReference reportRef;
     private boolean sysAdmin = false;
+    public static final byte MY_REP = 0;
+    public static final byte ASSIGN_REP = 1;
+    public static final byte UNASSIGNED_REP = 2;
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -172,7 +181,7 @@ public class ReportFragment extends Fragment
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v)
             {
-
+                goToReportDetails(unassignReps.get(position), UNASSIGNED_REP);
             }
         });
     }
@@ -191,7 +200,7 @@ public class ReportFragment extends Fragment
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v)
             {
-
+                goToReportDetails(assignReps.get(position), ASSIGN_REP);
             }
         });
     }
@@ -210,9 +219,25 @@ public class ReportFragment extends Fragment
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v)
             {
-
+                goToReportDetails(myReps.get(position), MY_REP);
             }
         });
+    }
+
+    private void goToReportDetails(Report report, byte activityCode)
+    {
+        Intent intent = new Intent(requireActivity(), ReportDetailsActivity.class);
+        String json = LegendsJSONParser.convertToJSONJacksonAPI(report);
+        Date date = report.getTime().toDate();
+        DateFormat format = SimpleDateFormat.getDateInstance(DateFormat.LONG);
+        String time = format.format(date);
+        Log.d("report", "Sending: " + json);
+
+        intent.putExtra("report json", json);
+        intent.putExtra("activity code", activityCode);
+        intent.putExtra("time", time);
+
+        startActivity(intent);
     }
 
     private void getReports()

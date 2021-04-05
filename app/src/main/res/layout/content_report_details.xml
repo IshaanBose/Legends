@@ -1,0 +1,555 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="75dp"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:id="@+id/loading_icon"
+            android:layout_width="150dp"
+            android:layout_height="match_parent"
+            android:indeterminate="true"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            android:paddingEnd="20dp"
+            android:paddingStart="20dp"
+            android:layout_gravity="center"
+            android:theme="@style/Theme.Legends.ProgressBar"
+            android:visibility="visible"/>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:id="@+id/activity_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                style="@style/Theme.Legends.DataDescribers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/reported_user_colon"
+                android:layout_marginStart="10dp"/>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="20dp">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/reported_pic"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/default_user_pic"
+                    app:civ_border_width="0dp"/>
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/uid_colon"
+                            android:textColor="?attr/colorOnPrimary"
+                            android:layout_marginStart="10dp"/>
+
+                        <TextView
+                            android:id="@+id/reported_uid"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="YHG9JYVzduXWC4Xvzf0wfiPSOWb2"
+                            android:textColor="?attr/colorOnPrimary"
+                            android:layout_marginStart="5dp"/>
+
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/username_colon"
+                            android:textColor="?attr/colorOnPrimary"
+                            android:layout_marginStart="10dp"/>
+
+                        <TextView
+                            android:id="@+id/reported_username"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="YHG9JYVzduXWC4Xvzf0wfiPSOWb2"
+                            android:textColor="?attr/colorOnPrimary"
+                            android:layout_marginStart="5dp"/>
+
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <TextView
+                style="@style/Theme.Legends.DataDescribers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/reported_by_colon"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="15dp"/>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="20dp">
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/reported_by_pic"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/default_user_pic"
+                    app:civ_border_width="0dp"/>
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/uid_colon"
+                            android:textColor="?attr/colorOnPrimary"
+                            android:layout_marginStart="10dp"/>
+
+                        <TextView
+                            android:id="@+id/reported_by_uid"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="YHG9JYVzduXWC4Xvzf0wfiPSOWb2"
+                            android:textColor="?attr/colorOnPrimary"
+                            android:layout_marginStart="5dp"/>
+
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/username_colon"
+                            android:textColor="?attr/colorOnPrimary"
+                            android:layout_marginStart="10dp"/>
+
+                        <TextView
+                            android:id="@+id/reported_by_username"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="YHG9JYVzduXWC4Xvzf0wfiPSOWb2"
+                            android:textColor="?attr/colorOnPrimary"
+                            android:layout_marginStart="5dp"/>
+
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/assigned_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/Theme.Legends.DataDescribers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/assigned_to_colon"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="10dp"/>
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginStart="20dp">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/assigned_pic"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:src="@drawable/default_user_pic"
+                        app:civ_border_width="0dp"/>
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <androidx.appcompat.widget.LinearLayoutCompat
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/uid_colon"
+                                android:textColor="?attr/colorOnPrimary"
+                                android:layout_marginStart="10dp"/>
+
+                            <TextView
+                                android:id="@+id/assigned_uid"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="YHG9JYVzduXWC4Xvzf0wfiPSOWb2"
+                                android:textColor="?attr/colorOnPrimary"
+                                android:layout_marginStart="5dp"/>
+
+                        </androidx.appcompat.widget.LinearLayoutCompat>
+
+                        <androidx.appcompat.widget.LinearLayoutCompat
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/username_colon"
+                                android:textColor="?attr/colorOnPrimary"
+                                android:layout_marginStart="10dp"/>
+
+                            <TextView
+                                android:id="@+id/assigned_username"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="YHG9JYVzduXWC4Xvzf0wfiPSOWb2"
+                                android:textColor="?attr/colorOnPrimary"
+                                android:layout_marginStart="5dp"/>
+
+                        </androidx.appcompat.widget.LinearLayoutCompat>
+
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp">
+
+                <TextView
+                    style="@style/Theme.Legends.DataDescribers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reason_colon"
+                    android:layout_marginStart="10dp"/>
+
+                <TextView
+                    android:id="@+id/reason"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Spam Account"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:layout_marginStart="5dp"/>
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginStart="10dp">
+
+                <TextView
+                    style="@style/Theme.Legends.DataDescribers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/time_reported_colon"/>
+
+                <TextView
+                    android:id="@+id/time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:text="12 April 2021 12:34:00 AM"
+                    android:layout_marginStart="5dp"/>
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <TextView
+                style="@style/Theme.Legends.DataDescribers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/additional_message_colon"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="15dp"/>
+
+            <com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="vertical"
+                android:scrollbarStyle="insideInset"
+                android:layout_marginTop="10dp"
+                app:maxHeight="200dp">
+
+                <TextView
+                    android:id="@+id/message"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/long_dummy_text"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:paddingStart="20dp"
+                    android:paddingEnd="20dp"/>
+
+            </com.bskim.maxheightscrollview.widgets.MaxHeightNestedScrollView>
+
+            <TextView
+                style="@style/Theme.Legends.DataDescribers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/group_info_colon"
+                android:layout_marginTop="15dp"
+                android:layout_marginStart="10dp"/>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/group_id_colon"
+                    android:textColor="?attr/colorOnPrimary"/>
+
+                <TextView
+                    android:id="@+id/group_id"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="9pY8D9SnuVhKsgf56RYo"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:layout_marginStart="5dp"/>
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginStart="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/group_name_colon"
+                    android:textColor="?attr/colorOnPrimary"/>
+
+                <TextView
+                    android:id="@+id/group_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Group Name"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:layout_marginStart="5dp"/>
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/assign_random"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/assign_random_mod"
+                android:textColor="?attr/colorOnSecondary"
+                android:layout_gravity="center"
+                android:layout_marginTop="40dp"
+                android:layout_marginBottom="40dp"
+                android:visibility="visible"/>
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/action_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/Theme.Legends.DataDescribers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/take_action_colon"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginStart="10dp"/>
+
+                <RadioGroup
+                    android:id="@+id/actions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:orientation="horizontal"
+                    android:weightSum="3">
+
+                    <com.google.android.material.radiobutton.MaterialRadioButton
+                        android:id="@+id/send_warning"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/send_warning"
+                        android:checked="true"
+                        app:buttonTint="@color/appbar2"
+                        android:layout_weight="1"/>
+
+                    <com.google.android.material.radiobutton.MaterialRadioButton
+                        android:id="@+id/suspend"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/suspend"
+                        app:buttonTint="@color/appbar2"
+                        android:layout_weight="1"/>
+
+                    <com.google.android.material.radiobutton.MaterialRadioButton
+                        android:id="@+id/ban"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ban"
+                        app:buttonTint="@color/appbar2"
+                        android:layout_weight="1"/>
+
+                </RadioGroup>
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:id="@+id/duration_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/duration_colon"
+                        android:textColor="?attr/colorOnPrimary"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginStart="20dp"/>
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <EditText
+                            android:id="@+id/duration"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/enter_duration"
+                            android:layout_marginStart="20dp"
+                            android:layout_marginTop="5dp"
+                            android:inputType="number"
+                            android:maxLength="2"
+                            android:gravity="center"
+                            android:textAlignment="center"
+                            android:textAppearance="?android:attr/textAppearanceMedium"
+                            android:theme="@style/Theme.Legends.EditText"/>
+
+                        <RadioGroup
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginStart="10dp">
+
+                            <com.google.android.material.radiobutton.MaterialRadioButton
+                                android:id="@+id/days"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/days"
+                                android:checked="true"
+                                app:buttonTint="@color/appbar2"/>
+
+                            <com.google.android.material.radiobutton.MaterialRadioButton
+                                android:id="@+id/months"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/months"
+                                android:layout_marginStart="5dp"
+                                app:buttonTint="@color/appbar2"/>
+
+                        </RadioGroup>
+
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reasoning_required_colon"
+                    android:textColor="?attr/colorOnPrimary"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginStart="20dp"/>
+
+                <EditText
+                    android:id="@+id/action_reason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="20dp"
+                    android:layout_marginTop="5dp"
+                    android:hint="@string/enter_reasoning_for_action_taken"
+                    android:maxLines="5"
+                    android:gravity="top|start"
+                    android:inputType="textMultiLine"
+                    android:overScrollMode="always"
+                    android:scrollbarStyle="insideInset"
+                    android:scrollbars="vertical"
+                    android:scrollHorizontally="false"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:theme="@style/Theme.Legends.EditText"/>
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/take_action"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/take_action"
+                    android:textColor="?attr/colorOnSecondary"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="40dp"
+                    android:layout_marginBottom="40dp"/>
+
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
+</androidx.core.widget.NestedScrollView>

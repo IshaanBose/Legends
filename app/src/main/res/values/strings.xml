@@ -192,9 +192,29 @@
     <string name="time_colon">Time:</string>
     <string name="none">none</string>
     <string name="assigned_to_colon">Assigned To:</string>
-    <string name="reported_user_colon">Reported User:</string>
     <string name="reported_by_colon">Reported by:</string>
     <string name="no_reports">No reports</string>
+    <string name="long_dummy_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean ultricies nisi tellus, et rutrum purus pellentesque id. Nullam velit enim, efficitur vel purus non, aliquet ornare tellus. Nunc sit amet elit sagittis, tincidunt urna vitae, sodales magna. Fusce neque lectus, ullamcorper a semper sit amet, faucibus non ante. Mauris commodo lectus ante, at luctus nisl fermentum ac. Donec cursus eleifend ex sit amet tempus. Donec a velit in enim volutpat faucibus. Etiam euismod blandit nisl, vitae tincidunt magna mattis eget. Even more text to make it even longer woooooooooooooooooooooooooooooo.\nMore content\n\nMoooooooooore!</string>
+    <string name="reported_user_colon">Reported User:</string>
+    <string name="uid_colon">UID:</string>
+    <string name="username_colon">Username:</string>
+    <string name="time_reported_colon">Time Reported:</string>
+    <string name="additional_message_colon">Additional Message:</string>
+    <string name="group_info_colon">Group Info:</string>
+    <string name="group_id_colon">Group ID:</string>
+    <string name="group_name_colon">Group Name:</string>
+    <string name="assign_random_mod">Assign Random Mod</string>
+    <string name="take_action_colon">Take Action:</string>
+    <string name="send_warning">Send Warning</string>
+    <string name="suspend">Suspend</string>
+    <string name="ban">Ban</string>
+    <string name="reasoning_required_colon">Reasoning (Required):</string>
+    <string name="enter_reasoning_for_action_taken">Enter reasoning for action taken</string>
+    <string name="take_action">Take Action</string>
+    <string name="enter_duration">Enter Duration</string>
+    <string name="duration_colon">Duration:</string>
+    <string name="days">Days</string>
+    <string name="months">Months</string>
 
     <!--  Arrays  -->
     <string-array name="game_types">

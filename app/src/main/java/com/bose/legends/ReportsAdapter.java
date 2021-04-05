@@ -112,7 +112,7 @@ public class ReportsAdapter extends RecyclerView.Adapter<ReportsAdapter.ViewHold
             viewHolder.getAssignedContainer().setVisibility(View.GONE);
 
         Date date = report.getTime().toDate();
-        DateFormat format = SimpleDateFormat.getDateInstance(DateFormat.MEDIUM);
+        DateFormat format = SimpleDateFormat.getDateInstance(DateFormat.LONG);
 
         time.setText(format.format(date));
     }

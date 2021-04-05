@@ -1,5 +1,6 @@
 package com.bose.legends;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.firebase.Timestamp;
 
 import java.util.Objects;
@@ -7,6 +8,7 @@ import java.util.Objects;
 public class Report
 {
     private String assignedTo, groupID, message, reason, reportedBy, reportedUser, reportID;
+    @JsonIgnore
     private Timestamp time;
 
     public Report()
