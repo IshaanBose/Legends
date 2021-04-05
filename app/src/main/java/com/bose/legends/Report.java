@@ -2,9 +2,11 @@ package com.bose.legends;
 
 import com.google.firebase.Timestamp;
 
+import java.util.Objects;
+
 public class Report
 {
-    private String assignedTo, groupID, message, reason, reportedBy, reportedUser;
+    private String assignedTo, groupID, message, reason, reportedBy, reportedUser, reportID;
     private Timestamp time;
 
     public Report()
@@ -94,10 +96,41 @@ public class Report
         return time;
     }
 
+    public String getReportID()
+    {
+        return reportID;
+    }
+
+    public void setReportID(String reportID)
+    {
+        this.reportID = reportID;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o)
+            return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        Report report = (Report) o;
+
+        return Objects.equals(reportID, report.reportID);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(assignedTo, groupID, message, reason, reportedBy, reportedUser, reportID, time);
+    }
+
     @Override
     public String toString()
     {
         return "Report{" +
+                "reportID='" + reportID + '\'' +
                 "assignedTo='" + assignedTo + '\'' +
                 ", groupID='" + groupID + '\'' +
                 ", message='" + message + '\'' +

@@ -524,7 +524,7 @@ public class ChatActivity extends AppCompatActivity
         else
             profilePic.setImageBitmap(BitmapFactory.decodeFile(altFile.getAbsolutePath()));
 
-        if (!user.getUID().equals(creatorID))
+        if (!user.getUID().equals(mAuth.getUid()))
             new AlertDialog.Builder(this)
                     .setView(alertView)
                     .setNeutralButton("Report", new DialogInterface.OnClickListener()

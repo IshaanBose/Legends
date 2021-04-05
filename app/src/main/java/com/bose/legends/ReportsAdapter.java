@@ -8,6 +8,10 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 import org.jetbrains.annotations.NotNull;
 
+import java.text.DateFormat;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -23,14 +27,18 @@ public class ReportsAdapter extends RecyclerView.Adapter<ReportsAdapter.ViewHold
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
         private final TextView reportedUser, reportedBy, reason, time, assignedTo;
+        private final View assignedContainer;
 
         public ViewHolder(View view)
         {
             super(view);
 
+            // TextView
             reportedUser = view.findViewById(R.id.reported_user); reportedBy = view.findViewById(R.id.reported_by);
             reason = view.findViewById(R.id.reason); time = view.findViewById(R.id.time);
             assignedTo = view.findViewById(R.id.assigned_to);
+            // Layout
+            assignedContainer = view.findViewById(R.id.assigned_container);
         }
 
         public TextView getReportedUser()
@@ -56,6 +64,11 @@ public class ReportsAdapter extends RecyclerView.Adapter<ReportsAdapter.ViewHold
         public TextView getAssignedTo()
         {
             return assignedTo;
+        }
+
+        public View getAssignedContainer()
+        {
+            return assignedContainer;
         }
     }
 
@@ -94,13 +107,14 @@ public class ReportsAdapter extends RecyclerView.Adapter<ReportsAdapter.ViewHold
 
         reportedUser.setText(report.getReportedUser()); reportedBy.setText(report.getReportedBy());
         reason.setText(report.getReason()); assignedTo.setText(report.getAssignedTo());
-        time.setText(report.getTime().toString());
 
         if (myReports)
-            assignedTo.setVisibility(View.GONE);
+            viewHolder.getAssignedContainer().setVisibility(View.GONE);
 
-//        Date date = report.getTime().toDate();
-//        date.getYear();
+        Date date = report.getTime().toDate();
+        DateFormat format = SimpleDateFormat.getDateInstance(DateFormat.MEDIUM);
+
+        time.setText(format.format(date));
     }
 
     // Return the size of your dataset (invoked by the layout manager)

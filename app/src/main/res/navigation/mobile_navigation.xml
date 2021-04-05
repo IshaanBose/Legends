@@ -29,9 +29,9 @@
         android:label="@string/menu_dice_roller"
         tools:layout="@layout/fragment_dice_roller" />
 
-<!--    <fragment-->
-<!--        android:id="@+id/nav_report"-->
-<!--        android:name="com.bose.legends.ui.reports.ReportFragment"-->
-<!--        android:label="Reports"-->
-<!--        tools:layout="@layout/fragment_report"/>-->
+    <fragment
+        android:id="@+id/nav_report"
+        android:name="com.bose.legends.ui.reports.ReportFragment"
+        android:label="Reports"
+        tools:layout="@layout/fragment_report"/>
 </navigation>
