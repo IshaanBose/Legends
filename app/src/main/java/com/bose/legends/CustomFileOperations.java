@@ -3,6 +3,7 @@ package com.bose.legends;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 import java.io.BufferedReader;
@@ -46,22 +47,32 @@ public class CustomFileOperations
         }
     }
 
-    public static void createAppFolders()
+    public static void createAppFolders(Context context)
     {
-        String extPath = Environment.getExternalStorageDirectory().getAbsolutePath();
-        File mainFolder = new File(extPath, "Legends");
+        String extPath = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath();
+        Log.d("main folder", "pic: " + extPath);
+
+        File extDir = new File(extPath);
+        File mainFolder = new File(extDir, "Legends");
         File profilePics = new File(mainFolder, "Profile Pics");
         File tempFolder = new File(profilePics, ".temp");
 
         if (!mainFolder.exists())
-            if (mainFolder.mkdir())
+        {
+            if (mainFolder.mkdirs())
+            {
+                Log.d("main folder", "made");
                 if (profilePics.mkdir())
                     tempFolder.mkdir();
+            }
+            else
+                Log.d("main folder", "not made" + mainFolder.getAbsolutePath());
+        }
     }
 
-    public static String getProfilePicDir()
+    public static String getProfilePicDir(Context context)
     {
-        return Environment.getExternalStorageDirectory().getAbsolutePath() + "/Legends/Profile Pics";
+        return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getAbsolutePath() + "/Legends/Profile Pics";
     }
 
     public static boolean settingsExist(Activity activity, String UID)

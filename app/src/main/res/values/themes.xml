@@ -28,6 +28,10 @@
 
     <style name="Theme.Legends.PopupOverlay" parent="ThemeOverlay.AppCompat.DayNight" />
 
+    <style name="Theme.Legends.Toolbar.White" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorControlNormal">@color/white</item>
+    </style>
+
     <style name="Theme.Legends.EditText" parent="Theme.Legends">
         <item name="colorControlNormal">@color/edittext_underline</item>
         <item name="colorControlActivated">#E48800</item>

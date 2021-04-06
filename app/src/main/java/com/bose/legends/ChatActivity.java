@@ -506,8 +506,8 @@ public class ChatActivity extends AppCompatActivity
             mod.setVisibility(View.VISIBLE);
         }
 
-        File picFile = new File(CustomFileOperations.getProfilePicDir(), ".temp/" + user.getUID() + ".png");
-        File altFile = new File(CustomFileOperations.getProfilePicDir(), user.getUID() + ".png");
+        File picFile = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()), ".temp/" + user.getUID() + ".png");
+        File altFile = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()), user.getUID() + ".png");
         boolean getFromTemp = true;
 
         if (altFile.exists())

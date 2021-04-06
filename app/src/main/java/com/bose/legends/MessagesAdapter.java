@@ -161,8 +161,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
 
     private void setProfilePic(Message message, ImageView profilePic)
     {
-        File picFile = new File(CustomFileOperations.getProfilePicDir(), ".temp/" + message.getUID() + ".png");
-        File altFile = new File(CustomFileOperations.getProfilePicDir(), message.getUID() + ".png");
+        File picFile = new File(CustomFileOperations.getProfilePicDir(chatActivity.getApplicationContext()), ".temp/" + message.getUID() + ".png");
+        File altFile = new File(CustomFileOperations.getProfilePicDir(chatActivity.getApplicationContext()), message.getUID() + ".png");
         boolean getFromTemp = true;
 
         if (altFile.exists())

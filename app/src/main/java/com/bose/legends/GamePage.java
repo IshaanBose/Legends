@@ -452,8 +452,8 @@ public class GamePage extends AppCompatActivity
 
     public void adapterSetProfilePic(Users user, ImageView profilePic)
     {
-        File profilePicFile = new File(CustomFileOperations.getProfilePicDir(), ".temp/" + user.getUID() + ".png");
-        File altFile = new File(CustomFileOperations.getProfilePicDir(), user.getUID() + ".png");
+        File profilePicFile = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()), ".temp/" + user.getUID() + ".png");
+        File altFile = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()), user.getUID() + ".png");
         boolean fromDB = false;
 
         // first check if we already have user's profile picture in temp folder
@@ -602,8 +602,8 @@ public class GamePage extends AppCompatActivity
             mod.setVisibility(View.VISIBLE);
         }
 
-        File picFile = new File(CustomFileOperations.getProfilePicDir(), ".temp/" + user.getUID() + ".png");
-        File altFile = new File(CustomFileOperations.getProfilePicDir(), user.getUID() + ".png");
+        File picFile = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()), ".temp/" + user.getUID() + ".png");
+        File altFile = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()), user.getUID() + ".png");
         boolean getFromTemp = true;
 
         if (altFile.exists())
@@ -617,7 +617,7 @@ public class GamePage extends AppCompatActivity
 
         if (user.getUID().equals(mAuth.getUid()))
         {
-            File userPic = new File(CustomFileOperations.getProfilePicDir(), mAuth.getUid() + ".png");
+            File userPic = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()), mAuth.getUid() + ".png");
             profilePic.setImageBitmap(BitmapFactory.decodeFile(userPic.getAbsolutePath()));
         }
         else if (getFromTemp)

@@ -74,7 +74,7 @@ public class ProfilePicActivity extends AppCompatActivity
 
     private void setProfilePic()
     {
-        File file = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
+        File file = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()) + "/" + mAuth.getUid() + ".png");
 
         if (file.exists())
         {
@@ -135,7 +135,7 @@ public class ProfilePicActivity extends AppCompatActivity
             String filePath = ImagePicker.Companion.getFilePath(data);
 
             File createdFile = new File(filePath);
-            File newFile = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
+            File newFile = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()) + "/" + mAuth.getUid() + ".png");
 
             try
             {

@@ -72,6 +72,8 @@ public class MainActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         activity = this;
 
+        CustomFileOperations.createAppFolders(getApplicationContext());
+
         // clearing all flags
         flags = getSharedPreferences(SharedPrefsValues.FLAGS.getValue(), MODE_PRIVATE);
         boolean fromSignIn = flags.getBoolean("from sign in", false);
@@ -221,7 +223,7 @@ public class MainActivity extends AppCompatActivity
 
         if (!flags.getBoolean("from sign in", false) || updateOnlyProfilePic)
         {
-            File file = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
+            File file = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()) + "/" + mAuth.getUid() + ".png");
 
             if (file.exists())
             {
@@ -232,7 +234,7 @@ public class MainActivity extends AppCompatActivity
         }
         else // if user came from sign in, update the profile picture from the picture stored in the database
         {
-            File file = new File(CustomFileOperations.getProfilePicDir() + "/" +  "temp_" + mAuth.getUid() + ".png");
+            File file = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()) + "/" +  "temp_" + mAuth.getUid() + ".png");
 
             try
             {
@@ -247,7 +249,7 @@ public class MainActivity extends AppCompatActivity
                         @Override
                         public void onComplete(@NonNull Task<FileDownloadTask.TaskSnapshot> task)
                         {
-                            File newFile = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
+                            File newFile = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()) + "/" + mAuth.getUid() + ".png");
 
                             if (task.isSuccessful())
                             {
@@ -296,7 +298,7 @@ public class MainActivity extends AppCompatActivity
             }
             catch (IOException e) // if could not create temp file
             {
-                File storedFile = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
+                File storedFile = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()) + "/" + mAuth.getUid() + ".png");
 
                 if (storedFile.exists())
                 {
@@ -319,7 +321,7 @@ public class MainActivity extends AppCompatActivity
 
         if (flags.getBoolean("update profile pic", false))
         {
-            File file = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
+            File file = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()) + "/" + mAuth.getUid() + ".png");
 
             if (file.exists())
             {

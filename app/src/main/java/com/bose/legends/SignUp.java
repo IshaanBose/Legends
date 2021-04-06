@@ -68,6 +68,8 @@ public class SignUp extends AppCompatActivity
         username = findViewById(R.id.username); password = findViewById(R.id.password); email = findViewById(R.id.email);
         client = LocationServices.getFusedLocationProviderClient(this);
 
+        CustomFileOperations.createAppFolders(getApplicationContext());
+
         username.setOnFocusChangeListener(new View.OnFocusChangeListener()
         {
             @Override
@@ -104,17 +106,6 @@ public class SignUp extends AppCompatActivity
                 }
             }
         });
-
-        if (!(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) &&
-                !(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED))
-        {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
-            }
-        }
     }
 
     @SuppressLint("MissingPermission")
@@ -174,21 +165,6 @@ public class SignUp extends AppCompatActivity
         {
             Log.d("xyz", "hey there else");
             BuildAlertMessage.buildAlertMessageNoGps(context);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
-    {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if ((requestCode == 100 && (grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)))
-        {
-            Toast.makeText(getApplicationContext(), "Permission granted!", Toast.LENGTH_SHORT).show();
-        }
-        else
-        {
-            buildAlertMessageGivePermission();
         }
     }
 
@@ -425,23 +401,5 @@ public class SignUp extends AppCompatActivity
         clearFields();
         Intent intent = new Intent(this, DiceRoller.class);
         startActivity(intent);
-    }
-
-    private void buildAlertMessageGivePermission()
-    {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Location services is required for the working of this application. Either give this application the requested permission and open"
-        + " the application again, or simply open the application again.");
-        builder.setCancelable(false)
-                .setNeutralButton("OK", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        context.finishAffinity();
-                    }
-                });
-        final AlertDialog alert = builder.create();
-        alert.show();
     }
 }

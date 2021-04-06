@@ -158,44 +158,4 @@ public class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.ViewHold
             return 0;
         return localDataSet.size();
     }
-
-    private void setProfilePic(Users user, ImageView profilePic)
-    {
-        File picFile = new File(CustomFileOperations.getProfilePicDir(), ".temp/" + user.getUID() + ".png");
-        File altFile = new File(CustomFileOperations.getProfilePicDir(), user.getUID() + ".png");
-        boolean getFromTemp = true;
-
-        if (altFile.exists())
-        {
-            long lastModified = TimeUnit.MILLISECONDS.toDays(altFile.lastModified());
-            Calendar calendar = Calendar.getInstance();
-            long currentTime = TimeUnit.MILLISECONDS.toDays(calendar.getTimeInMillis());
-
-            getFromTemp = currentTime - lastModified >= 3;
-        }
-
-        if (getFromTemp)
-        {
-            Handler handler = new Handler();
-            handler.postDelayed(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    // if picture has been retrieved
-                    if (picFile.length() > 0)
-                    {
-                        if (gamePageInstance.isVisible())
-                            profilePic.setImageBitmap(BitmapFactory.decodeFile(picFile.getAbsolutePath()));
-                    }
-                    else
-                        handler.postDelayed(this, 500);
-                }
-            }, 500);
-        }
-        else
-        {
-            profilePic.setImageBitmap(BitmapFactory.decodeFile(altFile.getAbsolutePath()));
-        }
-    }
 }

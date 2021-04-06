@@ -256,7 +256,7 @@ public class ProfileFragment extends Fragment
 
     public void setProfilePic()
     {
-        File file = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
+        File file = new File(CustomFileOperations.getProfilePicDir(requireActivity().getApplicationContext()) + "/" + mAuth.getUid() + ".png");
 
         if (file.exists())
         {
@@ -716,7 +716,7 @@ public class ProfileFragment extends Fragment
             String filePath = ImagePicker.Companion.getFilePath(data);
 
             File createdFile = new File(filePath);
-            File newFile = new File(CustomFileOperations.getProfilePicDir() + "/" + mAuth.getUid() + ".png");
+            File newFile = new File(CustomFileOperations.getProfilePicDir(requireActivity().getApplicationContext()) + "/" + mAuth.getUid() + ".png");
 
             try
             {

@@ -30,8 +30,8 @@ public class PicAlarmReceiver extends BroadcastReceiver
         String mAuth = intent.getStringExtra("mAuth");
         PendingIntent pi = PendingIntent.getBroadcast(context, MainActivity.piRequestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        File profilePic = new File(CustomFileOperations.getProfilePicDir(), mAuth + ".png");
-        File tempFile = new File(CustomFileOperations.getProfilePicDir(), "temp_" + mAuth + ".png");
+        File profilePic = new File(CustomFileOperations.getProfilePicDir(context.getApplicationContext()), mAuth + ".png");
+        File tempFile = new File(CustomFileOperations.getProfilePicDir(context.getApplicationContext()), "temp_" + mAuth + ".png");
         FirebaseStorage storage = FirebaseStorage.getInstance();
 
         try

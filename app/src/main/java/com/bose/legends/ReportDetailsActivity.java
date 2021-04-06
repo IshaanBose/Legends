@@ -317,8 +317,8 @@ public class ReportDetailsActivity extends AppCompatActivity
 
     private void getProfilePic(ImageView profilePic, String UID)
     {
-        File picFile = new File(CustomFileOperations.getProfilePicDir(), ".temp/" + UID + ".png");
-        File altFile = new File(CustomFileOperations.getProfilePicDir(), UID + ".png");
+        File picFile = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()), ".temp/" + UID + ".png");
+        File altFile = new File(CustomFileOperations.getProfilePicDir(getApplicationContext()), UID + ".png");
         boolean getFromTemp = true;
 
         if (altFile.exists())

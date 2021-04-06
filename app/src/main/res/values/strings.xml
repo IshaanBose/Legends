@@ -215,6 +215,7 @@
     <string name="duration_colon">Duration:</string>
     <string name="days">Days</string>
     <string name="months">Months</string>
+    <string name="launching">Launching...</string>
 
     <!--  Arrays  -->
     <string-array name="game_types">
