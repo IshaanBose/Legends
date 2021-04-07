@@ -63,6 +63,7 @@ public class ChatActivity extends AppCompatActivity
     private FloatingActionButton sendMessage;
     private FirebaseAuth mAuth;
     private HashMap<String, String> userColors;
+    private String reportedPlayer;
     private byte pageCode;
     private boolean visible;
 
@@ -90,6 +91,12 @@ public class ChatActivity extends AppCompatActivity
         mAuth = FirebaseAuth.getInstance();
         userDetails = getSharedPreferences(SharedPrefsValues.USER_DETAILS.getValue(), MODE_PRIVATE);
         pageCode = extras.getByte("page code");
+
+        if (pageCode == ReportDetailsActivity.REPORT)
+            reportedPlayer = extras.getString("reported player");
+        else
+            reportedPlayer = null;
+
         lastMessage = "NONE";
         userColors = new HashMap<>();
 
@@ -104,22 +111,30 @@ public class ChatActivity extends AppCompatActivity
         // FAB
         sendMessage = findViewById(R.id.send_message);
 
-        sendMessage.setOnClickListener(new View.OnClickListener()
+        if (pageCode == ReportDetailsActivity.REPORT)
         {
-            @Override
-            public void onClick(View v)
+            sendMessage.setEnabled(false);
+            message.setEnabled(false);
+        }
+        else
+        {
+            sendMessage.setOnClickListener(new View.OnClickListener()
             {
-                String messageText = message.getText().toString();
-
-                if (messageText.trim().length() != 0)
+                @Override
+                public void onClick(View v)
                 {
-                    sendMessage.setClickable(false);
-                    sendMessage.setFocusable(false);
+                    String messageText = message.getText().toString();
 
-                    sendMessage(message.getText().toString());
+                    if (messageText.trim().length() != 0)
+                    {
+                        sendMessage.setClickable(false);
+                        sendMessage.setFocusable(false);
+
+                        sendMessage(message.getText().toString());
+                    }
                 }
-            }
-        });
+            });
+        }
 
         // initial settings
         messagesList.setVisibility(View.GONE);
@@ -134,7 +149,7 @@ public class ChatActivity extends AppCompatActivity
     {
         Users creator = new Users();
 
-        if (pageCode == CustomFileOperations.JOINED_GAMES)
+        if (pageCode == CustomFileOperations.JOINED_GAMES || pageCode == ReportDetailsActivity.REPORT)
         {
             creatorID = extras.getString("created by id");
             creator.setUID(creatorID);
@@ -416,7 +431,7 @@ public class ChatActivity extends AppCompatActivity
 
     private void configMessagesList()
     {
-        mAdapter = new MessagesAdapter(messages, this);
+        mAdapter = new MessagesAdapter(messages, this, reportedPlayer);
         messagesList.setAdapter(mAdapter);
 
         LinearLayoutManager manager = new LinearLayoutManager(this);

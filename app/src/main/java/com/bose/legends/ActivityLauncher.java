@@ -54,6 +54,10 @@ public class ActivityLauncher extends Activity
             permissionCodes = new LinkedList<>();
             getPermissionsRequired();
         }
+        else
+        {
+            allPermissionsRequested();
+        }
     }
     
     private void getPermissionsRequired()

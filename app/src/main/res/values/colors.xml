@@ -23,7 +23,7 @@
     <color name="red_dim">#97FF0000</color>
     <color name="clickable_text">#E8A600</color>
     <color name="message_background">#2DC8C8C8</color>
-    <color name="creator_message_background">#2D78AC69</color>
+    <color name="highlighted_message_background">#51FFCA00</color>
     <color name="green">#00CD03</color>
 
     <!--  Dice Roller Backgrounds  -->

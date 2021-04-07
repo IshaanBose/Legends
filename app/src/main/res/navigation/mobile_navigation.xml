@@ -34,4 +34,10 @@
         android:name="com.bose.legends.ui.reports.ReportFragment"
         android:label="Reports"
         tools:layout="@layout/fragment_report"/>
+
+    <fragment
+        android:id="@+id/nav_report_history"
+        android:name="com.bose.legends.ui.report_history.ReportHistoryFragment"
+        android:label="Report History"
+        tools:layout="@layout/fragment_report_history"/>
 </navigation>

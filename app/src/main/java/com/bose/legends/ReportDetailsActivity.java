@@ -1,6 +1,7 @@
 package com.bose.legends;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +38,9 @@ import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -46,15 +51,16 @@ public class ReportDetailsActivity extends AppCompatActivity
     private TextView reportedID, reportedUsername, reportedByID, reportedByUsername,
             assignedID, assignedUsername, reason, time, message, groupID, groupName;
     private ImageView reportedPic, reportedByPic, assignedPic;
-    private RadioGroup actions;
+    private RadioGroup actions, suspendDuration;
     private EditText actionReason, duration;
     private View actionContainer, assignedContainer, loadingIcon, activityContainer, durationContainer;
-    private Button assignRandom, takeAction;
+    private Button assignRandom;
     private Users reported, reportedBy, assigned;
     private byte activityCode, dataGotten;
     private boolean visible;
     private Report report;
-    private CollectionReference usersRef;
+    private CollectionReference usersRef, reportActionsRef;
+    public static final byte REPORT = 100;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
@@ -79,7 +85,7 @@ public class ReportDetailsActivity extends AppCompatActivity
         reportedPic = findViewById(R.id.reported_pic); reportedByPic = findViewById(R.id.reported_by_pic);
         assignedPic = findViewById(R.id.assigned_pic);
         // RadioGroup
-        actions = findViewById(R.id.actions);
+        actions = findViewById(R.id.actions); suspendDuration = findViewById(R.id.suspend_duration);
         // EditText
         actionReason = findViewById(R.id.action_reason); duration = findViewById(R.id.duration);
         // Layouts
@@ -88,17 +94,18 @@ public class ReportDetailsActivity extends AppCompatActivity
         // ProgressBar
         loadingIcon = findViewById(R.id.loading_icon);
         // Button
-        assignRandom = findViewById(R.id.assign_random); takeAction = findViewById(R.id.take_action);
+        assignRandom = findViewById(R.id.assign_random);
+        Button takeAction = findViewById(R.id.take_action), goToChat = findViewById(R.id.group_chat);
 
         Bundle extras = getIntent().getExtras();
 
         activityCode = extras.getByte("activity code");
-        String reportJSON = extras.getString("report json"), timeString = extras.getString("time");
+        String reportJSON = extras.getString("report json");
         report = LegendsJSONParser.convertJSONToReport(reportJSON);
+        report.setTime(extras.getParcelable("time"));
         dataGotten = 0;
-
-
         usersRef = FirebaseFirestore.getInstance().collection("users");
+        reportActionsRef = FirebaseFirestore.getInstance().collection("report_actions");
 
         // EditText Config
         actionReason.setOnTouchListener(new View.OnTouchListener() {
@@ -150,10 +157,19 @@ public class ReportDetailsActivity extends AppCompatActivity
             }
         });
 
-        setPageDetails(timeString);
+        goToChat.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                goToGroupChat();
+            }
+        });
+
+        setPageDetails();
     }
 
-    private void setPageDetails(String timeString)
+    private void setPageDetails()
     {
         if (activityCode == ReportFragment.ASSIGN_REP)
         {
@@ -172,8 +188,11 @@ public class ReportDetailsActivity extends AppCompatActivity
         getReportedUserData();
         getReportedByUserData();
 
+        Date date = report.getTime().toDate();
+        DateFormat format = SimpleDateFormat.getDateInstance(DateFormat.LONG);
+
         reason.setText(report.getReason());
-        time.setText(timeString);
+        time.setText(format.format(date));
         message.setText(report.getMessage().length() == 0 ? "(Not provided)" : report.getMessage());
         groupID.setText(report.getGroupID());
 
@@ -432,25 +451,156 @@ public class ReportDetailsActivity extends AppCompatActivity
         });
     }
 
-    private void takeAction()
+    private boolean validActionDetails()
     {
-        boolean error = false;
+        boolean valid = true;
 
         if (durationContainer.getVisibility() == View.VISIBLE)
+        {
             if (duration.getText().length() == 0)
             {
-                error = true;
+                valid = false;
                 duration.setError("Can't be empty.");
             }
+            else
+            {
+                if (duration.getText().toString().equals("0") || duration.getText().toString().equals("00"))
+                {
+                    valid = false;
+                    duration.setError("Value cannot be 0.");
+                }
+            }
+        }
 
         if (actionReason.getText().length() == 0)
         {
-            error = true;
+            valid = false;
             actionReason.setError("Can't be empty.");
         }
 
-        if (!error)
-            Toast.makeText(this, "Action taken!", Toast.LENGTH_LONG).show();
+        return valid;
+    }
+
+    private void takeAction()
+    {
+        if (validActionDetails())
+        {
+            final AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(this, true);
+            String actionTaken = ((RadioButton) findViewById(actions.getCheckedRadioButtonId())).getText().toString();
+            int durationValue;
+            String durationString = "N/A";
+
+            if (durationContainer.getVisibility() == View.VISIBLE)
+            {
+                durationValue = Integer.parseInt(duration.getText().toString());
+                durationString = durationValue + " " + ((RadioButton) findViewById(suspendDuration.getCheckedRadioButtonId())).getText().toString();
+            }
+
+            String actionReasoning = actionReason.getText().toString();
+
+            ReportAction reportAction = new ReportAction(report, actionTaken, actionReasoning, durationString);
+            Log.d("report", reportAction.toString());
+
+            reportActionsRef.document().set(reportAction)
+                    .addOnCompleteListener(new OnCompleteListener<Void>()
+                    {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task)
+                        {
+                            if (task.isSuccessful())
+                            {
+                                FirebaseFirestore.getInstance().collection("reports")
+                                        .document(report.getReportID())
+                                        .delete()
+                                        .addOnCompleteListener(new OnCompleteListener<Void>()
+                                        {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task)
+                                            {
+                                                if (task.isSuccessful())
+                                                    Toast.makeText(getApplicationContext(), "Action taken!", Toast.LENGTH_SHORT).show();
+                                                else
+                                                    Toast.makeText(getApplicationContext(), "Action taken, but could not remove report.!", Toast.LENGTH_SHORT).show();
+
+                                                loading.dismiss();
+                                                finish();
+                                            }
+                                        });
+                            }
+                            else
+                            {
+                                loading.dismiss();
+                                Toast.makeText(getApplicationContext(), "Could not take action, try again.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
+    }
+
+    private void goToGroupChat()
+    {
+        final AlertDialog loading = BuildAlertMessage.buildAlertIndeterminateProgress(this, true);
+        Intent intent = new Intent(this, ChatActivity.class);
+        String groupID = this.groupID.getText().toString();
+        String groupName = this.groupName.getText().toString();
+
+        List<Users> players = new ArrayList<>();
+        FirebaseFirestore.getInstance().collection("games")
+                .document(groupID)
+                .get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
+        {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task)
+            {
+                if (task.isSuccessful())
+                {
+                    DocumentSnapshot snap = task.getResult();
+
+                    intent.putExtra("docID", groupID);
+                    intent.putExtra("doc name", groupName);
+                    intent.putExtra("created by id", snap.getString("created_by_id"));
+                    intent.putExtra("created by", snap.getString("created_by"));
+                    intent.putExtra("page code", REPORT);
+                    intent.putExtra("reported player", reportedID.getText().toString());
+                    int playerCount = snap.getLong("player_count").intValue();
+
+                    List<String> playerIDs = (List<String>) snap.get("players");
+
+                    if (playerIDs != null && playerIDs.size() != 0)
+                    {
+                        for (String playerID : playerIDs)
+                        {
+                            Users player = new Users();
+                            player.setUID(playerID);
+
+                            usersRef.document(playerID).get()
+                                    .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>()
+                                    {
+                                        @Override
+                                        public void onComplete(@NonNull Task<DocumentSnapshot> task)
+                                        {
+                                            if (task.isSuccessful())
+                                                player.setUsername(task.getResult().getString("username"));
+                                            else
+                                                player.setUsername("N/A");
+
+                                            players.add(player);
+
+                                            if (players.size() == playerCount)
+                                            {
+                                                String playersJson = LegendsJSONParser.convertToJSONJacksonAPI(players);
+                                                intent.putExtra("players json", playersJson);
+
+                                                loading.dismiss();
+                                                startActivity(intent);
+                                            }
+                                        }
+                                    });
+                        }
+                    }
+                }
+            }
+        });
     }
 
     public boolean isVisible()

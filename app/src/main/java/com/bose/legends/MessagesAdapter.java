@@ -1,5 +1,6 @@
 package com.bose.legends;
 
+import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Handler;
@@ -22,6 +23,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
 
     private final List<Message> localDataSet;
     private final ChatActivity chatActivity;
+    private final String reportedPlayer;
 
     /**
      * Provide a reference to the type of views that you are using
@@ -31,6 +33,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
     {
         private final ImageView profilePic;
         private final TextView UID, username, message, timestamp, gmFlair, modFlair;
+        private final View container;
 
         public ViewHolder(View view)
         {
@@ -42,6 +45,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
             UID = view.findViewById(R.id.uid); username = view.findViewById(R.id.username);
             message = view.findViewById(R.id.message); timestamp = view.findViewById(R.id.timestamp);
             gmFlair = view.findViewById(R.id.gm_flair); modFlair = view.findViewById(R.id.mod_flair);
+            // Layout
+            container = view.findViewById(R.id.container);
         }
 
         public TextView getUID()
@@ -78,6 +83,11 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
         {
             return modFlair;
         }
+
+        public View getContainer()
+        {
+            return container;
+        }
     }
 
     /**
@@ -86,10 +96,11 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
      * @param dataSet String[] containing the data to populate views to be used
      *                by RecyclerView.
      */
-    public MessagesAdapter(List<Message> dataSet, ChatActivity chatActivity)
+    public MessagesAdapter(List<Message> dataSet, ChatActivity chatActivity, String reportedPlayer)
     {
         localDataSet = dataSet;
         this.chatActivity = chatActivity;
+        this.reportedPlayer = reportedPlayer;
     }
 
     // Create new views (invoked by the layout manager)
@@ -128,6 +139,14 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.ViewHo
 
         if (flairs.contains("MOD"))
             viewHolder.getModFlair().setVisibility(View.VISIBLE);
+
+        if (reportedPlayer != null)
+        {
+            if (message.getUID().equals(reportedPlayer))
+            {
+                viewHolder.getContainer().setBackgroundColor(ContextCompat.getColor(chatActivity, R.color.highlighted_message_background));
+            }
+        }
 
         setProfilePic(message, viewHolder.getProfilePic());
 

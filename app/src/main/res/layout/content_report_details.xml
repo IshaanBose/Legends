@@ -404,6 +404,16 @@
                 android:orientation="vertical"
                 android:visibility="gone">
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/group_chat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/go_to_group_chat"
+                    android:textColor="?attr/colorOnSecondary"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"/>
+
                 <TextView
                     style="@style/Theme.Legends.DataDescribers"
                     android:layout_width="wrap_content"
@@ -483,6 +493,7 @@
                             android:theme="@style/Theme.Legends.EditText"/>
 
                         <RadioGroup
+                            android:id="@+id/suspend_duration"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"

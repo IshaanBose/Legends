@@ -3,6 +3,9 @@ package com.bose.legends;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.firebase.Timestamp;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
 
 public class Report
@@ -12,10 +15,7 @@ public class Report
     private Timestamp time;
 
     public Report()
-    {
-        this.time = Timestamp.now();
-        this.assignedTo = "none";
-    }
+    {}
 
     public Report(String groupID, String message, String reason, String reportedBy, String reportedUser)
     {
@@ -26,6 +26,18 @@ public class Report
         this.reportedBy = reportedBy;
         this.reportedUser = reportedUser;
         this.time = Timestamp.now();
+    }
+
+    public Report(Report report)
+    {
+        this.assignedTo = report.getAssignedTo();
+        this.groupID = report.getGroupID();
+        this.message = report.getMessage();
+        this.reason = report.getReason();
+        this.reportedBy = report.getReportedBy();
+        this.reportedUser = report.getReportedUser();
+        this.reportID = report.getReportID();
+        this.time = report.getTime();
     }
 
     public String getAssignedTo()
@@ -88,9 +100,9 @@ public class Report
         this.reportedUser = reportedUser;
     }
 
-    public void setTime(Timestamp time)
+    public void setTime(Timestamp actionTime)
     {
-        this.time = time;
+        this.time = actionTime;
     }
 
     public Timestamp getTime()
@@ -131,6 +143,9 @@ public class Report
     @Override
     public String toString()
     {
+        Date date = time.toDate();
+        DateFormat format = SimpleDateFormat.getDateInstance(DateFormat.LONG);
+
         return "Report{" +
                 "reportID='" + reportID + '\'' +
                 "assignedTo='" + assignedTo + '\'' +
@@ -139,7 +154,7 @@ public class Report
                 ", reason='" + reason + '\'' +
                 ", reportedBy='" + reportedBy + '\'' +
                 ", reportedUser='" + reportedUser + '\'' +
-                ", time=" + time +
+                ", time='" + format.format(date) + '\'' +
                 '}';
     }
 }

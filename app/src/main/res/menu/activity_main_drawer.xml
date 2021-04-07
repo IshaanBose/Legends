@@ -33,6 +33,11 @@
                     android:id="@+id/nav_report"
                     android:title="@string/reports"
                     android:icon="@drawable/ic_flag"/>
+
+                <item
+                    android:id="@+id/nav_report_history"
+                    android:title="@string/report_history"
+                    android:icon="@drawable/ic_history"/>
             </group>
         </menu>
 

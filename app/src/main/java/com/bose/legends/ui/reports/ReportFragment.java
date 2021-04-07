@@ -32,7 +32,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.DateFormat;
@@ -235,7 +234,7 @@ public class ReportFragment extends Fragment
 
         intent.putExtra("report json", json);
         intent.putExtra("activity code", activityCode);
-        intent.putExtra("time", time);
+        intent.putExtra("time", report.getTime());
 
         startActivity(intent);
     }

@@ -205,7 +205,7 @@
     <string name="group_name_colon">Group Name:</string>
     <string name="assign_random_mod">Assign Random Mod</string>
     <string name="take_action_colon">Take Action:</string>
-    <string name="send_warning">Send Warning</string>
+    <string name="send_warning">Warning</string>
     <string name="suspend">Suspend</string>
     <string name="ban">Ban</string>
     <string name="reasoning_required_colon">Reasoning (Required):</string>
@@ -215,7 +215,15 @@
     <string name="duration_colon">Duration:</string>
     <string name="days">Days</string>
     <string name="months">Months</string>
-    <string name="launching">Launching...</string>
+    <string name="launching">Launching…</string>
+    <string name="go_to_group_chat">Go to group chat</string>
+    <string name="years">Years</string>
+    <string name="report_history">Report History</string>
+    <string name="action_taken">Action Taken:</string>
+    <string name="action_reasoning">Action Reasoning:</string>
+    <string name="duration">Duration:</string>
+    <string name="action_taken_on">Action taken on</string>
+    <string name="no_history_available">No History Available</string>
 
     <!--  Arrays  -->
     <string-array name="game_types">
