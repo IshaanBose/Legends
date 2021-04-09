@@ -134,4 +134,12 @@ public class ReportHistoryFragment extends Fragment
                 DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL);
         recHistory.addItemDecoration(itemDecoration);
     }
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+
+        reportListener.remove();
+    }
 }
