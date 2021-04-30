@@ -25,7 +25,7 @@
     <string name="enter_password">Enter Password</string>
     <string name="enter_email">Enter Email</string>
     <string name="sign_in">Sign In</string>
-    <string name="api_key">AIzaSyDCchSvdKfLPE-gRgpMYG41J0h-UW5WVSQ</string>
+    <string name="api_key">KEY</string>
     <string name="loading">Loading…</string>
     <string name="menu_profile">Profile</string>
     <string name="sign_out">Sign Out</string>
