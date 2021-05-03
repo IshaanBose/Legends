@@ -7,3 +7,5 @@ Legends is a TTRPG group-finder app. The purpose of Legends is to provide an eas
 * Easy to find groups: easily find groups to play TTRPGs with using various filters to find groups according to your preferences.
 * In-app chat: an in-app chat feature so you can keep all group discussions within the app.
 * Dice roller: a dice roller with various functions to make your game playing experience smoother.
+
+Install the app from [here.] {https://github.com/IshaanBose/Legends/tree/master/app/build/outputs/apk/debug}
